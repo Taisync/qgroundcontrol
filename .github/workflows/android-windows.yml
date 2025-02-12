@@ -14,6 +14,7 @@ on:
       - 'src/**'
       - 'android/**'
       - 'CMakeLists.txt'
+      - 'cmake/**'
 
 # concurrency:
 #   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +35,7 @@ jobs:
     env:
       ARTIFACT: QGroundControl.apk
       PACKAGE: QGroundControl
-      QT_VERSION: 6.8.1
+      QT_VERSION: 6.8.2
       GST_VERSION: 1.22.12
       QT_ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/deploy/android/android_release.keystore
       QT_ANDROID_KEYSTORE_ALIAS: QGCAndroidKeyStore
