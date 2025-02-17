@@ -8,6 +8,13 @@ if(QGC_GST_STATIC_BUILD)
     list(APPEND PKG_CONFIG_ARGN "--static")
 endif()
 
+# Detect Linux Distribution
+execute_process(
+    COMMAND bash -c "source /etc/os-release && echo $ID"
+    OUTPUT_VARIABLE DISTRO_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 ################################################################################
 
 # NOTE: CMP0144 in regards to GSTREAMER_ROOT
@@ -45,14 +52,23 @@ elseif(MACOS)
     set(ENV{PKG_CONFIG_PATH} "${GSTREAMER_LIB_PATH}/pkgconfig:${GSTREAMER_PLUGIN_PATH}/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 elseif(LINUX)
     set(GSTREAMER_PREFIX "/usr")
-    if(EXISTS "${GSTREAMER_PREFIX}/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu")
-        set(GSTREAMER_LIB_PATH "${GSTREAMER_PREFIX}/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu")
-    else()
-        set(GSTREAMER_LIB_PATH "${GSTREAMER_PREFIX}/lib")
-    endif()
-    set(GSTREAMER_PLUGIN_PATH "${GSTREAMER_LIB_PATH}/gstreamer-1.0")
-    set(GSTREAMER_INCLUDE_PATH "${GSTREAMER_PREFIX}/include")
+set(GSTREAMER_PREFIX "/usr")
+
+if(EXISTS "${GSTREAMER_PREFIX}/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu")
+    set(GSTREAMER_LIB_PATH "${GSTREAMER_PREFIX}/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu")
+else()
+    set(GSTREAMER_LIB_PATH "${GSTREAMER_PREFIX}/lib")
+endif()
+
+set(GSTREAMER_PLUGIN_PATH "${GSTREAMER_LIB_PATH}/gstreamer-1.0")
+set(GSTREAMER_INCLUDE_PATH "${GSTREAMER_PREFIX}/include")
+
+if(DISTRO_ID STREQUAL "arch")
+    set(ENV{PKG_CONFIG_PATH} "${GSTREAMER_PREFIX}/lib/pkgconfig:${GSTREAMER_PLUGIN_PATH}/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+else()
     set(ENV{PKG_CONFIG_PATH} "${GSTREAMER_LIB_PATH}/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+endif()
+
 elseif(IOS)
     list(APPEND CMAKE_FRAMEWORK_PATH "~/Library/Developer/GStreamer/iPhone.sdk")
     set(GSTREAMER_FRAMEWORK_PATH "~/Library/Developer/GStreamer/iPhone.sdk/GStreamer.framework")
@@ -109,8 +125,23 @@ elseif(ANDROID)
     )
 endif()
 
+if(LINUX)
+    if(DISTRO_ID STREQUAL "arch")
+        set(GSTREAMER_LIB_PATH ${GSTREAMER_PREFIX}/lib)
+    else()
+        set(GSTREAMER_LIB_PATH ${GSTREAMER_PREFIX}/lib/x86_64-linux-gnu)
+    endif()
+elseif(MACOS OR ANDROID OR WIN32)
+    set(GSTREAMER_LIB_PATH ${GSTREAMER_PREFIX}/lib)
+elseif(IOS)
+
+endif()
+set(GSTREAMER_PLUGIN_PATH ${GSTREAMER_LIB_PATH}/gstreamer-1.0)
+cmake_print_variables(GSTREAMER_LIB_PATH)
+
 list(PREPEND CMAKE_PREFIX_PATH ${GSTREAMER_PREFIX})
 cmake_print_variables(GSTREAMER_PREFIX GSTREAMER_LIB_PATH GSTREAMER_PLUGIN_PATH)
+
 
 ################################################################################
 
