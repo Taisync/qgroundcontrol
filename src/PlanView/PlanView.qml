@@ -401,6 +401,12 @@ Item {
                 opacity:            _editingLayer == _layerMission ? 1 : editorMap._nonInteractiveOpacity
             }
 
+            MissionDistanceView {
+                mapControl:         editorMap
+                model:              _missionController.simpleFlightPathSegments
+                opacity:            _editingLayer == _layerMission ? 1 : editorMap._nonInteractiveOpacity
+            }
+
             // Direction arrows in waypoint lines
             MapItemView {
                 model: _editingLayer == _layerMission ? _missionController.directionArrows : undefined

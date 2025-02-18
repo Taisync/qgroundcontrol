@@ -35,7 +35,7 @@
 #ifdef QGC_RTLAB_ENABLED
 #include "OpalLink.h"
 #endif
-
+#include "taisyncromotehandler.h"
 // Work around circular header includes
 class QQmlApplicationEngine;
 class QGCSingleton;
@@ -241,6 +241,7 @@ private:
 
     /// Unit Test have access to creating and destroying singletons
     friend class UnitTest;
+    TaisyncRomoteHandler* _taisyncRemoteHandler;
 };
 
 /// @brief Returns the QGCApplication object singleton.

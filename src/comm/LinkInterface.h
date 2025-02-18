@@ -108,6 +108,7 @@ private:
     bool    _decodedFirstMavlinkPacket  = false;
     bool    _isPX4Flow                  = false;
     int     _vehicleReferenceCount      = 0;
+    // mutable QMutex _writeBytesMutex;
 
     QMap<int /* vehicle id */, MavlinkMessagesTimer*> _mavlinkMessagesTimers;
 };

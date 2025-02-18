@@ -43,13 +43,17 @@
 #include <qmdnsengine/server.h>
 #include <qmdnsengine/service.h>
 
+#ifdef __android__
+#include "AndroidInterface.h"
+#endif
+
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
 
 const char* LinkManager::_defaultUDPLinkName =                  "UDP Link (AutoConnect)";
 const char* LinkManager::_mavlinkForwardingLinkName =           "MAVLink Forwarding Link";
 const char* LinkManager::_mavlinkForwardingSupportLinkName =    "MAVLink Support Forwarding Link";
-
+const char* LinkManager::_defaultTTYSLinkName =                 "TTYS Link(AutoConnect)";
 const int LinkManager::_autoconnectUpdateTimerMSecs =   1000;
 #ifdef Q_OS_WIN
 // Have to manually let the bootloader go by on Windows to get a working connect
@@ -119,6 +123,11 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
         break;
 #else
     Q_UNUSED(isPX4Flow)
+#endif
+#ifdef ANDROID
+    case LinkConfiguration::TypeTtys:
+        link = std::make_shared<TTYSLink>(config);
+        break;
 #endif
     case LinkConfiguration::TypeUdp:
         link = std::make_shared<UDPLink>(config);
@@ -317,6 +326,11 @@ void LinkManager::loadLinkConfigurationList()
                                 link = new SerialConfiguration(name);
                                 break;
 #endif
+#ifdef ANDROID
+                            case LinkConfiguration::TypeTtys:
+                                link = new TtysConfiguration(name);
+                                break;
+#endif
                             case LinkConfiguration::TypeUdp:
                                 link = new UDPConfiguration(name);
                                 break;
@@ -424,6 +438,16 @@ void LinkManager::_addMAVLinkForwardingLink(void)
         if (!foundMAVLinkForwardingLink) {
             QString hostName = _toolbox->settingsManager()->appSettings()->forwardMavlinkHostName()->rawValue().toString();
             _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+
+#ifdef __android__
+            auto forwardLink = mavlinkForwardingLink();
+            if (forwardLink) {
+                auto config = qobject_cast<UDPConfiguration*>(forwardLink->linkConfiguration().get());
+                int port = config->localPort();
+                AndroidInterface::broadcast("TaisyncZeroConf", "_mavlink._udp", port);
+            }
+#endif
+
         }
     }
 }
@@ -470,6 +494,12 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
                 qCDebug(LinkManagerVerboseLog) << "Connection already exist";
                 return;
             }
+#ifdef __android__
+            // ignore zero-conf broadcast from self in Android
+            if (QString(service.name()).endsWith(AndroidInterface::uuid())) {
+                return;
+            }
+#endif
 
             auto link = new UDPConfiguration(udpName);
             link->addHost(hostname, service.port());
@@ -508,7 +538,7 @@ void LinkManager::_updateAutoConnectLinks(void)
     _addUDPAutoConnectLink();
     _addMAVLinkForwardingLink();
     _addZeroConfAutoConnectLink();
-
+    _addTTYSLinkAutoConnect();
 #ifndef __mobile__
 #ifndef NO_SERIAL_LINK
     // check to see if nmea gps is configured for UDP input, if so, set it up to connect
@@ -689,6 +719,9 @@ QStringList LinkManager::linkTypeStrings(void) const
     {
 #ifndef NO_SERIAL_LINK
         list += tr("Serial");
+#endif
+#ifdef  ANDROID
+        list += tr("TTYS");
 #endif
         list += tr("UDP");
         list += tr("TCP");
@@ -932,4 +965,34 @@ void LinkManager::_createDynamicForwardLink(const char* linkName, QString hostNa
     createConnectedLink(config);
 
     qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding port added: " << linkName << " hostname: " << hostName;
+}
+
+void   LinkManager::_addTTYSLinkAutoConnect     (void)
+{
+#ifdef __android__
+    static bool initAutoSta = false;
+    if(!initAutoSta)
+    {
+        initAutoSta = true;
+        bool foundTTYSLink = false;
+        for (int i=0; i<_rgLinks.count(); i++) {
+            SharedLinkConfigurationPtr linkConfig = _rgLinks[i]->linkConfiguration();
+            if (linkConfig->type() == LinkConfiguration::TypeTtys && linkConfig->name() == _defaultTTYSLinkName) {
+                foundTTYSLink = true;
+                // TODO: should we check if the host/port matches the mavlinkForwardHostName setting and update if it does not match?
+                break;
+            }
+        }
+        if(!foundTTYSLink)
+        {
+            qCDebug(LinkManagerLog) << "New auto-connect TTYS LINK  added";
+            //-- Default UDPConfiguration is set up for autoconnect
+            TtysConfiguration* ttysConfig = new TtysConfiguration(_defaultTTYSLinkName);
+            ttysConfig->setDevFile("/dev/ttyHS0");
+            ttysConfig->setBaudRate(QString::number(115200));
+            SharedLinkConfigurationPtr config = addConfiguration(ttysConfig);
+            createConnectedLink(config);
+        }
+    }
+#endif
 }

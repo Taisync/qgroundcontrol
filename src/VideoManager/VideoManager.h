@@ -176,6 +176,8 @@ protected:
     QString                 _uvcVideoSourceID;
     bool                    _fullScreen             = false;
     Vehicle*                _activeVehicle          = nullptr;
+    QString                 _forwardHost;
+    bool                    _forwardVideo;
 };
 
 #endif

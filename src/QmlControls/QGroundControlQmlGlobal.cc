@@ -20,6 +20,17 @@ const char* QGroundControlQmlGlobal::_flightMapPositionSettingsGroup =          
 const char* QGroundControlQmlGlobal::_flightMapPositionLatitudeSettingsKey =    "Latitude";
 const char* QGroundControlQmlGlobal::_flightMapPositionLongitudeSettingsKey =   "Longitude";
 const char* QGroundControlQmlGlobal::_flightMapZoomSettingsKey =                "FlightMapZoom";
+//QGC Soft Version
+#ifdef CUSTOMIZATION
+const char *QGroundControlQmlGlobal::_QGCVersion = "QGC-v4.4.0_241120"
+#else
+const char *QGroundControlQmlGlobal::_QGCVersion = "v4.4.0-4.1.5.0_250110"
+#endif
+
+#ifdef TAISYNC_FLY_CAL
+    // "_Fly" // The regular version also supports Fly data, so the special version number is not customized
+#endif
+                                                   "";
 
 QGeoCoordinate   QGroundControlQmlGlobal::_coord = QGeoCoordinate(0.0,0.0);
 double           QGroundControlQmlGlobal::_zoom = 2;
@@ -261,7 +272,7 @@ void QGroundControlQmlGlobal::setFlightMapZoom(double zoom)
 
 QString QGroundControlQmlGlobal::qgcVersion(void) const
 {
-    QString versionStr = qgcApp()->applicationVersion();
+    QString versionStr = _QGCVersion;
 #ifdef __androidArm32__
     versionStr += QStringLiteral(" %1").arg(tr("32 bit"));
 #elif __androidArm64__

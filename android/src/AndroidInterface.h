@@ -18,4 +18,7 @@ class AndroidInterface
 {
 public:
     static QString getSDCardPath();
+    // broadcast _mavlink._udp to LAN
+    static void broadcast(const QString& serviceName, const QString& serviceType, int port);
+    static QString uuid();
 };

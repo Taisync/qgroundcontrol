@@ -21,6 +21,10 @@
 #include "MockLink.h"
 #endif
 
+#ifdef ANDROID
+#include "TTYSLink.h"
+#endif
+
 #define LINK_SETTING_ROOT "LinkConfigurations"
 
 LinkConfiguration::LinkConfiguration(const QString& name)
@@ -74,6 +78,11 @@ LinkConfiguration* LinkConfiguration::createSettings(int type, const QString& na
             config = new SerialConfiguration(name);
             break;
 #endif
+#ifdef ANDROID
+        case LinkConfiguration::TypeTtys:
+            config = new TtysConfiguration(name);
+            break;
+#endif
         case LinkConfiguration::TypeUdp:
             config = new UDPConfiguration(name);
             break;
@@ -108,6 +117,11 @@ LinkConfiguration* LinkConfiguration::duplicateSettings(LinkConfiguration* sourc
 #ifndef NO_SERIAL_LINK
         case TypeSerial:
             dupe = new SerialConfiguration(qobject_cast<SerialConfiguration*>(source));
+            break;
+#endif
+#ifdef ANDROID
+        case TypeTtys:
+            dupe = new TtysConfiguration(qobject_cast<TtysConfiguration*>(source));
             break;
 #endif
         case TypeUdp:

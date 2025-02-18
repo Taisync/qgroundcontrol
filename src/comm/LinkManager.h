@@ -30,6 +30,10 @@
     #include "SerialLink.h"
 #endif
 
+#ifdef ANDROID
+#include "TTYSLink.h"
+#endif
+
 Q_DECLARE_LOGGING_CATEGORY(LinkManagerLog)
 Q_DECLARE_LOGGING_CATEGORY(LinkManagerVerboseLog)
 
@@ -59,6 +63,7 @@ public:
     Q_PROPERTY(QStringList          serialPortStrings               READ serialPortStrings               NOTIFY commPortStringsChanged)
     Q_PROPERTY(QStringList          serialPorts                     READ serialPorts                     NOTIFY commPortsChanged)
     Q_PROPERTY(bool                 mavlinkSupportForwardingEnabled READ mavlinkSupportForwardingEnabled NOTIFY mavlinkSupportForwardingEnabledChanged)
+    Q_PROPERTY(bool                 mavlinkReceiveEnabled           READ mavlinkReceiveEnabled WRITE setMavlinkReceiveEnabled    NOTIFY mavlinkReceiveEnabledChanged)
 
     /// Create/Edit Link Configuration
     Q_INVOKABLE LinkConfiguration*  createConfiguration                (int type, const QString& name);
@@ -84,6 +89,8 @@ public:
     QStringList                     serialPortStrings               (void);
     QStringList                     serialPorts                     (void);
     bool                            mavlinkSupportForwardingEnabled (void) { return _mavlinkSupportForwardingEnabled; }
+    bool                            mavlinkReceiveEnabled (void) { return _mavlinkReceiveEnabled; }
+    void setMavlinkReceiveEnabled(bool enable) { _mavlinkReceiveEnabled = enable; emit mavlinkReceiveEnabledChanged(); }
 
     void loadLinkConfigurationList();
     void saveLinkConfigurationList();
@@ -96,7 +103,7 @@ public:
     void setConnectionsSuspended(QString reason);
 
     /// Sets the flag to allow new connections to be made
-    void setConnectionsAllowed(void) { _connectionsSuspended = false; }
+    Q_INVOKABLE void setConnectionsAllowed(void) { _connectionsSuspended = false; }
 
     /// Creates, connects (and adds) a link  based on the given configuration instance.
     bool createConnectedLink(SharedLinkConfigurationPtr& config, bool isPX4Flow = false);
@@ -136,6 +143,7 @@ public:
     SharedLinkConfigurationPtr addConfiguration(LinkConfiguration* config);
 
     void startAutoConnectedLinks(void);
+    void _closeMavlinkConnect(void);
 
     static const char*  settingsGroup;
 
@@ -143,6 +151,7 @@ signals:
     void commPortStringsChanged();
     void commPortsChanged();
     void mavlinkSupportForwardingEnabledChanged();
+    void mavlinkReceiveEnabledChanged();
 
 private slots:
     void _linkDisconnected  (void);
@@ -158,6 +167,8 @@ private:
     void                _addMAVLinkForwardingLink   (void);
     bool                _isSerialPortConnected      (void);
     void                _createDynamicForwardLink   (const char* linkName, QString hostName);
+    //Automatically add mavlink serial connection
+    void                _addTTYSLinkAutoConnect     (void);
 
 #ifndef NO_SERIAL_LINK
     bool                _portAlreadyConnected       (const QString& portName);
@@ -199,9 +210,11 @@ private:
     static const char*  _defaultUDPLinkName;
     static const char*  _mavlinkForwardingLinkName;
     static const char*  _mavlinkForwardingSupportLinkName;
+    static const char*  _defaultTTYSLinkName;
     static const int    _autoconnectUpdateTimerMSecs;
     static const int    _autoconnectConnectDelayMSecs;
     bool                _mavlinkSupportForwardingEnabled = false;
+    bool                _mavlinkReceiveEnabled = true;
 
 };
 

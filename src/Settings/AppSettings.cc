@@ -44,7 +44,11 @@ const char* AppSettings::customActionsDirectory =   QT_TRANSLATE_NOOP("AppSettin
 // Release languages are 90%+ complete
 QList<int> AppSettings::_rgReleaseLanguages = {
     QLocale::AnyLanguage,  // System
+#ifdef CUSTOMIZATION
+    // QLocale::Chinese,
+#else
     QLocale::Chinese,
+#endif
     QLocale::English,
     QLocale::Korean,
     QLocale::Azerbaijani,
@@ -172,6 +176,11 @@ DECLARE_SETTINGSFACT(AppSettings, firstRunPromptIdsShown)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlink)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkHostName)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkAPMSupportHostName)
+
+#ifdef TAISYNC_FLY_CAL
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyViewShow)
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyDataSave)
+#endif
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {

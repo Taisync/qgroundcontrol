@@ -368,7 +368,7 @@ QGCApplication::QGCApplication(int &argc, char* argv[], bool unitTesting)
    }
 #endif /* __mobile__ */
 
-    _checkForNewVersion();
+    //_checkForNewVersion();
 }
 
 void QGCApplication::_exitWithError(QString errorMessage)
@@ -401,6 +401,13 @@ void QGCApplication::setLanguage()
             qCWarning(LocalizationLog) << "Could not load /fonts/NanumGothic-Bold font";
         }
     }
+
+#ifdef CUSTOMIZATION
+    if(_locale == QLocale::Chinese){
+        _locale = QLocale::English;
+    }
+#endif
+
     qCDebug(LocalizationLog) << "Loading localizations for" << _locale.name();
     _app->removeTranslator(&_qgcTranslatorJSON);
     _app->removeTranslator(&_qgcTranslatorSourceCode);
@@ -540,6 +547,7 @@ void QGCApplication::_initCommon()
     qmlRegisterSingletonType<ScreenToolsController>     ("QGroundControl.ScreenToolsController",    1, 0, "ScreenToolsController",  screenToolsControllerSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("QGroundControl.ShapeFileHelper",          1, 0, "ShapeFileHelper",        shapeFileHelperSingletonFactory);
     qmlRegisterSingletonType<ShapeFileHelper>           ("MAVLink",                                 1, 0, "MAVLink",                mavlinkSingletonFactory);
+    qmlRegisterType<TaisyncRomoteHandler> ("Taisync.TaisyncRomoteHandler", 1, 0, "TaisyncRomoteHandler");
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {
@@ -598,6 +606,8 @@ bool QGCApplication::_initForNormalAppBoot()
     }
 
     settings.sync();
+    _taisyncRemoteHandler = new TaisyncRomoteHandler();
+    _qmlAppEngine->rootContext()->setContextProperty("taisyncRemoteHandler",_taisyncRemoteHandler);
     return true;
 }
 

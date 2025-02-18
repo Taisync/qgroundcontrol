@@ -58,6 +58,11 @@
 #include "Autotune.h"
 #include "RemoteIDManager.h"
 
+#ifdef __android__
+#include "AndroidInterface.h"
+#include "UDPLink.h"
+#endif
+
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
 #define UPDATE_TIMER 50

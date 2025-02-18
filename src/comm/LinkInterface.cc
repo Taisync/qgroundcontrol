@@ -83,6 +83,10 @@ void LinkInterface::_freeMavlinkChannel()
 void LinkInterface::writeBytesThreadSafe(const char *bytes, int length)
 {
     emit _invokeWriteBytes(QByteArray(bytes, length));
+    // QByteArray byteArray(bytes,length);
+    // _writeBytesMutex.lock();
+    // _writeBytes(byteArray);
+    // _writeBytesMutex.unlock();
 }
 
 void LinkInterface::addVehicleReference(void)

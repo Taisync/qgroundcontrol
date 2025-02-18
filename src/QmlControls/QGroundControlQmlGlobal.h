@@ -270,6 +270,7 @@ private:
     static const char* _flightMapPositionLatitudeSettingsKey;
     static const char* _flightMapPositionLongitudeSettingsKey;
     static const char* _flightMapZoomSettingsKey;
+    static const char* _QGCVersion;
 
     static QGeoCoordinate   _coord;
     static double           _zoom;

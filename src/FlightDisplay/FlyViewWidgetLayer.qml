@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-import QtQuick                  2.12
+import QtQuick                  2.15
 import QtQuick.Controls         2.4
 import QtQuick.Dialogs          1.3
 import QtQuick.Layouts          1.12
@@ -20,13 +20,13 @@ import QtQml.Models             2.1
 import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.Controllers   1.0
-import QGroundControl.Controls      1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FlightDisplay 1.0
 import QGroundControl.FlightMap     1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
+import Taisync.TaisyncRomoteHandler 1.0
 
 // This is the ui overlay layer for the widgets/tools for Fly View
 Item {
@@ -240,6 +240,252 @@ Item {
                 // Anchor to left edge
                 return parentToolInsets.leftEdgeBottomInset + _toolsMargin
             }
+        }
+    }
+
+    property bool _paramBoxShowEnable: (typeof taisyncRemoteHandler !== "undefined" && taisyncRemoteHandler.showFlyParam)
+                                       && QGroundControl.settingsManager.appSettings.taisyncFlyViewShow.value
+    property bool _paramBoxVisible: true
+    Rectangle
+    {
+        id: paramBox
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        border.width: 1
+        border.color: "black"
+        width: 1000
+        height: 190
+        radius: 5
+        clip: false
+        color: Qt.rgba(255,255,255,100/255)
+        visible: _paramBoxShowEnable && _paramBoxVisible
+
+        MouseArea
+        {
+            anchors.fill: parent
+            drag.target: paramBox
+        }
+
+        // Label {
+        //     id: modelLabel1
+        //     visible: false
+        //     text: "000000000"
+        //     font.pointSize: 12
+        //     color: "#000000"
+        // }
+
+        // Remote info
+        Row {
+            id: rcId
+            spacing: 20
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.margins: 20
+
+            VerticalAlignmentTextColumn {
+                textModel: ListModel {
+                    ListElement {text: qsTr("[A]=>")}
+                    ListElement {text: qsTr("[G]=>")}
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                textModel: ListModel {
+                    ListElement {text: qsTr("RSSI:")}
+                    ListElement {text: qsTr("RSSI:")}
+                    ListElement {text: qsTr("Freq:")}
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                id: column3Id
+                textModel: ListModel {
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                id: column4Id
+                textModel: ListModel {
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                textModel: ListModel {
+                    ListElement { text: qsTr("SNR:") }
+                    ListElement { text: qsTr("SNR:") }
+                    ListElement { text: qsTr("D:") }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                id: column6Id
+                textModel: ListModel {
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                textModel: ListModel {
+                    ListElement { text: qsTr("LQI:") }
+                    ListElement { text: qsTr("LQI:") }
+                    ListElement { text: qsTr("EthTx:") }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                id: column8Id
+                textModel: ListModel {
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                textModel: ListModel {
+                    ListElement { text: qsTr("Failed:") }
+                    ListElement { text: qsTr("Failed:") }
+                }
+            }
+
+            VerticalAlignmentTextColumn {
+                id: column10Id
+                textModel: ListModel {
+                    ListElement { text: "" }
+                    ListElement { text: "" }
+                }
+            }
+
+            onImplicitWidthChanged: {
+                paramBox.width = implicitWidth + hideButton.width + rcId.anchors.margins * 2
+            }
+            onImplicitHeightChanged: {
+                paramBox.height = implicitHeight + rcId.anchors.margins * 2
+            }
+        }
+
+        Item
+        {
+            id: hideButton
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.left: rcId.right
+            width: 25*3
+            height: 25*3
+            Image {
+                anchors.fill: parent
+                anchors.margins: paramBox.border.width
+                fillMode: Image.PreserveAspectFit
+                source: "/res/resources/hide.png"
+            }
+            MouseArea
+            {
+                anchors.fill: parent
+                propagateComposedEvents: true
+                onClicked:
+                {
+                    _paramBoxVisible = false;
+                }
+            }
+        }
+
+        Connections {
+            target: taisyncRemoteHandler
+            onAirRssi0Changed: {
+                column3Id.textModel.set(0, { text: "-" + taisyncRemoteHandler.airRssi0 + "," })
+            }
+            onGndRssi0Changed: {
+                column3Id.textModel.set(1, { text: "-" + taisyncRemoteHandler.gndRssi0 + "," })
+            }
+            onGndFreqChanged: {
+                column3Id.textModel.set(2, { text: taisyncRemoteHandler.gndFreq + "," })
+            }
+            onAirRssi1Changed: {
+                column4Id.textModel.set(0, { text: "-" + taisyncRemoteHandler.airRssi1 + "," })
+            }
+            onGndRssi1Changed: {
+                column4Id.textModel.set(1, { text: "-" + taisyncRemoteHandler.gndRssi1 + "," })
+            }
+            onAirSnrChanged: {
+                column6Id.textModel.set(0, { text: taisyncRemoteHandler.airSnr + "," })
+            }
+            onGndSnrChanged: {
+                column6Id.textModel.set(1, { text: taisyncRemoteHandler.gndSnr + "," })
+            }
+            onGndDistanceChanged: {
+                column6Id.textModel.set(2, { text: taisyncRemoteHandler.gndDistance + "," })
+            }
+            onAirLinkQuaityChanged: {
+                column8Id.textModel.set(0, { text: taisyncRemoteHandler.airLinkQuaity + "%" + "," })
+            }
+            onGndLinkQuaityChanged: {
+                column8Id.textModel.set(1, { text: taisyncRemoteHandler.gndLinkQuaity + "%" + "," })
+            }
+            onEthTxRateChanged: {
+                column8Id.textModel.set(2, { text: taisyncRemoteHandler.ethTxRate + "kbps" })
+            }
+            onAirLDPCFailedChanged: {
+                column10Id.textModel.set(0, { text: "" + taisyncRemoteHandler.airLDPCFailed })
+            }
+            onGndLDPCFailedChanged: {
+                column10Id.textModel.set(1, { text: "" + taisyncRemoteHandler.gndLDPCFailed })
+            }
+        }
+
+        onVisibleChanged: {
+            // taisyncRemoteHandler is undefined due to the Component.onCompleted callback
+            // Unable to refresh UI in time
+            // Force an assignment when the box is displayed
+            if (paramBox.visible) {
+                column3Id.textModel.set(0, { text: "-" + taisyncRemoteHandler.airRssi0 + "," })
+                column3Id.textModel.set(1, { text: "-" + taisyncRemoteHandler.gndRssi0 + "," })
+                column3Id.textModel.set(2, { text: "-" + taisyncRemoteHandler.gndFreq + "," })
+                column4Id.textModel.set(0, { text: "-" + taisyncRemoteHandler.airRssi1 + "," })
+                column4Id.textModel.set(1, { text: "-" + taisyncRemoteHandler.gndRssi1 + "," })
+                column6Id.textModel.set(0, { text: taisyncRemoteHandler.airSnr + "," })
+                column6Id.textModel.set(1, { text: taisyncRemoteHandler.gndSnr + "," })
+                column6Id.textModel.set(2, { text: taisyncRemoteHandler.gndDistance + "," })
+                column8Id.textModel.set(0, { text: taisyncRemoteHandler.airLinkQuaity + "%" + "," })
+                column8Id.textModel.set(1, { text: taisyncRemoteHandler.gndLinkQuaity + "%" + "," })
+                column8Id.textModel.set(2, { text: taisyncRemoteHandler.ethTxRate + "kbps" })
+                column10Id.textModel.set(0, { text: "" + taisyncRemoteHandler.airLDPCFailed })
+                column10Id.textModel.set(1, { text: "" + taisyncRemoteHandler.gndLDPCFailed })
+            }
+        }
+
+    }
+    Rectangle
+    {
+        id: viewButton
+        visible: _paramBoxShowEnable && !_paramBoxVisible
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        width: (25-border.width*2)*3
+        height: (25-border.width*2)*3
+        border.width: 1
+        border.color: "black"
+        radius: 5
+        color: Qt.rgba(255,255,255,100/255)
+        Image {
+            anchors.fill: parent
+            anchors.margins: viewButton.border.width
+            fillMode: Image.PreserveAspectFit
+            source: "/res/resources/view.png"
+        }
+        MouseArea
+        {
+            anchors.fill: parent
+            onClicked:
+            {
+                _paramBoxVisible = true;
+            }
+            drag.target: viewButton
         }
     }
 

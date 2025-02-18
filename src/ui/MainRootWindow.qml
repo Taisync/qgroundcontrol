@@ -30,12 +30,12 @@ ApplicationWindow {
 
     Component.onCompleted: {
         //-- Full screen on mobile or tiny screens
-        if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
-            mainWindow.showFullScreen()
-        } else {
-            width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
-            height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
-        }
+        //if (ScreenTools.isMobile || Screen.height / ScreenTools.realPixelDensity < 120) {
+        //    mainWindow.showFullScreen()
+        //} else {
+        //    width   = ScreenTools.isMobile ? Screen.width  : Math.min(250 * Screen.pixelDensity, Screen.width)
+        //    height  = ScreenTools.isMobile ? Screen.height : Math.min(150 * Screen.pixelDensity, Screen.height)
+        //}
 
         // Start the sequence of first run prompt(s)
         firstRunPromptManager.nextPrompt()
@@ -720,6 +720,27 @@ ApplicationWindow {
             onClosing: {
                 visible = false
                 source = ""
+            }
+        }
+    }
+
+    Connections {
+        target: Qt.application
+        onActiveChanged:{
+            if (!Qt.application.active)
+            {
+                QGroundControl.linkManager.mavlinkReceiveEnabled = false
+                //QGroundControl.linkManager.shutdown()
+                console.log("mavlink shutdown")
+            }
+            else
+            {
+                if (QGroundControl.linkManager.mavlinkReceiveEnabled == false)
+                {
+                    QGroundControl.linkManager.mavlinkReceiveEnabled = true
+                    //QGroundControl.linkManager.setConnectionsAllowed()
+                    console.log("enable mavlink")
+                }
             }
         }
     }

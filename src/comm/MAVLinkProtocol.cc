@@ -203,6 +203,13 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
         return;
     }
 
+    bool mavlinkEnabled = _linkMgr->mavlinkReceiveEnabled();
+    if (!mavlinkEnabled)
+    {
+        qCDebug(MAVLinkProtocolLog)<<"disable receive mavlink message";
+        return;
+    }
+
     uint8_t mavlinkChannel = link->mavlinkChannel();
 
     for (int position = 0; position < b.size(); position++) {
@@ -218,7 +225,8 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                     setVersion(200);
                 }
             }
-
+            if (_message.sysid != 255)
+            {
             //-----------------------------------------------------------------
             // MAVLink Status
             uint8_t lastSeq = lastIndex[_message.sysid][_message.compid];
@@ -257,8 +265,13 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
             receiveLossPercent = (receiveLossPercent * 0.5f) + (runningLossPercent[mavlinkChannel] * 0.5f);
             runningLossPercent[mavlinkChannel] = receiveLossPercent;
 
-            //qDebug() << foo << _message.seq << expectedSeq << lastSeq << totalLossCounter[mavlinkChannel] << totalReceiveCounter[mavlinkChannel] << totalSentCounter[mavlinkChannel] << "(" << _message.sysid << _message.compid << ")";
+            // Update MAVLink status on every 32th packet
+            if ((totalReceiveCounter[mavlinkChannel] & 0x1F) == 0) {
+                emit mavlinkMessageStatus(_message.sysid, totalSent, totalReceiveCounter[mavlinkChannel], totalLossCounter[mavlinkChannel], receiveLossPercent);
+            }
 
+            //qDebug() << foo << _message.seq << expectedSeq << lastSeq << totalLossCounter[mavlinkChannel] << totalReceiveCounter[mavlinkChannel] << totalSentCounter[mavlinkChannel] << "(" << _message.sysid << _message.compid << ")";
+            }
             //-----------------------------------------------------------------
             // MAVLink forwarding
             bool forwardingEnabled = _app->toolbox()->settingsManager()->appSettings()->forwardMavlink()->rawValue().toBool();
@@ -268,7 +281,16 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                 if (forwardingLink) {
                     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
                     int len = mavlink_msg_to_send_buffer(buf, &_message);
-                    forwardingLink->writeBytesThreadSafe((const char*)buf, len);
+                    if(forwardingLink->linkConfiguration()->name()!= link->linkConfiguration()->name()) {
+                        forwardingLink->writeBytesThreadSafe((const char*)buf, len);
+                    } else { // forward from GSs to Autopilot
+                        for(int i= 0;i<_linkMgr->links().count();i++)
+                        {
+                            SharedLinkConfigurationPtr linkConfig = _linkMgr->links()[i]->linkConfiguration();
+                            if(linkConfig->name()!=forwardingLink->linkConfiguration()->name())
+                                _linkMgr->links()[i]->writeBytesThreadSafe((const char*)buf,len);
+                        }
+                    }
                 }
             }
 
@@ -363,11 +385,6 @@ void MAVLinkProtocol::receiveBytes(LinkInterface* link, QByteArray b)
                 mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
             }
 #endif
-
-            // Update MAVLink status on every 32th packet
-            if ((totalReceiveCounter[mavlinkChannel] & 0x1F) == 0) {
-                emit mavlinkMessageStatus(_message.sysid, totalSent, totalReceiveCounter[mavlinkChannel], totalLossCounter[mavlinkChannel], receiveLossPercent);
-            }
 
             // The packet is emitted as a whole, as it is only 255 - 261 bytes short
             // kind of inefficient, but no issue for a groundstation pc.

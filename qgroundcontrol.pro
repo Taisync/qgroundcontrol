@@ -12,6 +12,9 @@ QMAKE_PROJECT_DEPTH = 0 # undocumented qmake flag to force absolute paths in mak
 # These are disabled until proven correct
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED
+DEFINES += NO_SERIAL_LINK
+DEFINES += TAISYNC_FLY_CAL
+#DEFINES += CUSTOMIZATION
 
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")
@@ -440,6 +443,7 @@ HEADERS += \
     src/api/QGCSettings.h \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
+    src/comm/TTYSLink.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -453,6 +457,7 @@ SOURCES += \
     src/api/QGCOptions.cc \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
+    src/comm/TTYSLink.cc
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
@@ -1307,6 +1312,16 @@ contains (DEFINES, QGC_DISABLE_MAVLINK_INSPECTOR) {
 contains (DEFINES, QGC_GST_TAISYNC_DISABLED) {
     DEFINES -= QGC_GST_TAISYNC_ENABLED
     message("Taisync disabled")
+    INCLUDEPATH += \
+        src/Taisync
+
+    HEADERS += \
+        src/Taisync/taisyncInfo.h \
+        src/Taisync/taisyncromotehandler.h \
+
+    SOURCES += \
+        src/Taisync/taisyncInfo.cc \
+        src/Taisync/taisyncromotehandler.cpp \
 } else {
     contains (DEFINES, QGC_GST_TAISYNC_ENABLED) {
         INCLUDEPATH += \
