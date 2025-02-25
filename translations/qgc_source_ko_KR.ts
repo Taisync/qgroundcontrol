@@ -9716,6 +9716,11 @@ Click Ok to start the auto-tuning process.
       <translation>Mavlink 포워딩 활성화</translation>
     </message>
     <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
+      <source>Forwarding by TCP</source>
+      <translation>TCP 사용</translation>
+    </message>
+    <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="170"/>
       <source>Host name:</source>
       <translation>호스트 이름:</translation>

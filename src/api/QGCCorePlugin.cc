@@ -55,6 +55,10 @@ public:
         if(pMicrohard)
             delete pMicrohard;
 #endif
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+        if(pTaisyncGimbal)
+            delete pTaisyncGimbal;
+#endif
         if(pMAVLink)
             delete pMAVLink;
         if(pConsole)
@@ -83,6 +87,9 @@ public:
     QmlComponentInfo* pMicrohard                = nullptr;
 #endif
     QmlComponentInfo* pMAVLink                  = nullptr;
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+    QmlComponentInfo* pTaisyncGimbal            = nullptr;
+#endif
     QmlComponentInfo* pConsole                  = nullptr;
     QmlComponentInfo* pHelp                     = nullptr;
 #if defined(QT_DEBUG)
@@ -155,6 +162,12 @@ QVariantList &QGCCorePlugin::settingsPages()
                                             QUrl::fromUserInput("qrc:/qml/MavlinkSettings.qml"),
                                             QUrl::fromUserInput("qrc:/res/waves.svg"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pMAVLink)));
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+        _p->pTaisyncGimbal = new QmlComponentInfo(tr("Gimbal"),
+                                            QUrl::fromUserInput("qrc:/qml/Taisync/GimbalSettings.qml"),
+                                            QUrl::fromUserInput("qrc:/res/waves.svg"));
+        _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pTaisyncGimbal)));
+#endif
         _p->pRemoteID = new QmlComponentInfo(tr("Remote ID"),
                                             QUrl::fromUserInput("qrc:/qml/RemoteIDSettings.qml"));
         _p->settingsList.append(QVariant::fromValue(reinterpret_cast<QmlComponentInfo*>(_p->pRemoteID)));

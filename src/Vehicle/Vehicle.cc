@@ -58,6 +58,11 @@
 #include "Autotune.h"
 #include "RemoteIDManager.h"
 
+#ifdef __android__
+#include "AndroidInterface.h"
+#include "UDPLink.h"
+#endif
+
 QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
 #define UPDATE_TIMER 50
@@ -2208,6 +2213,19 @@ void Vehicle::_activeVehicleChanged(Vehicle *newActiveVehicle)
     if (newActiveVehicle == this){
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " is the new active vehicle";
         _captureJoystick();
+#ifdef __android__
+        WeakLinkInterfacePtr weakLink = _vehicleLinkManager->primaryLink().lock();
+        bool useTcp = _toolbox->settingsManager()->appSettings()->forwardMavlinkByTcp()->rawValue().toBool();
+        if (!useTcp && !weakLink.expired()) {
+            SharedLinkInterfacePtr sharedLink = weakLink.lock();
+            // only support udp link for broadcast
+            if (sharedLink->linkConfiguration()->type() == LinkConfiguration::TypeUdp) {
+                auto udpLinkConfiguration = qobject_cast<UDPConfiguration*>(sharedLink->linkConfiguration().get());
+                int port = udpLinkConfiguration->localPort();
+                AndroidInterface::broadcast("TaisyncZeroConf", "_mavlink._udp", port);
+            }
+        }
+#endif
     }
 }
 

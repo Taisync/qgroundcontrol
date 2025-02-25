@@ -163,7 +163,12 @@ Rectangle {
                         fact:       QGroundControl.settingsManager.appSettings.forwardMavlink
                         visible:    QGroundControl.settingsManager.appSettings.forwardMavlink.visible
                     }
-
+                    FactCheckBox {
+                        id:         mavlinkForwardingTcpEnable
+                        text:       qsTr("Forwarding by TCP")
+                        fact:       QGroundControl.settingsManager.appSettings.forwardMavlinkByTcp
+                        visible:    QGroundControl.settingsManager.appSettings.forwardMavlinkByTcp.visible
+                    }
                     Row {
                         spacing:    ScreenTools.defaultFontPixelWidth
                         QGCLabel {
@@ -182,7 +187,7 @@ Rectangle {
                         }
 
                     }
-                   QGCLabel {
+                    QGCLabel {
                         text:       qsTr("<i> Changing the host name requires restart of application. </i>")
                         visible:    QGroundControl.settingsManager.appSettings.forwardMavlinkHostName.visible
                     }

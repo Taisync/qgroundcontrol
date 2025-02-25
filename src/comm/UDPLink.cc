@@ -22,6 +22,7 @@
 #include "QGCApplication.h"
 #include "SettingsManager.h"
 #include "AutoConnectSettings.h"
+#include "LinkManager.h"
 
 static const char* kZeroconfRegistration = "_qgroundcontrol._udp";
 
@@ -163,6 +164,12 @@ void UDPLink::_writeBytes(const QByteArray data)
 void UDPLink::_writeDataGram(const QByteArray data, const UDPCLient* target)
 {
     //qDebug() << "UDP Out" << target->address << target->port;
+    if (!_socket)
+    {
+        qDebug()<<"socket is null";
+
+    }
+
     if(_socket->writeDatagram(data, target->address, target->port) < 0) {
         qWarning() << "Error writing to" << target->address << target->port;
     }
@@ -189,7 +196,11 @@ void UDPLink::readBytes()
         databuffer.append(datagram);
         //-- Wait a bit before sending it over
         if (databuffer.size() > 10 * 1024) {
-            emit bytesReceived(this, databuffer);
+            if (qgcApp()->toolbox()->linkManager()->mavlinkReceiveEnabled() == true)
+            {
+                emit bytesReceived(this, databuffer);
+            }
+
             databuffer.clear();
         }
         // TODO: This doesn't validade the sender. Anything sending UDP packets to this port gets
@@ -210,7 +221,10 @@ void UDPLink::readBytes()
     }
     //-- Send whatever is left
     if (databuffer.size()) {
-        emit bytesReceived(this, databuffer);
+        if (qgcApp()->toolbox()->linkManager()->mavlinkReceiveEnabled() == true)
+        {
+            emit bytesReceived(this, databuffer);
+        }
     }
 }
 

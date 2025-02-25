@@ -12,7 +12,9 @@
 #include "QGCApplication.h"
 #include "AndroidInterface.h"
 #include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
 #include <QtAndroid>
+#include <QUuid>
 
 QString AndroidInterface::getSDCardPath()
 {
@@ -33,4 +35,22 @@ QString AndroidInterface::getSDCardPath()
     }
 
     return sdCardPath;
+}
+
+void AndroidInterface::broadcast(const QString& serviceName, const QString& serviceType, int port)
+{
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/mavlink/qgroundcontrol/MDNSManager",
+        "startBroadcast",
+        "(Ljava/lang/String;Ljava/lang/String;I)V",
+        QAndroidJniObject::fromString(QStringLiteral("%1-%2").arg(serviceName).arg(uuid())).object<jstring>(),
+        QAndroidJniObject::fromString(serviceType).object<jstring>(),
+        port
+        );
+}
+
+QString AndroidInterface::uuid()
+{
+    static QString _uuid = QUuid::createUuid().toString(QUuid::WithoutBraces).left(8); // only use short segment for unique name
+    return _uuid;
 }

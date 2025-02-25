@@ -35,7 +35,7 @@
 #ifdef QGC_RTLAB_ENABLED
 #include "OpalLink.h"
 #endif
-
+#include "taisyncInfo.h"
 // Work around circular header includes
 class QQmlApplicationEngine;
 class QGCSingleton;

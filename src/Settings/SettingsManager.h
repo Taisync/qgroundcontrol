@@ -30,6 +30,9 @@
 #include "GimbalControllerSettings.h"
 #include <QVariantList>
 #include "RemoteIDSettings.h"
+#ifdef TAISYNC_GIMBAL_SUPPORT
+#include "TaisyncCameraSettings.h"
+#endif
 
 /// Provides access to all app settings
 class SettingsManager : public QGCTool
@@ -56,6 +59,9 @@ public:
     Q_PROPERTY(QObject* apmMavlinkStreamRateSettings    READ apmMavlinkStreamRateSettings   CONSTANT)
 #endif
     Q_PROPERTY(QObject* remoteIDSettings                READ remoteIDSettings               CONSTANT)
+#ifdef TAISYNC_GIMBAL_SUPPORT
+    Q_PROPERTY(QObject* taisyncCameraSettings           READ taisyncCameraSettings          CONSTANT)
+#endif
     // Override from QGCTool
     virtual void setToolbox(QGCToolbox *toolbox);
 
@@ -76,6 +82,9 @@ public:
     APMMavlinkStreamRateSettings*   apmMavlinkStreamRateSettings(void) { return _apmMavlinkStreamRateSettings; }
 #endif
     RemoteIDSettings*               remoteIDSettings            (void) { return _remoteIDSettings; }
+#ifdef TAISYNC_GIMBAL_SUPPORT
+    TaisyncCameraSettings*                    taisyncCameraSettings                 (void) { return _taisyncCameraSettings; }
+#endif
 private:
     AppSettings*                    _appSettings;
     UnitsSettings*                  _unitsSettings;
@@ -94,6 +103,9 @@ private:
     APMMavlinkStreamRateSettings*   _apmMavlinkStreamRateSettings;
 #endif
     RemoteIDSettings*               _remoteIDSettings;
+#ifdef TAISYNC_GIMBAL_SUPPORT
+    TaisyncCameraSettings*                  _taisyncCameraSettings;
+#endif
 };
 
 #endif

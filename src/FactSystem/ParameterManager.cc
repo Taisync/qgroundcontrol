@@ -99,7 +99,7 @@ ParameterManager::ParameterManager(Vehicle* vehicle)
     connect(&_initialRequestTimeoutTimer, &QTimer::timeout, this, &ParameterManager::_initialRequestTimeout);
 
     _waitingParamTimeoutTimer.setSingleShot(true);
-    _waitingParamTimeoutTimer.setInterval(3000);
+    _waitingParamTimeoutTimer.setInterval(200);
     connect(&_waitingParamTimeoutTimer, &QTimer::timeout, this, &ParameterManager::_waitingParamTimeout);
 
     // Ensure the cache directory exists
@@ -166,8 +166,8 @@ void ParameterManager::_updateProgressBar(void)
 
 void ParameterManager::mavlinkMessageReceived(mavlink_message_t message)
 {
-    if (_tryftp && message.compid == MAV_COMP_ID_AUTOPILOT1 && !_initialLoadComplete)
-        return;
+    // if (_tryftp && message.compid == MAV_COMP_ID_AUTOPILOT1 && !_initialLoadComplete)
+    //     return;
 
     if (message.msgid == MAVLINK_MSG_ID_PARAM_VALUE) {
         mavlink_param_value_t param_value;
@@ -217,7 +217,6 @@ void ParameterManager::mavlinkMessageReceived(mavlink_message_t message)
 /// Called whenever a parameter is updated or first seen.
 void ParameterManager::_handleParamValue(int componentId, QString parameterName, int parameterCount, int parameterIndex, MAV_PARAM_TYPE mavParamType, QVariant parameterValue)
 {
-
     qCDebug(ParameterManagerVerbose1Log) << _logVehiclePrefix(componentId) <<
                                             "_parameterUpdate" <<
                                             "name:" << parameterName <<
@@ -522,19 +521,20 @@ void ParameterManager::refreshAllParameters(uint8_t componentId)
         _initialRequestTimeoutTimer.start();
     }
 
-    if (_tryftp && (componentId == MAV_COMP_ID_ALL || componentId == MAV_COMP_ID_AUTOPILOT1)) {
-        FTPManager* ftpManager = _vehicle->ftpManager();
-        connect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
-        _waitingParamTimeoutTimer.stop();
-        if (ftpManager->download(MAV_COMP_ID_AUTOPILOT1, "@PARAM/param.pck",
-                                 QStandardPaths::writableLocation(QStandardPaths::TempLocation),
-                                 "", false /* No filesize check */)) {
-            connect(ftpManager, &FTPManager::commandProgress, this, &ParameterManager::_ftpDownloadProgress);
-        } else {
-            qCWarning(ParameterManagerLog) << "ParameterManager::refreshallParameters FTPManager::download returned failure";
-            disconnect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
-        }
-    } else {
+    // if (_tryftp && (componentId == MAV_COMP_ID_ALL || componentId == MAV_COMP_ID_AUTOPILOT1)) {
+    //     FTPManager* ftpManager = _vehicle->ftpManager();
+    //     connect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
+    //     _waitingParamTimeoutTimer.stop();
+    //     if (ftpManager->download(MAV_COMP_ID_AUTOPILOT1, "@PARAM/param.pck",
+    //                              QStandardPaths::writableLocation(QStandardPaths::TempLocation),
+    //                              "", false /* No filesize check */)) {
+    //         connect(ftpManager, &FTPManager::commandProgress, this, &ParameterManager::_ftpDownloadProgress);
+    //     } else {
+    //         qCWarning(ParameterManagerLog) << "ParameterManager::refreshallParameters FTPManager::download returned failure";
+    //         disconnect(ftpManager, &FTPManager::downloadComplete, this, &ParameterManager::_ftpDownloadComplete);
+    //     }
+    // } else
+    {
         // Reset index wait lists
         for (int cid: _paramCountMap.keys()) {
             // Add/Update all indices to the wait list, parameter index is 0-based

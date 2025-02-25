@@ -8735,6 +8735,11 @@ Click Ok to start the auto-tuning process.
       <translation type="unfinished">TCP</translation>
     </message>
     <message>
+      <location filename="../src/comm/LinkManager.cc" line="708"/>
+      <source>TCP Server</source>
+      <translation type="unfinished">TCP服务端</translation>
+    </message>
+    <message>
       <location filename="../src/comm/LinkManager.cc" line="691"/>
       <source>Mock Link</source>
       <translation type="unfinished">Mock Link</translation>
@@ -9707,6 +9712,11 @@ Click Ok to start the auto-tuning process.
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
       <source>Enable MAVLink forwarding</source>
       <translation type="unfinished">Enable MAVLink forwarding</translation>
+    </message>
+      <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
+      <source>Forwarding by TCP</source>
+      <translation type="unfinished">Use TCP</translation>
     </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="170"/>

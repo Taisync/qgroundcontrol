@@ -79,7 +79,7 @@ void TCPLink::_readBytes()
             _socket->read(buffer.data(), buffer.size());
             emit bytesReceived(this, buffer);
 #ifdef TCPLINK_READWRITE_DEBUG
-            writeDebugBytes(buffer.data(), buffer.size());
+            _writeDebugBytes(buffer);
 #endif
         }
     }
@@ -104,7 +104,6 @@ bool TCPLink::_connect(void)
         qWarning() << "connect called while already connected";
         return true;
     }
-
     return _hardwareConnect();
 }
 

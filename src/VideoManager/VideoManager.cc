@@ -95,6 +95,8 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
 
    // TODO: Those connections should be Per Video, not per VideoManager.
    _videoSettings = toolbox->settingsManager()->videoSettings();
+   _forwardHost = _videoSettings->forwardVideoHostName()->rawValue().toString();
+   _forwardVideo = _videoSettings->forwardVideo()->rawValue().toBool();
    QString videoSource = _videoSettings->videoSource()->rawValue().toString();
    connect(_videoSettings->videoSource(),   &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
    connect(_videoSettings->udpPort(),       &Fact::rawValueChanged, this, &VideoManager::_udpPortChanged);
@@ -132,7 +134,7 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
                 // It is absolutely ok to have video receiver active (streaming) and decoding not active
                 // It should be handy for cases when you have many streams and want to show only some of them
                 // NOTE that even if decoder did not start it is still possible to record video
-                _videoReceiver[0]->startDecoding(_videoSink[0]);
+                _videoReceiver[0]->startDecoding(_videoSink[0], _forwardHost, _forwardVideo);
             }
         } else if (status == VideoReceiver::STATUS_INVALID_URL) {
             // Invalid URL - don't restart
@@ -191,7 +193,7 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
             if (status == VideoReceiver::STATUS_OK) {
                 _videoStarted[1] = true;
                 if (_videoSink[1] != nullptr) {
-                    _videoReceiver[1]->startDecoding(_videoSink[1]);
+                    _videoReceiver[1]->startDecoding(_videoSink[1], _forwardHost, _forwardVideo);
                 }
             } else if (status == VideoReceiver::STATUS_INVALID_URL) {
                 // Invalid URL - don't restart
@@ -626,7 +628,7 @@ VideoManager::_initVideo()
         _videoSink[0] = qgcApp()->toolbox()->corePlugin()->createVideoSink(this, widget);
         if (_videoSink[0] != nullptr) {
             if (_videoStarted[0]) {
-                _videoReceiver[0]->startDecoding(_videoSink[0]);
+                _videoReceiver[0]->startDecoding(_videoSink[0],_forwardHost, _forwardVideo);
             }
         } else {
             qCDebug(VideoManagerLog) << "createVideoSink() failed";
@@ -641,7 +643,7 @@ VideoManager::_initVideo()
         _videoSink[1] = qgcApp()->toolbox()->corePlugin()->createVideoSink(this, widget);
         if (_videoSink[1] != nullptr) {
             if (_videoStarted[1]) {
-                _videoReceiver[1]->startDecoding(_videoSink[1]);
+                _videoReceiver[1]->startDecoding(_videoSink[1],_forwardHost, _forwardVideo);
             }
         } else {
             qCDebug(VideoManagerLog) << "createVideoSink() failed";

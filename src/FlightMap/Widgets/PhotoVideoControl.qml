@@ -88,6 +88,17 @@ Rectangle {
     property bool   _canShootInCurrentMode:                     _mavlinkCamera ? _mavlinkCameraCanShoot : _videoStreamCanShoot || _simpleCameraAvailable
     property bool   _isShootingInCurrentMode:                   _mavlinkCamera ? _mavlinkCameraIsShooting : _videoStreamIsShootingInCurrentMode || _simpleCameraIsShootingInCurrentMode
 
+    // Taisync gimbal
+    property bool   _isTaisyncGimbalSupport:                    QGroundControl.taisyncGimbalSupported
+    property var    _taisyncGimbalControl:                      _isTaisyncGimbalSupport ? QGroundControl.taisyncGimbalController : null
+    property var    _taisyncGimbalManager:                      _taisyncGimbalControl ? _taisyncGimbalControl.gimbalManager : null
+    property var    _taisyncCameraSettings:                     _isTaisyncGimbalSupport ? QGroundControl.settingsManager.taisyncCameraSettings : null
+    property var    _taisyncGimbalEnable:                       _taisyncCameraSettings ? _taisyncCameraSettings.enable : null
+    property var    _taisyncHttpStatus:                         _taisyncGimbalManager ? _taisyncGimbalManager.httpStatus : false
+    // property var    _taisyncMavlinkStatus:                       _taisyncGimbalManager ? _taisyncGimbalManager.mavlinkStatus : false
+    property var    _taisyncIsShooting:                         _taisyncGimbalManager ? _taisyncGimbalManager.isRecording : false
+    property var    _showTaisyncGimbalSettings:                 _isTaisyncGimbalSupport && _taisyncHttpStatus
+
     function setCameraMode(photoMode) {
         _videoStreamInPhotoMode = photoMode
         if (_mavlinkCamera) {
@@ -133,6 +144,14 @@ Rectangle {
                 _videoStreamManager.grabImage()
                 simplePhotoCaptureTimer.start()
             } else {
+                // Taisync small gimbal SD video record
+                if (_isTaisyncGimbalSupport) {
+                    if (_taisyncCameraSettings.recordType.value === 1) {
+                        _taisyncGimbalManager.doVideoRecord(!_taisyncGimbalManager.isRecording);
+                        return;
+                    }
+                }
+
                 if (_videoStreamManager.recording) {
                     _videoStreamManager.stopRecording()
                 } else {
@@ -271,9 +290,9 @@ Rectangle {
 
             Rectangle {
                 anchors.centerIn:   parent
-                width:              parent.width * (_isShootingInCurrentMode ? 0.5 : 0.75)
+                width:              parent.width * ((_isShootingInCurrentMode || _taisyncIsShooting) ? 0.5 : 0.75)
                 height:             width
-                radius:             _isShootingInCurrentMode ? 0 : width * 0.5
+                radius:             (_isShootingInCurrentMode || _taisyncIsShooting) ? 0 : width * 0.5
                 color:              _canShootInCurrentMode ? qgcPal.colorRed : qgcPal.colorGrey
             }
 
@@ -612,7 +631,98 @@ Rectangle {
                         }
                     }
                 }
+
+                Loader {
+                    sourceComponent: _showTaisyncGimbalSettings ? gridLayoutTaisyncGimbal : null
+                }
+
+                Component {
+                    id: gridLayoutTaisyncGimbal
+                    GridLayout {
+                        flow:   GridLayout.TopToBottom
+                        rows:   5
+
+                        QGCLabel {
+                            text:               qsTr("Bitstream Rate")
+                            onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                        }
+                        QGCLabel {
+                            text:               qsTr("Coding")
+                            onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                        }
+                        QGCLabel {
+                            text:               qsTr("Resolution")
+                            onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                        }
+                        QGCLabel {
+                            text:               qsTr("FPS")
+                            onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                        }
+                        QGCLabel {
+                            text:               qsTr("Intra Refresh")
+                            onVisibleChanged:   gridLayout.dynamicRows += visible ? 1 : -1
+                        }
+
+                        QGCComboBox {
+                            Layout.fillWidth:   true
+                            enabled:            _taisyncGimbalEnable.rawValue && _taisyncHttpStatus
+                            model:              _taisyncCameraSettings.bitstreamRate.enumStrings
+                            currentIndex:       _taisyncCameraSettings.bitstreamRate.enumIndex
+                            onActivated: {
+                                const values = _taisyncCameraSettings.bitstreamRate.enumValues;
+                                _taisyncGimbalManager.setBitstreamRate(values[currentIndex]);
+                            }
+                        }
+                        QGCComboBox {
+                            Layout.fillWidth:   true
+                            enabled:            _taisyncGimbalEnable.rawValue && _taisyncHttpStatus
+                            model:              _taisyncCameraSettings.bitstreamCoding.enumStrings
+                            currentIndex:       _taisyncCameraSettings.bitstreamCoding.enumIndex
+                            onActivated: {
+                                _taisyncGimbalManager.setBitstreamCoding(model[currentIndex]);
+                            }
+                        }
+                        QGCComboBox {
+                            Layout.fillWidth:   true
+                            enabled:            _taisyncGimbalEnable.rawValue && _taisyncHttpStatus
+                            model:              _taisyncCameraSettings.bitstreamRateResolution.enumStrings
+                            currentIndex:       _taisyncCameraSettings.bitstreamRateResolution.enumIndex
+                            onActivated: {
+                                _taisyncGimbalManager.setBitstreamRateResolution(model[currentIndex]);
+                            }
+                        }
+                        QGCComboBox {
+                            Layout.fillWidth:   true
+                            enabled:            _taisyncGimbalEnable.rawValue && _taisyncHttpStatus
+                            model:              _taisyncCameraSettings.bitstreamRateFPS.enumStrings
+                            currentIndex:       _taisyncCameraSettings.bitstreamRateFPS.enumIndex
+                            onActivated: {
+                                const values = _taisyncCameraSettings.bitstreamRateFPS.enumValues;
+                                _taisyncGimbalManager.setBitstreamRateFPS(values[currentIndex]);
+                            }
+                        }
+                        QGCSwitch {
+                            checked:            _taisyncCameraSettings.intraRefresh.value
+                            enabled:            _taisyncGimbalEnable.rawValue && _taisyncHttpStatus
+                            onClicked: {
+                                _taisyncGimbalManager.setIntraRefresh(checked);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Component.onCompleted: {
+                if (_isTaisyncGimbalSupport) {
+                    _taisyncCameraSettings.enable.value = true;
+                }
+            }
+            Component.onDestruction: {
+                if (_isTaisyncGimbalSupport) {
+                    _taisyncCameraSettings.enable.value = false;
+                }
             }
         }
     }
+
 }

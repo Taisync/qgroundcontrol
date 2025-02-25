@@ -48,8 +48,14 @@ public:
 #ifndef NO_SERIAL_LINK
         TypeSerial,     ///< Serial Link
 #endif
+#ifdef  ANDROID
+        TypeTtys,       ///< Serial Anroid/Linux
+#endif
         TypeUdp,        ///< UDP Link
         TypeTcp,        ///< TCP Link
+#ifdef QGC_TCP_FORWARDING_LINK
+        TypeTcpServer,  ///< TCP Server Link
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
         TypeBluetooth,  ///< Bluetooth Link
 #endif

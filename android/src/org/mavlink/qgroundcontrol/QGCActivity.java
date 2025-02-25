@@ -197,6 +197,7 @@ public class QGCActivity extends QtActivity
         _drivers =                  new ArrayList<UsbSerialDriver>();
         _userDataHashByDeviceId =   new HashMap<Integer, Long>();
         m_ioManager =               new HashMap<Integer, UsbIoManager>();
+        MDNSManager.activity = this;
     }
 
     @Override

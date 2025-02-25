@@ -31,6 +31,11 @@ class TaisyncManager;
 #else
 class MicrohardManager;
 #endif
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+#include "TaisyncGimbalController.h"
+#else
+class TaisyncGimbalController;
+#endif
 
 #ifdef QT_DEBUG
 #include "MockLink.h"
@@ -83,6 +88,8 @@ public:
     Q_PROPERTY(QGeoCoordinate       flightMapPosition       READ    flightMapPosition       WRITE setFlightMapPosition  NOTIFY flightMapPositionChanged)
     Q_PROPERTY(double               flightMapZoom           READ    flightMapZoom           WRITE setFlightMapZoom      NOTIFY flightMapZoomChanged)
     Q_PROPERTY(double               flightMapInitialZoom    MEMBER  _flightMapInitialZoom   CONSTANT)   ///< Zoom level to use when either gcs or vehicle shows up for first time
+    Q_PROPERTY(TaisyncGimbalController*    taisyncGimbalController        READ    taisyncGimbalController        CONSTANT)
+    Q_PROPERTY(bool                 taisyncGimbalSupported      READ    taisyncGimbalSupported      CONSTANT)
 
     Q_PROPERTY(QString  parameterFileExtension  READ parameterFileExtension CONSTANT)
     Q_PROPERTY(QString  missionFileExtension    READ missionFileExtension   CONSTANT)
@@ -187,6 +194,13 @@ public:
     bool                    microhardSupported  () { return false; }
 #endif
 
+    TaisyncGimbalController* taisyncGimbalController() { return _taisyncGimbalController; }
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+    bool                    taisyncGimbalSupported  () { return true; }
+#else
+    bool                    taisyncGimbalSupported  () { return false; }
+#endif
+
     qreal zOrderTopMost             () { return 1000; }
     qreal zOrderWidgets             () { return 100; }
     qreal zOrderMapItems            () { return 50; }
@@ -256,6 +270,7 @@ private:
     FactGroup*              _gpsRtkFactGroup        = nullptr;
     TaisyncManager*         _taisyncManager         = nullptr;
     MicrohardManager*       _microhardManager       = nullptr;
+    TaisyncGimbalController*_taisyncGimbalController= nullptr;
     ADSBVehicleManager*     _adsbVehicleManager     = nullptr;
     QGCPalette*             _globalPalette          = nullptr;
     QmlUnitsConversion      _unitsConversion;
@@ -270,6 +285,7 @@ private:
     static const char* _flightMapPositionLatitudeSettingsKey;
     static const char* _flightMapPositionLongitudeSettingsKey;
     static const char* _flightMapZoomSettingsKey;
+    static const char* _QGCVersion;
 
     static QGeoCoordinate   _coord;
     static double           _zoom;

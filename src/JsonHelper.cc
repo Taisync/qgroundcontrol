@@ -274,6 +274,7 @@ QStringList JsonHelper::_addDefaultLocKeys(QJsonObject& jsonObject)
 
 QJsonObject JsonHelper::_translateObject(QJsonObject& jsonObject, const QString& translateContext, const QStringList& translateKeys)
 {
+    /*
     for (const QString& key: jsonObject.keys()) {
         if (jsonObject[key].isString()) {
             QString locString = jsonObject[key].toString();
@@ -303,7 +304,7 @@ QJsonObject JsonHelper::_translateObject(QJsonObject& jsonObject, const QString&
             jsonObject[key] = _translateObject(childJsonObject, translateContext, translateKeys);
         }
     }
-
+    */
     return jsonObject;
 }
 

@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-import QtQuick                  2.12
+import QtQuick                  2.15
 import QtQuick.Controls         2.4
 import QtQuick.Dialogs          1.3
 import QtQuick.Layouts          1.12
@@ -27,6 +27,7 @@ import QGroundControl.FlightMap     1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
+import taisyncInfo                  1.0
 
 // This is the ui overlay layer for the widgets/tools for Fly View
 Item {
@@ -240,6 +241,689 @@ Item {
                 // Anchor to left edge
                 return parentToolInsets.leftEdgeBottomInset + _toolsMargin
             }
+        }
+    }
+
+    /*taisync add*/
+    TaisyncInfo
+    {
+        id:taisyncPro
+    }
+
+    property bool _paramBoxShowEnable: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow.value
+    property bool _paramBoxVisible: true
+    Rectangle
+    {
+        id: paramBox
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        border.width: 1
+        border.color: "black"
+        width: 300*3//gridDataView.cellWidth * 2
+        height: 125*3
+        radius: 5
+        clip: true
+        color: Qt.rgba(255,255,255,100/255)
+        visible: _paramBoxShowEnable && _paramBoxVisible
+
+        MouseArea
+        {
+            anchors.fill: parent
+            drag.target: paramBox
+        }
+
+        // Label {
+        //     id: modelLabel1
+        //     visible: false
+        //     text: "000000000"
+        //     font.pointSize: 12
+        //     color: "#000000"
+        // }
+
+        Column
+        {
+            //row 1
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airRSSI1"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: "-"+taisyncPro.airRSSI0 +"dBm"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndRSSI1"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: "-"+taisyncPro.gndRSSI0+"dBm"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+            //row 2
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airRSSI2"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: "-"+taisyncPro.airRSSI1+"dBm"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndRSSI2"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: "-"+taisyncPro.gndRSSI1+"dBm"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            //row 3
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airSNR"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.airSNR + "dB"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndSNR"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.gndSNR + "dB"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+            //row 4
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airPass"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            id: viewAirPass
+                            width: 70*3
+                            text: taisyncPro.airLDPCPass
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndPass"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.gndLDPCPass
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            //row 5
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airFailed"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.airLDPCFailed
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndFailed"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.gndLDPCFailed
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            //row 6
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "airAnt"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.ant
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "gndAnt"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.antGnd
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            //row 7
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "freq"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.currFreq
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "mcs"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.mcs
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            //row 8
+            Row
+            {
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Item {
+                            width: 10*3
+                            height: 10*3
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 50*3
+                            text: "range"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.range + "m"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+                Item
+                {
+                    width: 150*3
+                    height: 15*3
+                    Row
+                    {
+                        spacing: 10*3
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Label {
+                            width: 50*3
+                            text: "rate"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Label {
+                            width: 70*3
+                            text: taisyncPro.dataRate+"kbps"
+                            font.pointSize: 12
+                            color: "#000000"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
+            // //row 9
+            // Row
+            // {
+            //     Item
+            //     {
+            //         width: 70*3
+            //         height: 15*3
+            //         Label {
+            //             anchors.fill: parent
+            //             anchors.leftMargin: 20*3
+            //             font.pointSize: 12
+            //             text: "Save log"
+            //             verticalAlignment: Text.AlignVCenter
+            //         }
+            //     }
+            //     Item {
+            //         width: 50*3
+            //         height: 15*3
+            //     }
+            //     Item
+            //     {
+            //         width: 30*3
+            //         height: 15*3
+            //         Switch
+            //         {
+            //             id: logSwitch
+            //             anchors.fill: parent
+            //             checked: false
+            //             indicator: Rectangle
+            //             {
+            //                 x: logSwitch.leftPadding
+            //                 y: parent.height/2 - height/2
+            //                 implicitHeight: 15*3
+            //                 implicitWidth: 30*3
+            //                 radius: height/2
+            //                 color:logSwitch.checked ? "#B0C4DE" : "#ffffff"
+            //                 border.color: "#cccccc"
+            //                 Rectangle
+            //                 {
+            //                     id: smallRect
+            //                     x: 1
+            //                     y: 1
+            //                     width: parent.height-2
+            //                     height: parent.height-2
+            //                     radius: height/2
+            //                     color: "#000000"
+            //                     border.color: "#000000"
+
+            //                     NumberAnimation on x
+            //                     {
+            //                         to: smallRect.width+2
+            //                         running: logSwitch.checked ? true : false
+            //                         duration: 200
+            //                     }
+
+            //                     NumberAnimation on x
+            //                     {
+            //                         to: 1
+            //                         running: logSwitch.checked ? false : true
+            //                         duration: 200
+            //                     }
+            //                 }
+            //             }
+            //             onCheckedChanged:
+            //             {
+            //                 if(checked)
+            //                 {
+            //                     console.log("start save log");
+            //                     taisyncPro.startLogSave();
+            //                 }
+            //                 else
+            //                 {
+            //                     console.log("stop save log");
+            //                     taisyncPro.stopLogSave();
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
+        }
+
+        Item
+        {
+            id: hideButton
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: 25*3
+            height: 25*3
+            Image {
+                anchors.fill: parent
+                anchors.margins: paramBox.border.width
+                fillMode: Image.PreserveAspectFit
+                source: "/res/resources/hide.png"
+            }
+            MouseArea
+            {
+                anchors.fill: parent
+                propagateComposedEvents: true
+                onClicked:
+                {
+                    _paramBoxVisible = false;
+                }
+            }
+        }
+    }
+    Rectangle
+    {
+        id: viewButton
+        visible: _paramBoxShowEnable && !_paramBoxVisible
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        width: (25-border.width*2)*3
+        height: (25-border.width*2)*3
+        border.width: 1
+        border.color: "black"
+        radius: 5
+        color: Qt.rgba(255,255,255,100/255)
+        Image {
+            anchors.fill: parent
+            anchors.margins: viewButton.border.width
+            fillMode: Image.PreserveAspectFit
+            source: "/res/resources/view.png"
+        }
+        MouseArea
+        {
+            anchors.fill: parent
+            onClicked:
+            {
+                _paramBoxVisible = true;
+            }
+            drag.target: viewButton
         }
     }
 

@@ -12,6 +12,7 @@ QMAKE_PROJECT_DEPTH = 0 # undocumented qmake flag to force absolute paths in mak
 # These are disabled until proven correct
 DEFINES += QGC_GST_TAISYNC_DISABLED
 DEFINES += QGC_GST_MICROHARD_DISABLED
+DEFINES += QGC_TCP_FORWARDING_LINK
 
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")
@@ -440,6 +441,7 @@ HEADERS += \
     src/api/QGCSettings.h \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
+    src/comm/TTYSLink.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -453,6 +455,7 @@ SOURCES += \
     src/api/QGCOptions.cc \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
+    src/comm/TTYSLink.cc
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
@@ -771,6 +774,11 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
         src/PairingManager/PairingManager.h \
 }
 
+contains (DEFINES, QGC_TCP_FORWARDING_LINK) {
+    HEADERS += \
+        src/comm/TCPServerLink.h \
+}
+
 AndroidBuild {
 HEADERS += \
     src/Joystick/JoystickAndroid.h \
@@ -1030,6 +1038,11 @@ SOURCES += \
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \
         src/PairingManager/PairingManager.cc \
+}
+
+contains (DEFINES, QGC_TCP_FORWARDING_LINK) {
+    SOURCES += \
+        src/comm/TCPServerLink.cc \
 }
 
 DebugBuild {
@@ -1307,6 +1320,14 @@ contains (DEFINES, QGC_DISABLE_MAVLINK_INSPECTOR) {
 contains (DEFINES, QGC_GST_TAISYNC_DISABLED) {
     DEFINES -= QGC_GST_TAISYNC_ENABLED
     message("Taisync disabled")
+    INCLUDEPATH += \
+        src/Taisync
+
+    HEADERS += \
+        src/Taisync/taisyncInfo.h \
+
+    SOURCES += \
+        src/Taisync/taisyncInfo.cc \
 } else {
     contains (DEFINES, QGC_GST_TAISYNC_ENABLED) {
         INCLUDEPATH += \

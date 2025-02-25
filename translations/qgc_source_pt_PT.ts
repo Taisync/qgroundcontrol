@@ -9707,6 +9707,11 @@ Clique em Ok para inciar o processo de auto-ajuste.</translation>
       <source>Enable MAVLink forwarding</source>
       <translation type="unfinished">Enable MAVLink forwarding</translation>
     </message>
+      <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
+      <source>Forwarding by TCP</source>
+      <translation type="unfinished">Use TCP</translation>
+    </message>
     <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="170"/>
       <source>Host name:</source>

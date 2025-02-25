@@ -172,6 +172,9 @@ DECLARE_SETTINGSFACT(AppSettings, firstRunPromptIdsShown)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlink)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkHostName)
 DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkAPMSupportHostName)
+DECLARE_SETTINGSFACT(AppSettings, forwardMavlinkByTcp)
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyViewShow)
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyDataSave)
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {

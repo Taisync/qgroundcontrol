@@ -22,7 +22,7 @@
 // as a meta type to silence that.
 #include <QMetaType>
 #include <QTcpSocket>
-
+#include <QTcpServer>
 //#define TCPLINK_READWRITE_DEBUG   // Use to debug data reads/writes
 
 class TCPLinkTest;
@@ -71,7 +71,6 @@ class TCPLink : public LinkInterface
 public:
     TCPLink(SharedLinkConfigurationPtr& config);
     virtual ~TCPLink();
-
     QTcpSocket* getSocket           (void) { return _socket; }
     void        signalBytesWritten  (void);
 
@@ -85,7 +84,6 @@ private slots:
 
     // LinkInterface overrides
     void _writeBytes(const QByteArray data) override;
-
 private:
     // LinkInterface overrides
     bool _connect(void) override;
@@ -97,6 +95,7 @@ private:
 
     TCPConfiguration* _tcpConfig;
     QTcpSocket*       _socket;
+
     bool              _socketIsConnected;
 
     quint64 _bitsSentTotal;

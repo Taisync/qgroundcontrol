@@ -91,11 +91,13 @@ public:
 public slots:
     virtual void start(const QString& uri, unsigned timeout, int buffer = 0);
     virtual void stop(void);
-    virtual void startDecoding(void* sink);
+    virtual void startDecoding(void* sink, QString Host, bool forward);
     virtual void stopDecoding(void);
     virtual void startRecording(const QString& videoFile, FILE_FORMAT format);
     virtual void stopRecording(void);
     virtual void takeScreenshot(const QString& imageFile);
+    virtual void startVideoForward(const QString host);
+    virtual void stopVideoForward(void);
 
 protected slots:
     virtual void _watchdog(void);
@@ -116,6 +118,7 @@ protected:
     virtual bool _unlinkBranch(GstElement* from);
     virtual void _shutdownDecodingBranch (void);
     virtual void _shutdownRecordingBranch(void);
+    virtual void _shutdownForwardBranch(void);
 
     bool _needDispatch(void);
     void _dispatchSignal(std::function<void()> emitter);
@@ -140,9 +143,12 @@ protected:
     GstElement*         _tee;
     GstElement*         _decoderValve;
     GstElement*         _recorderValve;
+    GstElement*         _udpSinkValve;
     GstElement*         _decoder;
+    GstElement*         _rtpPay;
     GstElement*         _videoSink;
     GstElement*         _fileSink;
+    GstElement*         _udpSink;
     GstElement*         _pipeline;
 
     qint64              _lastSourceFrameTime;
@@ -160,6 +166,9 @@ protected:
     QString             _uri;
     unsigned            _timeout;
     int                 _buffer;
+    int                 _isH265;
+    int                 _forward;
+    QString             _host;
 
     Worker              _slotHandler;
     uint32_t            _signalDepth;

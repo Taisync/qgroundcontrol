@@ -13,12 +13,19 @@
 #endif
 #include "UDPLink.h"
 #include "TCPLink.h"
+#ifdef QGC_TCP_FORWARDING_LINK
+#include "TCPServerLink.h"
+#endif
 #include "LogReplayLink.h"
 #ifdef QGC_ENABLE_BLUETOOTH
 #include "BluetoothLink.h"
 #endif
 #ifdef QT_DEBUG
 #include "MockLink.h"
+#endif
+
+#ifdef ANDROID
+#include "TTYSLink.h"
 #endif
 
 #define LINK_SETTING_ROOT "LinkConfigurations"
@@ -74,12 +81,22 @@ LinkConfiguration* LinkConfiguration::createSettings(int type, const QString& na
             config = new SerialConfiguration(name);
             break;
 #endif
+#ifdef ANDROID
+        case LinkConfiguration::TypeTtys:
+            config = new TtysConfiguration(name);
+            break;
+#endif
         case LinkConfiguration::TypeUdp:
             config = new UDPConfiguration(name);
             break;
         case LinkConfiguration::TypeTcp:
             config = new TCPConfiguration(name);
             break;
+#ifdef QGC_TCP_FORWARDING_LINK
+        case LinkConfiguration::TypeTcpServer:
+            config = new TCPServerConfiguration(name);
+            break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
     case LinkConfiguration::TypeBluetooth:
         config = new BluetoothConfiguration(name);
@@ -110,12 +127,22 @@ LinkConfiguration* LinkConfiguration::duplicateSettings(LinkConfiguration* sourc
             dupe = new SerialConfiguration(qobject_cast<SerialConfiguration*>(source));
             break;
 #endif
+#ifdef ANDROID
+        case TypeTtys:
+            dupe = new TtysConfiguration(qobject_cast<TtysConfiguration*>(source));
+            break;
+#endif
         case TypeUdp:
             dupe = new UDPConfiguration(qobject_cast<UDPConfiguration*>(source));
             break;
         case TypeTcp:
             dupe = new TCPConfiguration(qobject_cast<TCPConfiguration*>(source));
             break;
+#ifdef QGC_TCP_FORWARDING_LINK
+        case LinkConfiguration::TypeTcpServer:
+            dupe = new TCPServerConfiguration(qobject_cast<TCPServerConfiguration*>(source));
+            break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
         case TypeBluetooth:
             dupe = new BluetoothConfiguration(qobject_cast<BluetoothConfiguration*>(source));

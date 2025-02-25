@@ -42,6 +42,9 @@ class TaisyncManager;
 #if defined(QGC_GST_MICROHARD_ENABLED)
 class MicrohardManager;
 #endif
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+class TaisyncGimbalController;
+#endif
 
 /// This is used to manage all of our top level services/tools
 class QGCToolbox : public QObject {
@@ -79,7 +82,9 @@ public:
 #if defined(QGC_GST_MICROHARD_ENABLED)
     MicrohardManager*           microhardManager        () { return _microhardManager; }
 #endif
-
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+    TaisyncGimbalController*    taisyncGimbalController () { return _taisyncGimbalController; }
+#endif
 private:
     void setChildToolboxes(void);
     void _scanAndLoadPlugins(QGCApplication *app);
@@ -115,6 +120,10 @@ private:
 #if defined(QGC_GST_MICROHARD_ENABLED)
     MicrohardManager*           _microhardManager       = nullptr;
 #endif
+#if defined(TAISYNC_GIMBAL_SUPPORT)
+    TaisyncGimbalController*    _taisyncGimbalController = nullptr;
+#endif
+
     friend class QGCApplication;
 };
 

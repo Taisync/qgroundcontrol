@@ -9702,6 +9702,11 @@ Click Ok to start the auto-tuning process.
       <translation>MAVLink転送を有効にします</translation>
     </message>
     <message>
+      <location filename="../src/ui/preferences/MavlinkSettings.qml" line="159"/>
+      <source>Forwarding by TCP</source>
+      <translation>TCPの使用</translation>
+    </message>
+    <message>
       <location filename="../src/ui/preferences/MavlinkSettings.qml" line="170"/>
       <source>Host name:</source>
       <translation>ホスト名:</translation>

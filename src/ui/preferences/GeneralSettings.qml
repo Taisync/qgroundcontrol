@@ -395,6 +395,20 @@ Rectangle {
                                     fact:                   _videoSettings.forceVideoDecoder
                                     visible:                fact.visible
                                     indexModel:             false
+                                    enabled:                false
+                                }
+
+                                QGCLabel {
+                                    id:         forwardLabel
+                                    text:       qsTr("Forward Host")
+                                    visible:    _showSaveVideoSettings
+                                }
+
+                                FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _videoSettings.forwardVideoHostName
+                                    visible:                forwardLabel.visible
+                                    enabled:    _videoSettings.forwardVideo.rawValue
                                 }
 
                                 Item { width: 1; height: 1}
@@ -417,6 +431,28 @@ Rectangle {
                                     fact:       _videoSettings.enableStorageLimit
                                     visible:    _showSaveVideoSettings && fact.visible
                                 }
+
+                                Item { width: 1; height: 1}
+                                FactCheckBox {
+                                    text:       qsTr("Video forward")
+                                    fact:       _videoSettings.forwardVideo
+                                    visible:    _showSaveVideoSettings && fact.visible
+                                }
+                            }
+
+                            FactCheckBox {
+                                text:       qsTr("Enable Fly Data Show")
+                                visible:    true
+                                fact:       _enableTaisyncFlyView
+
+                                property Fact _enableTaisyncFlyView: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow
+                            }
+                            FactCheckBox {
+                                text:       qsTr("Enable Fly Data Auto Save")
+                                visible:    true
+                                fact:       _enableTaisyncFlyDataSave
+
+                                property Fact _enableTaisyncFlyDataSave: QGroundControl.settingsManager.appSettings.taisyncFlyDataSave
                             }
                         }
                     }

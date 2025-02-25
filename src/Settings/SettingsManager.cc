@@ -31,6 +31,9 @@ SettingsManager::SettingsManager(QGCApplication* app, QGCToolbox* toolbox)
     , _apmMavlinkStreamRateSettings (nullptr)
 #endif
     , _remoteIDSettings             (nullptr)
+#ifdef TAISYNC_GIMBAL_SUPPORT
+    , _taisyncCameraSettings        (nullptr)
+#endif
 {
 
 }
@@ -57,5 +60,8 @@ void SettingsManager::setToolbox(QGCToolbox *toolbox)
 #if !defined(NO_ARDUPILOT_DIALECT)
     _apmMavlinkStreamRateSettings = new APMMavlinkStreamRateSettings(this);
 #endif
-    _remoteIDSettings =             new RemoteIDSettings            (this); 
+    _remoteIDSettings =             new RemoteIDSettings            (this);
+#ifdef TAISYNC_GIMBAL_SUPPORT
+    _taisyncCameraSettings =        new TaisyncCameraSettings       (this);
+#endif
 }

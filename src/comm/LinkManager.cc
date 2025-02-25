@@ -22,6 +22,9 @@
 #include "QGCApplication.h"
 #include "UDPLink.h"
 #include "TCPLink.h"
+#ifdef QGC_TCP_FORWARDING_LINK
+#include "TCPServerLink.h"
+#endif
 #include "SettingsManager.h"
 #include "LogReplayLink.h"
 #ifdef QGC_ENABLE_BLUETOOTH
@@ -42,6 +45,10 @@
 #include <qmdnsengine/mdns.h>
 #include <qmdnsengine/server.h>
 #include <qmdnsengine/service.h>
+
+#ifdef __android__
+#include "AndroidInterface.h"
+#endif
 
 QGC_LOGGING_CATEGORY(LinkManagerLog, "LinkManagerLog")
 QGC_LOGGING_CATEGORY(LinkManagerVerboseLog, "LinkManagerVerboseLog")
@@ -120,12 +127,22 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
 #else
     Q_UNUSED(isPX4Flow)
 #endif
+#ifdef ANDROID
+    case LinkConfiguration::TypeTtys:
+        link = std::make_shared<TTYSLink>(config);
+        break;
+#endif
     case LinkConfiguration::TypeUdp:
         link = std::make_shared<UDPLink>(config);
         break;
     case LinkConfiguration::TypeTcp:
         link = std::make_shared<TCPLink>(config);
         break;
+#ifdef QGC_TCP_FORWARDING_LINK
+    case LinkConfiguration::TypeTcpServer:
+        link = std::make_shared<TCPServerLink>(config);
+        break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
     case LinkConfiguration::TypeBluetooth:
         link = std::make_shared<BluetoothLink>(config);
@@ -175,13 +192,16 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr& config, bool i
 
 SharedLinkInterfacePtr LinkManager::mavlinkForwardingLink()
 {
-    for (auto& link : _rgLinks) {
-        SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
-        if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == _mavlinkForwardingLinkName) {
-            return link;
+    bool forwardingEnabled = _app->toolbox()->settingsManager()->appSettings()->forwardMavlink()->rawValue().toBool();
+    if (forwardingEnabled) {
+        LinkConfiguration::LinkType forwardingType = _forwardingType();
+        for (auto& link : _rgLinks) {
+            SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
+            if (linkConfig->type() == forwardingType && linkConfig->name() == _mavlinkForwardingLinkName) {
+                return link;
+            }
         }
     }
-
     return nullptr;
 }
 
@@ -317,12 +337,22 @@ void LinkManager::loadLinkConfigurationList()
                                 link = new SerialConfiguration(name);
                                 break;
 #endif
+#ifdef ANDROID
+                            case LinkConfiguration::TypeTtys:
+                                link = new TtysConfiguration(name);
+                                break;
+#endif
                             case LinkConfiguration::TypeUdp:
                                 link = new UDPConfiguration(name);
                                 break;
                             case LinkConfiguration::TypeTcp:
                                 link = new TCPConfiguration(name);
                                 break;
+#ifdef QGC_TCP_FORWARDING_LINK
+                            case LinkConfiguration::TypeTcpServer:
+                                link = new TCPServerConfiguration(name);
+                                break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
                             case LinkConfiguration::TypeBluetooth:
                                 link = new BluetoothConfiguration(name);
@@ -411,10 +441,11 @@ void LinkManager::_addMAVLinkForwardingLink(void)
 {
     if (_toolbox->settingsManager()->appSettings()->forwardMavlink()->rawValue().toBool()) {
         bool foundMAVLinkForwardingLink = false;
+        LinkConfiguration::LinkType forwardingType = _forwardingType();
 
         for (int i=0; i<_rgLinks.count(); i++) {
             SharedLinkConfigurationPtr linkConfig = _rgLinks[i]->linkConfiguration();
-            if (linkConfig->type() == LinkConfiguration::TypeUdp && linkConfig->name() == _mavlinkForwardingLinkName) {
+            if (linkConfig->type() == forwardingType && linkConfig->name() == _mavlinkForwardingLinkName) {
                 foundMAVLinkForwardingLink = true;
                 // TODO: should we check if the host/port matches the mavlinkForwardHostName setting and update if it does not match?
                 break;
@@ -423,7 +454,12 @@ void LinkManager::_addMAVLinkForwardingLink(void)
 
         if (!foundMAVLinkForwardingLink) {
             QString hostName = _toolbox->settingsManager()->appSettings()->forwardMavlinkHostName()->rawValue().toString();
-            _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+            bool useTcp = _toolbox->settingsManager()->appSettings()->forwardMavlinkByTcp()->rawValue().toBool();
+            if (useTcp) { // Tcp Server
+                _createDynamicForwardTcpLink(_mavlinkForwardingLinkName, hostName);
+            } else { // Udp
+                _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+            }
         }
     }
 }
@@ -470,6 +506,12 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
                 qCDebug(LinkManagerVerboseLog) << "Connection already exist";
                 return;
             }
+#ifdef __android__
+            // ignore zero-conf broadcast from self in Android
+            if (QString(service.name()).endsWith(AndroidInterface::uuid())) {
+                return;
+            }
+#endif
 
             auto link = new UDPConfiguration(udpName);
             link->addHost(hostname, service.port());
@@ -495,7 +537,7 @@ void LinkManager::_addZeroConfAutoConnectLink(void)
             SharedLinkConfigurationPtr config = addConfiguration(link);
             createConnectedLink(config);
             return;
-        }
+        }        
     });
 }
 
@@ -690,8 +732,15 @@ QStringList LinkManager::linkTypeStrings(void) const
 #ifndef NO_SERIAL_LINK
         list += tr("Serial");
 #endif
+#ifdef  ANDROID
+        list += tr("TTYS");
+#endif
         list += tr("UDP");
         list += tr("TCP");
+// must add here if supports "TCP Server" in "Comm Links"
+// #ifdef QGC_TCP_FORWARDING_LINK
+//         list += tr("TCP Server");
+// #endif
 #ifdef QGC_ENABLE_BLUETOOTH
         list += "Bluetooth";
 #endif
@@ -925,11 +974,27 @@ void LinkManager::_createDynamicForwardLink(const char* linkName, QString hostNa
 {
     UDPConfiguration* udpConfig = new UDPConfiguration(linkName);
     udpConfig->setDynamic(true);
-    
     udpConfig->addHost(hostName);
-    
     SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
+    //SharedLinkConfigurationPtr config = addConfiguration(udpConfig);
     createConnectedLink(config);
 
     qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding port added: " << linkName << " hostname: " << hostName;
+}
+
+void LinkManager::_createDynamicForwardTcpLink(const char* linkName, QString hostName)
+{
+    TCPServerConfiguration* tcpConfig = new TCPServerConfiguration(linkName);
+    tcpConfig->setDynamic(true);
+    tcpConfig->setHost(hostName);
+    SharedLinkConfigurationPtr config = addConfiguration(tcpConfig);
+    createConnectedLink(config);
+
+    qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding tcp port added: " << linkName << " listenPort: " << tcpConfig->port();
+}
+
+LinkConfiguration::LinkType LinkManager::_forwardingType(void)
+{
+    bool useTcp = _app->toolbox()->settingsManager()->appSettings()->forwardMavlinkByTcp()->rawValue().toBool();
+    return useTcp ? LinkConfiguration::LinkType::TypeTcpServer : LinkConfiguration::LinkType::TypeUdp;
 }
