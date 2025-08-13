@@ -19,8 +19,9 @@
 #ifdef QGC_ZEROCONF_ENABLED
 #ifdef Q_OS_WIN
 #define WIN32_LEAN_AND_MEAN
-#endif
+#elif defined(Q_OS_MACOS) || defined(Q_OS_IOS)
 #include <dns_sd.h>
+#endif
 #endif
 
 #include "LinkConfiguration.h"
@@ -94,14 +95,15 @@ public:
     quint16 localPort() const { return _localPort; }
     void setLocalPort(quint16 port) { if (port != _localPort) { _localPort = port; emit localPortChanged(); } }
 
+    static QString getIpAddress(const QString &address);
+    static bool isIp(const QString &address);
+
 signals:
     void hostListChanged();
     void localPortChanged();
 
 private:
     void _updateHostList();
-
-    static QString _getIpAddress(const QString &address);
 
     QStringList _hostList;
     QList<std::shared_ptr<UDPClient>> _targetHosts;
@@ -154,9 +156,11 @@ private:
 #ifdef QGC_ZEROCONF_ENABLED
     void _registerZeroconf(uint16_t port);
     void _deregisterZeroconf();
+#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
     static void _zeroconfRegisterCallback(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *name, const char *regtype, const char *domain, void *context);
 
     DNSServiceRef _dnssServiceRef = nullptr;
+#endif
 #endif
 };
 

@@ -12,6 +12,7 @@
 #include "DeviceInfo.h"
 #include "QGCLoggingCategory.h"
 #include "SettingsManager.h"
+#include "LinkManager.h"
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QThread>
@@ -154,6 +155,9 @@ void UDPConfiguration::addHost(const QString &host)
         const quint16 port = hostInfo.constLast().toUInt();
 
         addHost(address, port);
+        if (_localPort == 0) { // use the same port as target
+            setLocalPort(port);
+        }
     } else {
         addHost(host, _localPort);
     }
@@ -161,7 +165,8 @@ void UDPConfiguration::addHost(const QString &host)
 
 void UDPConfiguration::addHost(const QString &host, quint16 port)
 {
-    const QString ipAdd = _getIpAddress(host);
+    const QString ipAdd = getIpAddress(host);
+    qCInfo(UDPLinkLog) << "addHost:" << ipAdd << port;
     if (ipAdd.isEmpty()) {
         qCWarning(UDPLinkLog) << "Could not resolve host:" << host << "port:" << port;
         return;
@@ -183,7 +188,7 @@ void UDPConfiguration::removeHost(const QString &host)
             return;
         }
 
-        const QHostAddress address = QHostAddress(_getIpAddress(hostInfo.constFirst()));
+        const QHostAddress address = QHostAddress(getIpAddress(hostInfo.constFirst()));
         const quint16 port = hostInfo.constLast().toUInt();
 
         if (!containsTarget(_targetHosts, address, port)) {
@@ -206,7 +211,7 @@ void UDPConfiguration::removeHost(const QString &host)
 
 void UDPConfiguration::removeHost(const QString &host, quint16 port)
 {
-    const QString ipAdd = _getIpAddress(host);
+    const QString ipAdd = getIpAddress(host);
     if (ipAdd.isEmpty()) {
         qCWarning(UDPLinkLog) << "Could not resolve host:" << host << "port:" << port;
         return;
@@ -239,7 +244,7 @@ void UDPConfiguration::_updateHostList()
     emit hostListChanged();
 }
 
-QString UDPConfiguration::_getIpAddress(const QString &address)
+QString UDPConfiguration::getIpAddress(const QString &address)
 {
     const QHostAddress host(address);
     if (!host.isNull()) {
@@ -259,6 +264,16 @@ QString UDPConfiguration::_getIpAddress(const QString &address)
     }
 
     return QString();
+}
+
+bool UDPConfiguration::isIp(const QString &address)
+{
+    int a,b,c,d;
+    if (sscanf(address.toStdString().c_str(), "%d.%d.%d.%d", &a, &b, &c, &d) != 4 && strcmp("::1", address.toStdString().c_str())) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /*===========================================================================*/
@@ -331,7 +346,7 @@ void UDPWorker::connectLink()
 
     _errorEmitted = false;
 
-    qCDebug(UDPLinkLog) << "Attempting to bind to port:" << _udpConfig->localPort();
+    qCDebug(UDPLinkLog) << "Attempting to bind to port:" << _udpConfig->localPort() << _udpConfig->name();
     const bool bindSuccess = _socket->bind(QHostAddress::AnyIPv4, _udpConfig->localPort(), QAbstractSocket::ReuseAddressHint | QAbstractSocket::ShareAddress);
     if (!bindSuccess) {
         qCWarning(UDPLinkLog) << "Failed to bind UDP socket to port" << _udpConfig->localPort();
@@ -448,7 +463,9 @@ void UDPWorker::_onSocketReadyRead()
 
         if ((buffer.size() > BUFFER_TRIGGER_SIZE) || (timer.elapsed() > RECEIVE_TIME_LIMIT_MS)) {
             received = true;
-            emit dataReceived(buffer);
+            if (LinkManager::instance()->mavlinkReceiveEnabled()) {
+                emit dataReceived(buffer);
+            }
             buffer.clear();
             (void) timer.restart();
         }
@@ -469,7 +486,9 @@ void UDPWorker::_onSocketReadyRead()
         return;
     }
 
-    emit dataReceived(buffer);
+    if (LinkManager::instance()->mavlinkReceiveEnabled()) {
+        emit dataReceived(buffer);
+    }
 }
 
 void UDPWorker::_onSocketBytesWritten(qint64 bytes)
@@ -489,6 +508,7 @@ void UDPWorker::_onSocketErrorOccurred(QUdpSocket::SocketError error)
 }
 
 #ifdef QGC_ZEROCONF_ENABLED
+#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
 void UDPWorker::_zeroconfRegisterCallback(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorType errorCode, const char *name, const char *regtype, const char *domain, void *context)
 {
     Q_UNUSED(sdRef); Q_UNUSED(flags); Q_UNUSED(name); Q_UNUSED(regtype); Q_UNUSED(domain);
@@ -500,9 +520,11 @@ void UDPWorker::_zeroconfRegisterCallback(DNSServiceRef sdRef, DNSServiceFlags f
         emit worker->errorOccurred(tr("Zeroconf Register Error: %1").arg(errorCode));
     }
 }
+#endif
 
 void UDPWorker::_registerZeroconf(uint16_t port)
 {
+#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
     static constexpr const char *regType = "_qgroundcontrol._udp";
 
     if (_dnssServiceRef) {
@@ -523,7 +545,7 @@ void UDPWorker::_registerZeroconf(uint16_t port)
         NULL,
         &UDPWorker::_zeroconfRegisterCallback,
         this
-    );
+        );
 
     if (result != kDNSServiceErr_NoError) {
         _dnssServiceRef = NULL;
@@ -545,14 +567,19 @@ void UDPWorker::_registerZeroconf(uint16_t port)
         }
         socketNotifier->deleteLater();
     });
+#else
+    Q_UNUSED(port);
+#endif
 }
 
 void UDPWorker::_deregisterZeroconf()
 {
+#if defined(Q_OS_MACOS) || defined(Q_OS_IOS)
     if (_dnssServiceRef) {
         DNSServiceRefDeallocate(_dnssServiceRef);
         _dnssServiceRef = NULL;
     }
+#endif
 }
 #endif // QGC_ZEROCONF_ENABLED
 

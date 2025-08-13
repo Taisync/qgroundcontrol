@@ -420,8 +420,12 @@ public class QGCUsbSerialManager {
         final List<String> deviceInfoList = new ArrayList<>();
 
         for (final UsbDevice device : usbManager.getDeviceList().values()) {
-            final String deviceInfo = formatDeviceInfo(device);
-            deviceInfoList.add(deviceInfo);
+            try {
+                final String deviceInfo = formatDeviceInfo(device);
+                deviceInfoList.add(deviceInfo);
+            } catch (Exception e) {
+                Log.w(TAG, String.valueOf(e));
+            }
         }
 
         return deviceInfoList.toArray(new String[0]);

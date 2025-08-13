@@ -69,6 +69,7 @@
 #include "Vehicle.h"
 #include "VehicleComponent.h"
 #include "VideoManager.h"
+#include "TaisyncInfo.h"
 
 #ifndef QGC_DISABLE_MAVLINK_INSPECTOR
 #include "MAVLinkInspectorController.h"
@@ -205,7 +206,7 @@ QGCApplication::QGCApplication(int &argc, char *argv[], bool unitTesting, bool s
     setLanguage();
 
 #ifndef QGC_DAILY_BUILD
-    _checkForNewVersion();
+    // _checkForNewVersion();
 #endif
 }
 
@@ -306,6 +307,7 @@ void QGCApplication::init()
     qmlRegisterType<JoystickConfigController>("QGroundControl.Controllers", 1, 0, "JoystickConfigController");
 
     (void) qmlRegisterSingletonType<ShapeFileHelper>("QGroundControl.ShapeFileHelper", 1, 0, "ShapeFileHelper", [](QQmlEngine *, QJSEngine *) { return new ShapeFileHelper(); });
+    qmlRegisterType<TaisyncInfo>("TaisyncInfo", 1, 0, "TaisyncInfo");
 
     qmlRegisterSingletonType<QGCMAVLink>("MAVLink", 1, 0, "MAVLink", mavlinkSingletonFactory);
 

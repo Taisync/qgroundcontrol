@@ -315,7 +315,7 @@ void QGroundControlQmlGlobal::setFlightMapZoom(double zoom)
 
 QString QGroundControlQmlGlobal::qgcVersion(void)
 {
-    QString versionStr = QCoreApplication::applicationVersion();
+    QString versionStr = _QGCVersion;
     if(QSysInfo::buildAbi().contains("32"))
     {
         versionStr += QStringLiteral(" %1").arg(tr("32 bit"));

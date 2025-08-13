@@ -112,6 +112,22 @@ SettingsPage {
             visible:            _updateHomePosition.visible
             property Fact _updateHomePosition: _flyViewSettings.updateHomePosition
         }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Enable Fly Data Show")
+            fact:               _enableTaisyncFlyView
+            visible:            _enableTaisyncFlyView.visible
+            property Fact _enableTaisyncFlyView: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow
+        }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Enable Fly Data Auto Save")
+            fact:               _enableTaisyncFlyDataSave
+            visible:            _enableTaisyncFlyDataSave.visible
+            property Fact _enableTaisyncFlyDataSave: QGroundControl.settingsManager.appSettings.taisyncFlyDataSave
+        }
     }
 
     SettingsGroupLayout {

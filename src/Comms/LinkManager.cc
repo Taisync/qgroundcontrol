@@ -19,6 +19,9 @@
 #include "MavlinkSettings.h"
 #include "AutoConnectSettings.h"
 #include "TCPLink.h"
+#ifdef QGC_TCP_FORWARDING_LINK
+#include "TCPServerLink.h"
+#endif
 #include "UDPLink.h"
 
 #ifdef QGC_ENABLE_BLUETOOTH
@@ -31,6 +34,10 @@
 #include "PositionManager.h"
 #include "UdpIODevice.h"
 #include "GPSRtk.h"
+#endif
+
+#ifdef Q_OS_ANDROID
+#include "TTYSLink.h"
 #endif
 
 #ifdef QT_DEBUG
@@ -47,6 +54,13 @@
 #include <qmdnsengine/mdns.h>
 #include <qmdnsengine/server.h>
 #include <qmdnsengine/service.h>
+#include <qmdnsengine/resolver.h>
+#endif
+
+#ifdef QGC_ZEROCONF_ENABLED
+#ifdef Q_OS_ANDROID
+#include "AndroidInterface.h"
+#endif
 #endif
 
 #include <QtCore/qapplicationstatic.h>
@@ -130,12 +144,22 @@ bool LinkManager::createConnectedLink(SharedLinkConfigurationPtr &config)
         link = std::make_shared<SerialLink>(config);
         break;
 #endif
+#ifdef Q_OS_ANDROID
+    case LinkConfiguration::TypeTtys:
+        link = std::make_shared<TTYSLink>(config);
+        break;
+#endif
     case LinkConfiguration::TypeUdp:
         link = std::make_shared<UDPLink>(config);
         break;
     case LinkConfiguration::TypeTcp:
         link = std::make_shared<TCPLink>(config);
         break;
+#ifdef QGC_TCP_FORWARDING_LINK
+    case LinkConfiguration::TypeTcpServer:
+        link = std::make_shared<TCPServerLink>(config);
+        break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
     case LinkConfiguration::TypeBluetooth:
         link = std::make_shared<BluetoothLink>(config);
@@ -196,10 +220,14 @@ void LinkManager::_communicationError(const QString &title, const QString &error
 
 SharedLinkInterfacePtr LinkManager::mavlinkForwardingLink()
 {
-    for (SharedLinkInterfacePtr &link : _rgLinks) {
-        const SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
-        if ((linkConfig->type() == LinkConfiguration::TypeUdp) && (linkConfig->name() == _mavlinkForwardingLinkName)) {
-            return link;
+    bool forwardingEnabled = SettingsManager::instance()->mavlinkSettings()->forwardMavlink()->rawValue().toBool();
+    if (forwardingEnabled) {
+        LinkConfiguration::LinkType forwardingType = _forwardingType();
+        for (auto& link : _rgLinks) {
+            SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
+            if (linkConfig->type() == forwardingType && linkConfig->name() == _mavlinkForwardingLinkName) {
+                return link;
+            }
         }
     }
 
@@ -339,12 +367,22 @@ void LinkManager::loadLinkConfigurationList()
                 link = new SerialConfiguration(name);
                 break;
 #endif
+#ifdef Q_OS_ANDROID
+            case LinkConfiguration::TypeTtys:
+                link = new TTYSConfiguration(name);
+                break;
+#endif
             case LinkConfiguration::TypeUdp:
                 link = new UDPConfiguration(name);
                 break;
             case LinkConfiguration::TypeTcp:
                 link = new TCPConfiguration(name);
                 break;
+#ifdef QGC_TCP_FORWARDING_LINK
+            case LinkConfiguration::TypeTcpServer:
+                link = new TCPServerConfiguration(name);
+                break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
             case LinkConfiguration::TypeBluetooth:
                 link = new BluetoothConfiguration(name);
@@ -410,16 +448,26 @@ void LinkManager::_addMAVLinkForwardingLink()
         return;
     }
 
+    LinkConfiguration::LinkType forwardingType = _forwardingType();
     for (const SharedLinkInterfacePtr &link : _rgLinks) {
         const SharedLinkConfigurationPtr linkConfig = link->linkConfiguration();
-        if ((linkConfig->type() == LinkConfiguration::TypeUdp) && (linkConfig->name() == _mavlinkForwardingLinkName)) {
+        if ((linkConfig->type() == forwardingType) && (linkConfig->name() == _mavlinkForwardingLinkName)) {
             // TODO: should we check if the host/port matches the mavlinkForwardHostName setting and update if it does not match?
             return;
         }
     }
 
     const QString hostName = SettingsManager::instance()->mavlinkSettings()->forwardMavlinkHostName()->rawValue().toString();
-    _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+#ifdef QGC_TCP_FORWARDING_LINK
+    bool useTcp = SettingsManager::instance()->mavlinkSettings()->forwardMavlinkByTcp()->rawValue().toBool();
+    if (useTcp) { // Tcp Server
+        _createDynamicForwardTcpLink(_mavlinkForwardingLinkName, hostName);
+    } else { // Udp
+#endif
+        _createDynamicForwardLink(_mavlinkForwardingLinkName, hostName);
+#ifdef QGC_TCP_FORWARDING_LINK
+    }
+#endif
 }
 
 #ifdef QGC_ZEROCONF_ENABLED
@@ -431,8 +479,11 @@ void LinkManager::_addZeroConfAutoConnectLink()
 
     static QSharedPointer<QMdnsEngine::Server> server;
     static QSharedPointer<QMdnsEngine::Browser> browser;
+    static QSharedPointer<QMdnsEngine::Cache> cache;
     server.reset(new QMdnsEngine::Server());
     browser.reset(new QMdnsEngine::Browser(server.get(), QMdnsEngine::MdnsBrowseType));
+    cache.reset(new QMdnsEngine::Cache());
+    browser.reset(new QMdnsEngine::Browser(server.get(), QMdnsEngine::MdnsBrowseType, cache.get()));
 
     const auto checkIfConnectionLinkExist = [this](LinkConfiguration::LinkType linkType, const QString &linkName) {
         for (const SharedLinkInterfacePtr &link : std::as_const(_rgLinks)) {
@@ -466,14 +517,63 @@ void LinkManager::_addZeroConfAutoConnectLink()
                 qCDebug(LinkManagerLog) << "Connection already exist";
                 return;
             }
+#ifdef Q_OS_ANDROID
+            // ignore zero-conf broadcast from self in Android
+            if (QString(service.name()).endsWith(AndroidInterface::uuid())) {
+                return;
+            }
+#endif
 
-            UDPConfiguration *const link = new UDPConfiguration(udpName);
-            link->addHost(hostname, service.port());
-            link->setAutoConnect(true);
-            link->setDynamic(true);
-            SharedLinkConfigurationPtr config = addConfiguration(link);
-            if (!createConnectedLink(config)) {
-                qCWarning(LinkManagerLog) << "Failed to create" << udpName;
+            const auto addUDPLink = [this](QString address, quint16 port) {
+                qCDebug(LinkManagerVerboseLog) << "add ZeroConf connection:" << address << port;
+                auto link = new UDPConfiguration(udpName);
+                link->addHost(address, port);
+                link->setAutoConnect(true);
+                link->setDynamic(true);
+                SharedLinkConfigurationPtr config = addConfiguration(link);
+                if (!createConnectedLink(config)) {
+                    qCWarning(LinkManagerLog) << "Failed to create" << udpName;
+                }
+            };
+
+            QString address = UDPConfiguration::getIpAddress(hostname);
+            if (!address.isEmpty()) {
+                qCDebug(LinkManagerVerboseLog) << "Get ZeroConf ip1:" << address;
+                addUDPLink(address, service.port());
+                return;
+            }
+
+            {
+                static QMap<QString, QMdnsEngine::Resolver *> resolvers;
+                QString key = service.name();
+                if (!resolvers.contains(key)) {
+                    QMdnsEngine::Resolver *resolver = new QMdnsEngine::Resolver(server.get(), service.hostname());
+                    resolvers[key] = resolver;
+                    quint16 port = service.port();
+
+                    (void) QObject::connect(
+                        resolver, &QMdnsEngine::Resolver::resolved, this,
+                        [key, port, checkIfConnectionLinkExist, addUDPLink, this](const QHostAddress &address) {
+                            if (checkIfConnectionLinkExist(LinkConfiguration::TypeUdp, udpName)) {
+                                qCDebug(LinkManagerVerboseLog) << "Connection already exist";
+                                return;
+                            }
+
+                            if (UDPConfiguration::isIp(address.toString())) {
+                                qCDebug(LinkManagerVerboseLog) << "Get ZeroConf ip2:" << address;
+
+                                QMdnsEngine::Resolver *resolver = resolvers[key];
+                                if (resolver) {
+                                    QObject::disconnect(resolver);
+                                    resolver->deleteLater();
+                                }
+                                resolvers.remove(key);
+
+                                addUDPLink(address.toString(), port);
+                            }
+                        });
+                }
+                return;
             }
         } else if (service.type().startsWith("_mavlink._tcp")) {
             static QString tcpName = QStringLiteral("ZeroConf TCP");
@@ -555,8 +655,15 @@ QStringList LinkManager::linkTypeStrings() const
 #ifndef QGC_NO_SERIAL_LINK
     list += tr("Serial");
 #endif
+#ifdef Q_OS_ANDROID
+    list += tr("TTYS");
+#endif
     list += tr("UDP");
     list += tr("TCP");
+// must add here if supports "TCP Server" in "Comm Links"
+// #ifdef QGC_TCP_FORWARDING_LINK
+//         list += tr("TCP Server");
+// #endif
 #ifdef QGC_ENABLE_BLUETOOTH
     list += tr("Bluetooth");
 #endif
@@ -754,6 +861,30 @@ void LinkManager::_createDynamicForwardLink(const char *linkName, const QString 
     createConnectedLink(config);
 
     qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding port added:" << linkName << " hostname:" << hostName;
+}
+
+#ifdef QGC_TCP_FORWARDING_LINK
+void LinkManager::_createDynamicForwardTcpLink(const char* linkName, QString hostName)
+{
+    TCPServerConfiguration* tcpConfig = new TCPServerConfiguration(linkName);
+    tcpConfig->setDynamic(true);
+    tcpConfig->setForwarding(true);
+    tcpConfig->setHost(hostName);
+    SharedLinkConfigurationPtr config = addConfiguration(tcpConfig);
+    createConnectedLink(config);
+
+    qCDebug(LinkManagerLog) << "New dynamic MAVLink forwarding tcp port added: " << linkName << " listenPort: " << tcpConfig->port();
+}
+#endif
+
+LinkConfiguration::LinkType LinkManager::_forwardingType(void)
+{
+#ifdef QGC_TCP_FORWARDING_LINK
+    bool useTcp = SettingsManager::instance()->mavlinkSettings()->forwardMavlinkByTcp()->rawValue().toBool();
+    return useTcp ? LinkConfiguration::LinkType::TypeTcpServer : LinkConfiguration::LinkType::TypeUdp;
+#else
+    return LinkConfiguration::LinkType::TypeUdp;
+#endif
 }
 
 bool LinkManager::isLinkUSBDirect(const LinkInterface *link)

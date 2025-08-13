@@ -13,6 +13,7 @@
 #include <QtCore/QJniObject>
 #include <QtCore/QJniEnvironment>
 #include <QtCore/private/qandroidextras_p.h>
+#include <QUuid>
 
 QGC_LOGGING_CATEGORY(AndroidInterfaceLog, "qgc.android.src.androidinterface")
 
@@ -147,6 +148,24 @@ void setKeepScreenOn(bool on)
     Q_UNUSED(on);
 
     //-- Screen is locked on while QGC is running on Android
+}
+
+void broadcast(const QString& serviceName, const QString& serviceType, int port)
+{
+    QJniObject::callStaticObjectMethod(
+        "org/mavlink/qgroundcontrol/MDNSManager",
+        "startBroadcast",
+        "(Ljava/lang/String;Ljava/lang/String;I)V",
+        QJniObject::fromString(QStringLiteral("%1-%2").arg(serviceName).arg(uuid())).object<jstring>(),
+        QJniObject::fromString(serviceType).object<jstring>(),
+        port
+        );
+}
+
+QString uuid()
+{
+    static QString _uuid = QUuid::createUuid().toString(QUuid::WithoutBraces).left(8); // only use short segment for unique name
+    return _uuid;
 }
 
 } // namespace AndroidInterface

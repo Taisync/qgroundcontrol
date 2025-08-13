@@ -27,6 +27,7 @@ public class QGCActivity extends QtActivity {
 
     public QGCActivity() {
         m_instance = this;
+        MDNSManager.activity = this;
     }
 
     /**

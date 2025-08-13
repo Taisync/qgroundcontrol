@@ -116,6 +116,11 @@ DECLARE_SETTINGSFACT_NO_FUNC(AutoConnectSettings, autoConnectZeroConf)
 #ifdef Q_OS_IOS
         _autoConnectZeroConfFact->setVisible(false);
 #endif
+#ifdef Q_OS_ANDROID
+        // android support brastcast from self
+        // but not support auto connect by zero conf to avoid android-to-android cycle
+        _autoConnectZeroConfFact->setRawValue(false);
+#endif
     }
     return _autoConnectZeroConfFact;
 }

@@ -49,6 +49,17 @@ DECLARE_SETTINGSFACT(MavlinkSettings, saveCsvTelemetry)
 DECLARE_SETTINGSFACT(MavlinkSettings, forwardMavlink)
 DECLARE_SETTINGSFACT(MavlinkSettings, forwardMavlinkHostName)
 DECLARE_SETTINGSFACT(MavlinkSettings, forwardMavlinkAPMSupportHostName)
+DECLARE_SETTINGSFACT_NO_FUNC(MavlinkSettings, forwardMavlinkByTcp)
+{
+    if (!_forwardMavlinkByTcpFact) {
+        _forwardMavlinkByTcpFact = _createSettingsFact(mavlink2SigningKeyName);
+#ifndef QGC_TCP_FORWARDING_LINK
+        _forwardMavlinkByTcpFact->setVisible(false);
+        _forwardMavlinkByTcpFact->setRawValue(false);
+#endif
+    }
+    return _forwardMavlinkByTcpFact;
+}
 DECLARE_SETTINGSFACT(MavlinkSettings, sendGCSHeartbeat)
 DECLARE_SETTINGSFACT(MavlinkSettings, gcsMavlinkSystemID)
 DECLARE_SETTINGSFACT(MavlinkSettings, requireMatchingMavlinkVersions)

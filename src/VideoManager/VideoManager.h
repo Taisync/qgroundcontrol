@@ -133,6 +133,8 @@ private:
     QString _imageFile;
     QString _uvcVideoSourceID;
     Vehicle *_activeVehicle = nullptr;
+    QString _forwardHost;
+    bool _forwardVideo;
 };
 
 /*===========================================================================*/

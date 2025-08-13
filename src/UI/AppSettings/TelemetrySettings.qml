@@ -103,6 +103,14 @@ SettingsPage {
             visible:            fact.visible
         }
 
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Use TCP")
+            fact:               _mavlinkSettings.forwardMavlinkByTcp
+            visible:            fact.visible
+            enabled:            _mavlinkSettings.forwardMavlink.rawValue
+        }
+
         LabelledFactTextField {
             Layout.fillWidth:           true
             textFieldPreferredWidth:    ScreenTools.defaultFontPixelWidth * 20

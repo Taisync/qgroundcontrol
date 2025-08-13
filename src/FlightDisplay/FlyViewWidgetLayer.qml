@@ -27,6 +27,7 @@ import QGroundControl.FlightMap
 import QGroundControl.Palette
 import QGroundControl.ScreenTools
 import QGroundControl.Vehicle
+import TaisyncInfo
 
 // This is the ui overlay layer for the widgets/tools for Fly View
 Item {
@@ -123,6 +124,124 @@ Item {
         guidedController:           _guidedController
         guidedValueSlider:          _guidedValueSlider
         utmspSliderTrigger:         utmspActTrigger
+    }
+
+    TaisyncInfo {
+        id:taisyncPro
+    }
+
+    property bool _paramBoxShowEnable: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow.value
+    property bool _paramBoxVisible: true
+    Rectangle
+    {
+        id: paramBox
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        border.width: 1
+        border.color: "black"
+        width: gridLayout.implicitWidth + hideButton.width * 2
+        height: gridLayout.implicitHeight + ScreenTools.defaultFontPixelWidth * 2
+        radius: 5
+        clip: true
+        color: Qt.rgba(255,255,255,100/255)
+        visible: _paramBoxShowEnable && _paramBoxVisible
+
+        MouseArea
+        {
+            anchors.fill: parent
+            drag.target: paramBox
+        }
+
+        GridLayout {
+            property var _paramModel: [
+                "airRSSI1",     "-"+taisyncPro.airRSSI0 +"dBm",
+                "gndRSSI1",     "-"+taisyncPro.gndRSSI0+"dBm",
+                "airRSSI2",     "-"+taisyncPro.airRSSI1+"dBm",
+                "gndRSSI2",     "-"+taisyncPro.gndRSSI1+"dBm",
+                "airSNR",       taisyncPro.airSNR + "dB",
+                "gndSNR",       taisyncPro.gndSNR + "dB",
+                "airPass",      taisyncPro.airLDPCPass,
+                "gndPass",      taisyncPro.gndLDPCPass,
+                "airFailed",    taisyncPro.airLDPCFailed,
+                "gndFailed",    taisyncPro.gndLDPCFailed,
+                "airAnt",       taisyncPro.ant,
+                "gndAnt",       taisyncPro.antGnd,
+                "freq",         taisyncPro.currFreq,
+                "mcs",          taisyncPro.mcs,
+                "range",        taisyncPro.range + "m",
+                "rate",         taisyncPro.dataRate+"kbps"
+            ]
+
+            id: gridLayout
+            columns: 4
+            columnSpacing: ScreenTools.defaultFontPixelWidth * 3
+            rowSpacing: ScreenTools.defaultFontPixelWidth
+            anchors.centerIn: parent
+
+            Repeater {
+                model: gridLayout._paramModel
+
+                delegate: Label {
+                    text: modelData
+                    font.pointSize: 12
+                    color: "#000000"
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                }
+            }
+        }
+
+        Item {
+            id: hideButton
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: 50
+            height: 50
+            Image {
+                anchors.margins: paramBox.border.width
+                fillMode: Image.PreserveAspectFit
+                source: "/res/hide.png"
+                width: parseInt(parent.width * 0.8)
+                height: width
+                anchors.right: parent.right
+                anchors.top: parent.top
+            }
+            MouseArea {
+                anchors.fill: parent
+                propagateComposedEvents: true
+                onClicked:
+                {
+                    _paramBoxVisible = false;
+                }
+            }
+        }
+    }
+    Rectangle {
+        id: viewButton
+        visible: _paramBoxShowEnable && !_paramBoxVisible
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        width: 50
+        height: 50
+        border.width: 1
+        border.color: "black"
+        radius: 5
+        color: Qt.rgba(255,255,255,100/255)
+        Image {
+            width: parseInt(parent.width * 0.8)
+            height: width
+            anchors.centerIn: parent
+            fillMode: Image.PreserveAspectFit
+            source: "/res/view.png"
+        }
+        MouseArea
+        {
+            anchors.fill: parent
+            onClicked:
+            {
+                _paramBoxVisible = true;
+            }
+            drag.target: viewButton
+        }
     }
 
     //-- Virtual Joystick

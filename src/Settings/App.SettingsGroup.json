@@ -146,7 +146,7 @@
     "units":                "pt",
     "min":                  6,
     "max":                  48,
-    "default":         0
+    "default":         9
 },
 {
     "name":             "indoorPalette",
@@ -254,6 +254,20 @@
     "shortDesc": "AirLink Password",
     "type": "string",
     "default": ""
+},
+{
+    "name":             "taisyncFlyViewShow",
+    "shortDesc": "Enable fly data view show",
+    "longDesc":  "Enable fly data view show",
+    "type":             "bool",
+    "default":     false
+},
+{
+    "name":             "taisyncFlyDataSave",
+    "shortDesc": "Enable fly data auto save",
+    "longDesc":  "Enable fly data auto save",
+    "type":             "bool",
+    "default":     true
 }
 ]
 }

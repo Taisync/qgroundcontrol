@@ -18,6 +18,30 @@ target_sources(${CMAKE_PROJECT_NAME}
         UDPLink.h
 )
 
+if(QGC_TCP_FORWARDING_LINK)
+    target_sources(${CMAKE_PROJECT_NAME}
+        PRIVATE
+            TCPServerLink.cc
+            TCPServerLink.h
+    )
+    target_compile_definitions(${CMAKE_PROJECT_NAME}
+        PRIVATE
+        $<$<BOOL:${QGC_TCP_FORWARDING_LINK}>:QGC_TCP_FORWARDING_LINK>
+    )
+endif()
+
+if(QGC_TTYS_LINK)
+    target_sources(${CMAKE_PROJECT_NAME}
+        PRIVATE
+        TTYSLink.cc
+        TTYSLink.h
+    )
+    target_compile_definitions(${CMAKE_PROJECT_NAME}
+        PRIVATE
+        $<$<BOOL:${QGC_TTYS_LINK}>:QGC_TTYS_LINK>
+    )
+endif()
+
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QABSTRACTSOCKET_DEBUG)
@@ -59,7 +83,7 @@ endif()
 if(QGC_ZEROCONF_ENABLED)
     CPMAddPackage(
         NAME qmdnsengine
-        GITHUB_REPOSITORY nitroshare/qmdnsengine
+        GITHUB_REPOSITORY Taisync/qmdnsengine
         GIT_TAG master
         OPTIONS
             "BUILD_DOC OFF"

@@ -98,6 +98,12 @@ Item {
     }
 
     MouseArea {
+        // onDoubleClicked may conflict with onClicked, causing the callback to fail.
+        // So, the fullScreen toggle operation has been moved to onClicked for handling
+        property real preClickedTime: 0
+        property real doubleClickedMinTime: 100
+        property real doubleClickedMaxTime: 300
+
         id:                         flyViewVideoMouseArea
         anchors.fill:               parent
         enabled:                    pipState.state === pipState.fullState
@@ -113,8 +119,20 @@ Item {
         property var trackingROI:   null
         property var trackingStatus: trackingStatusComponent.createObject(flyViewVideoMouseArea, {})
 
-        onClicked:       onScreenGimbalController.clickControl()
-        onDoubleClicked: QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+        onClicked:       {
+            onScreenGimbalController.clickControl()
+
+            let now = (new Date()).getTime();
+            let delta = now - flyViewVideoMouseArea.preClickedTime
+            if (delta >= doubleClickedMinTime && delta <= doubleClickedMaxTime) {
+                QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
+                // clear flag
+                flyViewVideoMouseArea.preClickedTime = 0
+            } else {
+                flyViewVideoMouseArea.preClickedTime = now
+            }
+        }
+        // onDoubleClicked: QGroundControl.videoManager.fullScreen = !QGroundControl.videoManager.fullScreen
 
         onPressed:(mouse) => {
             onScreenGimbalController.pressControl()

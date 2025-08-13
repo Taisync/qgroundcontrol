@@ -45,6 +45,7 @@ class LinkManager : public QObject
     Q_PROPERTY(QmlObjectListModel *linkConfigurations READ _qmlLinkConfigurations CONSTANT)
     Q_PROPERTY(QStringList linkTypeStrings READ linkTypeStrings CONSTANT)
     Q_PROPERTY(bool mavlinkSupportForwardingEnabled READ mavlinkSupportForwardingEnabled NOTIFY mavlinkSupportForwardingEnabledChanged)
+    Q_PROPERTY(bool mavlinkReceiveEnabled READ mavlinkReceiveEnabled WRITE setMavlinkReceiveEnabled NOTIFY mavlinkReceiveEnabledChanged)
 
 public:
     explicit LinkManager(QObject *parent = nullptr);
@@ -72,6 +73,8 @@ public:
     QList<SharedLinkInterfacePtr> links() { return _rgLinks; }
     QStringList linkTypeStrings() const;
     bool mavlinkSupportForwardingEnabled() const { return _mavlinkSupportForwardingEnabled; }
+    bool mavlinkReceiveEnabled(void) { return _mavlinkReceiveEnabled; }
+    void setMavlinkReceiveEnabled(bool enable) { _mavlinkReceiveEnabled = enable; emit mavlinkReceiveEnabledChanged(); }
 
     void loadLinkConfigurationList();
     void saveLinkConfigurationList();
@@ -120,6 +123,7 @@ public:
 
 signals:
     void mavlinkSupportForwardingEnabledChanged();
+    void mavlinkReceiveEnabledChanged();
     void isBluetoothAvailableChanged();
 
 private slots:
@@ -135,6 +139,10 @@ private:
     void _addUDPAutoConnectLink();
     void _addMAVLinkForwardingLink();
     void _createDynamicForwardLink(const char *linkName, const QString &hostName);
+#ifdef QGC_TCP_FORWARDING_LINK
+    void _createDynamicForwardTcpLink(const char *linkName, QString hostName);
+#endif
+    LinkConfiguration::LinkType _forwardingType(void);
 #ifdef QGC_ZEROCONF_ENABLED
     void _addZeroConfAutoConnectLink();
 #endif
@@ -147,6 +155,7 @@ private:
     bool _configurationsLoaded = false;             ///< true: Link configurations have been loaded
     bool _connectionsSuspended = false;             ///< true: all new connections should not be allowed
     bool _mavlinkSupportForwardingEnabled = false;
+    bool _mavlinkReceiveEnabled = true;
     uint32_t _mavlinkChannelsUsedBitMask = 1;
     QString _connectionsSuspendedReason;            ///< User visible reason for suspension
 

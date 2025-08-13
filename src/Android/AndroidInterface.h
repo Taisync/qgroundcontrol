@@ -26,6 +26,9 @@ namespace AndroidInterface
     bool checkStoragePermissions();
     QString getSDCardPath();
     void setKeepScreenOn(bool on);
+    // broadcast _mavlink._udp to LAN
+    void broadcast(const QString& serviceName, const QString& serviceType, int port);
+    QString uuid();
 
     constexpr const char *kJniQGCActivityClassName = "org/mavlink/qgroundcontrol/QGCActivity";
 };

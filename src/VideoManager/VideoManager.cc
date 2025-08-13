@@ -90,6 +90,9 @@ void VideoManager::init(QQuickWindow *window)
         return;
     }
 
+    _forwardHost = _videoSettings->forwardVideoHostName()->rawValue().toString();
+    _forwardVideo = _videoSettings->forwardVideo()->rawValue().toBool();
+
     // TODO: VideoSettings _configChanged/streamConfiguredChanged
     (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->udpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
@@ -686,7 +689,7 @@ void VideoManager::_initVideoReceiver(VideoReceiver *receiver, QQuickWindow *win
         case VideoReceiver::STATUS_OK:
             receiver->setStarted(true);
             if (receiver->sink()) {
-                receiver->startDecoding(receiver->sink());
+                receiver->startDecoding(receiver->sink(), _forwardHost, _forwardVideo);
             }
             break;
         case VideoReceiver::STATUS_INVALID_URL:

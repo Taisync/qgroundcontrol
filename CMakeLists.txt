@@ -15,29 +15,20 @@ set(CMAKE_REQUIRED_QUIET ON)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.15)
 
 #######################################################
-#                Custom Build Configuration
-#######################################################
-
-include(CustomOptions)
-
-if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/custom)
-    message(STATUS "Enabling custom build")
-    set(QGC_CUSTOM_BUILD ON)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/custom/cmake)
-    include(CustomOverrides)
-endif()
-
-#######################################################
 #                   Project Info
 #######################################################
-
 # set(CMAKE_OSX_ARCHITECTURES "arm64")
 # set(CMAKE_OSX_SYSROOT "iphoneos")
-if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
-endif()
-
 include(Git)
+
+# App
+set(QGC_APP_NAME "QGroundControl" CACHE STRING "App Name")
+set(QGC_APP_COPYRIGHT "Copyright (c) 2025 QGroundControl. All rights reserved." CACHE STRING "Copyright")
+set(QGC_APP_DESCRIPTION "Open Source Ground Control App" CACHE STRING "Description")
+set(QGC_ORG_NAME "QGroundControl" CACHE STRING "Org Name")
+set(QGC_ORG_DOMAIN "qgroundcontrol.com" CACHE STRING "Domain")
+set(QGC_PACKAGE_NAME "org.mavlink.qgroundcontrol" CACHE STRING "Package Name")
+set(QGC_SETTINGS_VERSION "9" CACHE STRING "Settings Version") # If you need to make an incompatible changes to stored settings, bump this version number up by 1. This will caused store settings to be cleared on next boot.
 
 project(${QGC_APP_NAME}
     VERSION ${QGC_APP_VERSION}
@@ -46,6 +37,10 @@ project(${QGC_APP_NAME}
     LANGUAGES C CXX
 )
 
+if(APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+endif()
+
 if(APPLE AND NOT IOS)
     set(MACOS TRUE)
 
@@ -53,6 +48,18 @@ if(APPLE AND NOT IOS)
     if("${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm64;x86_64" OR "${CMAKE_OSX_ARCHITECTURES}" MATCHES "x86_64;arm64")
         set(MACOS_UNIVERSAL_BUILD ON)
     endif()
+endif()
+
+#######################################################
+#                Custom Build Configuration
+#######################################################
+include(CustomOptions)
+
+if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/custom)
+    message(STATUS "Enabling custom build")
+    set(QGC_CUSTOM_BUILD ON)
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/custom/cmake)
+    include(CustomOverrides)
 endif()
 
 #######################################################

@@ -798,4 +798,20 @@ ApplicationWindow {
          flightID:                   UTMSPStateStorage.flightID
          anchors.fill:               parent
     }
+
+    Connections {
+        target: Qt.application
+        function onActiveChanged() {
+            if (!Qt.application.active) {
+                QGroundControl.linkManager.mavlinkReceiveEnabled = false
+                console.log("mavlink shutdown")
+            }
+            else {
+                if (!QGroundControl.linkManager.mavlinkReceiveEnabled) {
+                    QGroundControl.linkManager.mavlinkReceiveEnabled = true
+                    console.log("enable mavlink")
+                }
+            }
+        }
+    }
 }

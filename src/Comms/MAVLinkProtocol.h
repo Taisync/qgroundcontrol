@@ -71,6 +71,12 @@ public:
     /// Give the user an option to save these orphaned files.
     void checkForLostLogFiles();
 
+#ifdef Q_OS_ANDROID
+    /// broadcast forward link's port for ZeroConf
+    /// only support UDPLink
+    void broadcastForwardLink();
+#endif
+
 signals:
     /// Heartbeat received on link
     void vehicleHeartbeatInfo(LinkInterface *link, int vehicleId, int componentId, int vehicleFirmwareType, int vehicleType);
@@ -104,6 +110,8 @@ private:
 
     void _forward(const mavlink_message_t &message);
     void _forwardSupport(const mavlink_message_t &message);
+    // send data from GCS to Autopilot
+    void _forwardToAutopilot(const mavlink_message_t &message);
 
     void _updateCounters(uint8_t mavlinkChannel, const mavlink_message_t &message);
     bool _updateStatus(LinkInterface *link, const SharedLinkInterfacePtr linkPtr, uint8_t mavlinkChannel, const mavlink_message_t &message);
