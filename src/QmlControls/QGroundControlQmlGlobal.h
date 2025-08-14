@@ -271,6 +271,6 @@ private:
     static constexpr const char* _flightMapPositionLongitudeSettingsKey =   "Longitude";
     static constexpr const char* _flightMapZoomSettingsKey =                "FlightMapZoom";
 
-    static constexpr const char* _QGCVersion = "v5.0.6-1.0.0.0_250808";
+    static constexpr const char* _QGCVersion = "v5.0.6-1.0.0.0_250814";
 
 };
