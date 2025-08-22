@@ -790,7 +790,9 @@ GstElement *GstVideoReceiver::_makeSource(const QString &input)
 
             g_object_set(source,
                          "location", input.toUtf8().constData(),
-                         "latency", 25,
+                         "latency", 17,
+                         "udp-reconnect", 1,
+                         "timeout", _udpReconnect_us,
                          nullptr);
         } else if (isTcpMPEGTS) {
             source = gst_element_factory_make("tcpclientsrc", "source");

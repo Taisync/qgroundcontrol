@@ -31,6 +31,7 @@ ApplicationWindow {
 
     property bool   _utmspSendActTrigger
     property bool   _utmspStartTelemetry
+    property real   _unActieTime: (new Date()).getTime()
 
     Component.onCompleted: {
         // Start the sequence of first run prompt(s)
@@ -803,6 +804,7 @@ ApplicationWindow {
         target: Qt.application
         function onActiveChanged() {
             if (!Qt.application.active) {
+                _unActieTime = (new Date()).getTime()
                 QGroundControl.linkManager.mavlinkReceiveEnabled = false
                 console.log("mavlink shutdown")
             }
@@ -810,6 +812,11 @@ ApplicationWindow {
                 if (!QGroundControl.linkManager.mavlinkReceiveEnabled) {
                     QGroundControl.linkManager.mavlinkReceiveEnabled = true
                     console.log("enable mavlink")
+                }
+                // if in background more time, will force restart video
+                let now = (new Date()).getTime();
+                if ((now - _unActieTime) > 30000) {
+                    QGroundControl.videoManager.startVideo()
                 }
             }
         }

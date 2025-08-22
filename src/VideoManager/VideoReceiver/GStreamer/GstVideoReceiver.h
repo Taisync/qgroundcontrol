@@ -126,6 +126,8 @@ private:
     int _isH265 = -1;
     int _forward = 0;
     QString _host;
+    //-- RTSP UDP reconnect timeout
+    uint64_t _udpReconnect_us = 5000000;
 
     static constexpr const char *_kFileMux[FILE_FORMAT_MAX + 1] = {
         "matroskamux",
