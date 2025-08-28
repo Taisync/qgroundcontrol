@@ -815,7 +815,8 @@ ApplicationWindow {
                 }
                 // if in background more time, will force restart video
                 let now = (new Date()).getTime();
-                if ((now - _unActieTime) > 30000) {
+                if ((now - _unActieTime) > 5000) {
+                    console.log(`force restart video`)
                     QGroundControl.videoManager.startVideo()
                 }
             }

@@ -52,7 +52,7 @@ DECLARE_SETTINGSFACT(MavlinkSettings, forwardMavlinkAPMSupportHostName)
 DECLARE_SETTINGSFACT_NO_FUNC(MavlinkSettings, forwardMavlinkByTcp)
 {
     if (!_forwardMavlinkByTcpFact) {
-        _forwardMavlinkByTcpFact = _createSettingsFact(mavlink2SigningKeyName);
+        _forwardMavlinkByTcpFact = _createSettingsFact(forwardMavlinkByTcpName);
 #ifndef QGC_TCP_FORWARDING_LINK
         _forwardMavlinkByTcpFact->setVisible(false);
         _forwardMavlinkByTcpFact->setRawValue(false);

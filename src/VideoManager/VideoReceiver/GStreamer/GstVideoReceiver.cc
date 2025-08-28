@@ -1147,7 +1147,6 @@ bool GstVideoReceiver::_addVideoSink(GstPad *pad)
     (void) gst_bin_add(GST_BIN(_pipeline), _videoSink);
 
     if (!gst_element_link(_decoder, _videoSink)) {
-        (void) gst_bin_remove(GST_BIN(_pipeline), _videoSink);
         qCCritical(GstVideoReceiverLog) << "Unable to link video sink";
         gst_clear_caps(&caps);
         return false;
@@ -1245,7 +1244,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
     if (_decoder) {
         GstObject *parent = gst_element_get_parent(_decoder);
         if (parent) {
-            (void) gst_bin_remove(GST_BIN(_pipeline), _decoder);
             (void) gst_element_set_state(_decoder, GST_STATE_NULL);
             gst_clear_object(&parent);
         }
@@ -1266,7 +1264,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
 
     GstObject *parent = gst_element_get_parent(_videoSink);
     if (parent) {
-        (void) gst_bin_remove(GST_BIN(_pipeline), _videoSink);
         (void) gst_element_set_state(_videoSink, GST_STATE_NULL);
         gst_clear_object(&parent);
     }
@@ -1286,7 +1283,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
 
 void GstVideoReceiver::_shutdownRecordingBranch()
 {
-    gst_bin_remove(GST_BIN(_pipeline), _fileSink);
     gst_element_set_state(_fileSink, GST_STATE_NULL);
     gst_clear_object(&_fileSink);
 
@@ -1305,12 +1301,10 @@ void GstVideoReceiver::_shutdownForwardBranch(void) {
     qCDebug(GstVideoReceiverLog) << "shuntdown forward branch";
 
     if (_udpSink) {
-        gst_bin_remove(GST_BIN(_pipeline), _udpSink);
         gst_clear_object(&_udpSink);
     }
 
     if (_rtpPay) {
-        gst_bin_remove(GST_BIN(_pipeline), _rtpPay);
         gst_clear_object(&_rtpPay);
     }
 }
