@@ -130,10 +130,11 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
         }
 
         _updateVersion(link, mavlinkChannel);
-        _updateCounters(mavlinkChannel, message);
+
         if (!linkPtr->linkConfiguration()->isForwarding()) {
             _forward(message);
             _forwardSupport(message);
+            _updateCounters(mavlinkChannel, message);
         } else { // Data is from GCS, try forward to Autopilot
             _forwardToAutopilot(message);
         }
@@ -192,6 +193,11 @@ void MAVLinkProtocol::_updateCounters(uint8_t mavlinkChannel, const mavlink_mess
     const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
     const float currentLossPercent = (static_cast<double>(_totalLossCounter[mavlinkChannel]) / totalSent) * 100.0f;
     _runningLossPercent[mavlinkChannel] = (currentLossPercent + _runningLossPercent[mavlinkChannel]) * 0.5f;
+
+    if ((_totalReceiveCounter[mavlinkChannel] % 31) == 0) {
+        const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
+        emit mavlinkMessageStatus(message.sysid, totalSent, _totalReceiveCounter[mavlinkChannel], _totalLossCounter[mavlinkChannel], _runningLossPercent[mavlinkChannel]);
+    }
 }
 
 void MAVLinkProtocol::_forward(const mavlink_message_t &message)
@@ -309,11 +315,6 @@ void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &mes
 
 bool MAVLinkProtocol::_updateStatus(LinkInterface *link, const SharedLinkInterfacePtr linkPtr, uint8_t mavlinkChannel, const mavlink_message_t &message)
 {
-    if ((_totalReceiveCounter[mavlinkChannel] % 31) == 0) {
-        const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
-        emit mavlinkMessageStatus(message.sysid, totalSent, _totalReceiveCounter[mavlinkChannel], _totalLossCounter[mavlinkChannel], _runningLossPercent[mavlinkChannel]);
-    }
-
     emit messageReceived(link, message);
 
     if (linkPtr.use_count() == 1) {
