@@ -26,6 +26,11 @@
 #include <QtQuick/QQuickItem>
 
 #include <gst/gst.h>
+#pragma push_macro("signals")
+#undef signals
+#include <gio/gio.h>
+#pragma pop_macro("signals")
+
 
 QGC_LOGGING_CATEGORY(GstVideoReceiverLog, "qgc.videomanager.videoreceiver.gstreamer.gstvideoreceiver")
 
@@ -518,6 +523,19 @@ void GstVideoReceiver::startVideoForward(const QString host) {
 
     gst_element_sync_state_with_parent(_udpSink);
     g_object_set(_udpSinkValve, "drop", FALSE, nullptr);
+
+    // set to non-blocking to avoid the situation where the target IP cannot be reached.
+    // and it must be obtained here; it cannot be obtained in advance.
+    {
+        GSocket *usedSocket = nullptr;
+        g_object_get(_udpSink, "used-socket", &usedSocket, nullptr);
+        if (usedSocket) {
+            g_socket_set_blocking(usedSocket, FALSE);
+            gst_object_unref(&usedSocket);
+        } else {
+            qCCritical(GstVideoReceiverLog) << "can not get used-socket, it may case video forwarding block";
+        }
+    }
 
     qCDebug(GstVideoReceiverLog) << "video forward done, host" << host;
 }
