@@ -748,7 +748,7 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
         }
         gst_clear_caps(&filter);
         self->_isH265 = 1;
-        qCInfo(GstVideoReceiverLog) << "Receive H264 video";
+        qCInfo(GstVideoReceiverLog) << "Receive H265 video";
     } else if (gst_structure_has_name(structure, "video/x-h264")) {
         filter = gst_caps_from_string("video/x-h264");
         if (gst_caps_can_intersect(srcCaps, filter)) {
@@ -756,7 +756,7 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
         }
         gst_clear_caps(&filter);
         self->_isH265 = 0;
-        qCInfo(GstVideoReceiverLog) << "Receive H265 video";
+        qCInfo(GstVideoReceiverLog) << "Receive H264 video";
     } else {
         self->_isH265 = -1;
         qCCritical(GstVideoReceiverLog) << "Receive Unknown video";
@@ -837,6 +837,11 @@ GstElement *GstVideoReceiver::_makeSource(const QString &input)
                          "uri", uri.toUtf8().constData(),
                          nullptr);
 
+#ifdef Q_OS_ANDROID
+            if (isUdp264 || isUdp265) {
+                g_object_set(static_cast<gpointer>(source), "multicast-iface", "eth0", NULL);
+            }
+#endif
             GstCaps *caps = nullptr;
             if (isUdp264) {
                 caps = gst_caps_from_string("application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264");
