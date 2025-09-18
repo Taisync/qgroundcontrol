@@ -132,44 +132,64 @@ Item {
 
     property bool _paramBoxShowEnable: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow.value
     property bool _paramBoxVisible: true
+    property bool _paramBoxLoaded: false
     Rectangle
     {
+        property bool _draged: false
+
         id: paramBox
-        x: parent.width/2-width/2
-        y: parent.height/2-height/2
         border.width: 1
         border.color: "black"
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
         width: gridLayout.implicitWidth + hideButton.width * 2
         height: gridLayout.implicitHeight + ScreenTools.defaultFontPixelWidth * 2
         radius: 5
         clip: true
         color: Qt.rgba(255,255,255,100/255)
-        visible: _paramBoxShowEnable && _paramBoxVisible
-
+        visible: _paramBoxShowEnable && _paramBoxVisible && _paramBoxLoaded
+        Component.onCompleted: {
+            Qt.callLater(function() {
+                x = parent.width/2-width/2
+                y = parent.height/2-height/2
+                _paramBoxLoaded = true
+            });
+        }
+        onWidthChanged: {
+            if (!_draged) x = parent.width/2-width/2
+        }
+        onHeightChanged: {
+            if (!_draged) y = parent.height/2-height/2
+        }
         MouseArea
         {
             anchors.fill: parent
             drag.target: paramBox
+            onPressed: {
+                // When press, we think the box will drag
+                // then paramBox's center will not automic fix to the centre
+                paramBox._draged = true
+            }
         }
 
         GridLayout {
             property var _paramModel: [
-                "airRSSI1",     "-"+taisyncPro.airRSSI0 +"dBm",
-                "gndRSSI1",     "-"+taisyncPro.gndRSSI0+"dBm",
-                "airRSSI2",     "-"+taisyncPro.airRSSI1+"dBm",
-                "gndRSSI2",     "-"+taisyncPro.gndRSSI1+"dBm",
-                "airSNR",       taisyncPro.airSNR + "dB",
-                "gndSNR",       taisyncPro.gndSNR + "dB",
-                "airPass",      taisyncPro.airLDPCPass,
-                "gndPass",      taisyncPro.gndLDPCPass,
-                "airFailed",    taisyncPro.airLDPCFailed,
-                "gndFailed",    taisyncPro.gndLDPCFailed,
-                "airAnt",       taisyncPro.ant,
-                "gndAnt",       taisyncPro.antGnd,
-                "freq",         taisyncPro.currFreq,
-                "mcs",          taisyncPro.mcs,
-                "range",        taisyncPro.range + "m",
-                "rate",         taisyncPro.dataRate+"kbps"
+                {"key": "airRSSI1",     "value": "-"+taisyncPro.airRSSI0 +"dBm"},
+                {"key": "gndRSSI1",     "value": "-"+taisyncPro.gndRSSI0+"dBm"},
+                {"key": "airRSSI2",     "value": "-"+taisyncPro.airRSSI1+"dBm"},
+                {"key": "gndRSSI2",     "value": "-"+taisyncPro.gndRSSI1+"dBm"},
+                {"key": "airSNR",       "value": taisyncPro.airSNR + "dB"},
+                {"key": "gndSNR",       "value": taisyncPro.gndSNR + "dB"},
+                {"key": "airPass",      "value": taisyncPro.airLDPCPass},
+                {"key": "gndPass",      "value": taisyncPro.gndLDPCPass},
+                {"key": "airFailed",    "value": taisyncPro.airLDPCFailed},
+                {"key": "gndFailed",    "value": taisyncPro.gndLDPCFailed},
+                {"key": "airAnt",       "value": taisyncPro.ant},
+                {"key": "gndAnt",       "value": taisyncPro.antGnd},
+                {"key": "freq",         "value": taisyncPro.currFreq},
+                {"key": "mcs",          "value": taisyncPro.mcs},
+                {"key": "range",        "value": taisyncPro.range + "m"},
+                {"key": "rate",         "value": taisyncPro.dataRate+"kbps"},
             ]
 
             id: gridLayout
@@ -179,13 +199,23 @@ Item {
             anchors.centerIn: parent
 
             Repeater {
-                model: gridLayout._paramModel
+                model: gridLayout._paramModel.length * 2
 
                 delegate: Label {
-                    text: modelData
+                    required property int index
+                    property real _maxWidth: 0
+
+                    text: index %2 === 0 ? gridLayout._paramModel[Math.floor(index/2)].key : gridLayout._paramModel[Math.floor(index/2)].value
                     font.pointSize: 12
                     color: "#000000"
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: _maxWidth
+                    onImplicitWidthChanged: {
+                        if (implicitWidth > _maxWidth) {
+                            _maxWidth = implicitWidth
+                        }
+                    }
                 }
             }
         }
@@ -217,7 +247,7 @@ Item {
     }
     Rectangle {
         id: viewButton
-        visible: _paramBoxShowEnable && !_paramBoxVisible
+        visible: _paramBoxShowEnable && !_paramBoxVisible && _paramBoxLoaded
         x: parent.width/2-width/2
         y: parent.height/2-height/2
         width: 50
