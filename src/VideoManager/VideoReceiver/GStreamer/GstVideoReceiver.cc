@@ -752,7 +752,17 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
     } else if (gst_structure_has_name(structure, "video/x-h264")) {
         filter = gst_caps_from_string("video/x-h264");
         if (gst_caps_can_intersect(srcCaps, filter)) {
-            sinkCaps = gst_caps_from_string("video/x-h264,stream-format=avc");
+            const gchar *capsStr = gst_caps_to_string(srcCaps);
+            // if support byte-stream, use it first
+            if (capsStr) {
+                if (g_strrstr(capsStr, "byte-stream")) {
+                    sinkCaps = gst_caps_from_string("video/x-h264,stream-format=byte-stream");
+                }
+            }
+            // use avc as default
+            if (!sinkCaps) {
+                sinkCaps = gst_caps_from_string("video/x-h264,stream-format=avc");
+            }
         }
         gst_clear_caps(&filter);
         self->_isH265 = 0;
@@ -763,11 +773,12 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
     }
 
     if (sinkCaps) {
+        qCInfo(GstVideoReceiverLog) << "use sink:" << gst_caps_to_string(sinkCaps);
         gst_query_set_caps_result(query, sinkCaps);
         gst_clear_caps(&sinkCaps);
         return TRUE;
     }
-
+    qCCritical(GstVideoReceiverLog) << "sink is null";
     return FALSE;
 }
 
