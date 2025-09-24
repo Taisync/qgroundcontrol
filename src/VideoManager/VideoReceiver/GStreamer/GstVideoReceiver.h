@@ -70,6 +70,8 @@ public slots:
     void takeScreenshot(const QString &imageFile) override;
     void startVideoForward(const QString host) override;
     void stopVideoForward(void) override;
+    void pauseDecoding(void) override;
+    void resumeDecoding(void) override;
 
 private slots:
     void _watchdog();
@@ -122,6 +124,7 @@ private:
     GstVideoWorker *_worker = nullptr;
     gulong _teeProbeId = 0;
     gulong _videoSinkProbeId = 0;
+    bool _couldResume = false;
 
     int _isH265 = -1;
     int _forward = 0;

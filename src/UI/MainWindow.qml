@@ -804,21 +804,14 @@ ApplicationWindow {
         target: Qt.application
         function onActiveChanged() {
             if (!Qt.application.active) {
-                _unActieTime = (new Date()).getTime()
                 QGroundControl.linkManager.mavlinkReceiveEnabled = false
                 console.log("mavlink shutdown")
+                QGroundControl.videoManager.pauseVideo()
             }
             else {
-                if (!QGroundControl.linkManager.mavlinkReceiveEnabled) {
-                    QGroundControl.linkManager.mavlinkReceiveEnabled = true
-                    console.log("enable mavlink")
-                }
-                // if in background more time, will force restart video
-                let now = (new Date()).getTime();
-                if ((now - _unActieTime) > 5000) {
-                    console.log(`force restart video`)
-                    QGroundControl.videoManager.startVideo()
-                }
+                QGroundControl.linkManager.mavlinkReceiveEnabled = true
+                console.log("enable mavlink")
+                QGroundControl.videoManager.resumeVideo()
             }
         }
     }

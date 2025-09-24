@@ -49,6 +49,8 @@ public slots:
     void takeScreenshot(const QString &imageFile) override;
     void startVideoForward(const QString host) override {};
     void stopVideoForward(void) override {};
+    void pauseDecoding(void) override {};
+    void resumeDecoding(void) override {};
 
 protected:
     QTimer _frameTimer;

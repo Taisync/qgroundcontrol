@@ -101,6 +101,8 @@ public slots:
     virtual void takeScreenshot(const QString &imageFile) = 0;
     virtual void startVideoForward(const QString host) = 0;
     virtual void stopVideoForward(void) = 0;
+    virtual void pauseDecoding(void) = 0;
+    virtual void resumeDecoding(void) = 0;
 
 protected:
     void *_sink = nullptr;

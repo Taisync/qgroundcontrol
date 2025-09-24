@@ -640,6 +640,20 @@ void VideoManager::stopVideo()
     }
 }
 
+void VideoManager::pauseVideo()
+{
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        receiver->pauseDecoding();
+    }
+}
+
+void VideoManager::resumeVideo()
+{
+    for (VideoReceiver *receiver : std::as_const(_videoReceivers)) {
+        receiver->resumeDecoding();
+    }
+}
+
 void VideoManager::_startReceiver(VideoReceiver *receiver)
 {
     if (!receiver) {

@@ -554,6 +554,28 @@ void GstVideoReceiver::stopVideoForward(void) {
     _unlinkBranch(_udpSinkValve);
 }
 
+void GstVideoReceiver::pauseDecoding()
+{
+    if (_decoderValve) {
+        gboolean is_droped;
+        g_object_get(_decoderValve, "drop", &is_droped, nullptr);
+        if (!is_droped) {
+            qCDebug(GstVideoReceiverLog) << "pause video decoding";
+            g_object_set(_decoderValve, "drop", TRUE, nullptr);
+            _couldResume = true;
+        }
+    }
+}
+
+void GstVideoReceiver::resumeDecoding()
+{
+    if (_couldResume && _decoderValve) {
+        qCDebug(GstVideoReceiverLog) << "resume video decoding";
+        g_object_set(_decoderValve, "drop", FALSE, nullptr);
+    }
+    _couldResume = false;
+}
+
 void GstVideoReceiver::startRecording(const QString &videoFile, FILE_FORMAT format)
 {
     if (_needDispatch()) {
