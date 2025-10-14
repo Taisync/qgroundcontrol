@@ -25,27 +25,21 @@ GridLayout {
        //no need
     }
 
-    QGCLabel { text: qsTr("dev file") }
+    QGCLabel { text: qsTr("Dev file") }
     QGCComboBox {
+        property var ttysPaths: ["/dev/ttyHS1", "/dev/ttyHS5"]
         id:ttysFileCombo
         Layout.preferredWidth:  _secondColumnWidth
         model:                  ["DataLink1", "DataLink2"]
         onActivated:
         {
-            if(ttysFileCombo.currentIndex === 0)
-            {
-                subEditConfig.devFile = "/dev/ttyHS1"
-            }
-            else if(ttysFileCombo.currentIndex === 1)
-            {
-                subEditConfig.devFile = "/dev/ttyHS5"
-            }
+            subEditConfig.devFile = ttysPaths[ttysFileCombo.currentIndex]
         }
         Component.onCompleted: {
-            if(subEditConfig.devFile.toString().includes("/dev/ttyHS1"))
-                ttysFileCombo.currentIndex = 0;
-            else
-                ttysFileCombo.currentIndex = 1;
+            let index = ttysPaths.indexOf(subEditConfig.devFile)
+            if (index < 0) index = 0
+            ttysFileCombo.currentIndex = index
+            subEditConfig.devFile = ttysPaths[ttysFileCombo.currentIndex]
         }
     }
 
@@ -55,31 +49,11 @@ GridLayout {
         Layout.preferredWidth:  _secondColumnWidth
         model:                  ["9600","57600", "115200","230400"]
         onActivated: {
-            switch(baudCombo.currentIndex)
-            {
-                case 0:
-                    subEditConfig.baudRate = "9600";
-                    break;
-                case 1:
-                    subEditConfig.baudRate = "57600";
-                    break;
-                case 2:
-                    subEditConfig.baudRate = "115200";
-                    break;
-                case 3:
-                    subEditConfig.baudRate = "230400";
-                    break;
-            }
+            subEditConfig.baudRate = model[baudCombo.currentIndex]
         }
         Component.onCompleted: {
-            if(subEditConfig.baudRate.toString().includes("9600"))
-                baudCombo.currentIndex = 0;
-            if(subEditConfig.baudRate.toString().includes("57600"))
-                baudCombo.currentIndex = 1;
-            if(subEditConfig.baudRate.toString().includes("115200"))
-                baudCombo.currentIndex = 2;
-            if(subEditConfig.baudRate.toString().includes("230400"))
-                baudCombo.currentIndex = 3;
+            if (subEditConfig.baudRate === "") subEditConfig.baudRate = model[2]
+            baudCombo.currentIndex = model.indexOf(subEditConfig.baudRate)
         }
     }
 }
