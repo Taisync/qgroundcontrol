@@ -193,71 +193,89 @@ void QGCCorePlugin::factValueGridCreateDefaultSettings(FactValueGrid* factValueG
 
         factValueGrid->setFontSize(FactValueGrid::LargeFontSize);
 
+        // 2 column
         (void) factValueGrid->appendColumn();
         (void) factValueGrid->appendColumn();
-        (void) factValueGrid->appendColumn();
-        if (includeFWValues) {
-            (void) factValueGrid->appendColumn();
-        }
-        factValueGrid->appendRow();
 
+        // 8 row ~= ((6 + 9)/2 = 7.5)
+        for (int i = 0; i < 7; ++i) {
+            factValueGrid->appendRow();
+        }
+
+        int columnIndex = 0;
         int rowIndex = 0;
-        QmlObjectListModel *column = factValueGrid->columns()->value<QmlObjectListModel*>(0);
+        QmlObjectListModel *column = factValueGrid->columns()->value<QmlObjectListModel*>(columnIndex++);
 
         InstrumentValueData *value = column->value<InstrumentValueData*>(rowIndex++);
         value->setFact(QStringLiteral("Vehicle"), QStringLiteral("AltitudeRelative"));
         value->setIcon(QStringLiteral("arrow-thick-up.svg"));
         value->setText(value->fact()->shortDescription());
         value->setShowUnits(true);
-
         value = column->value<InstrumentValueData*>(rowIndex++);
-        value->setFact(QStringLiteral("Vehicle"), QStringLiteral("DistanceToHome"));
-        value->setIcon(QStringLiteral("bookmark copy 3.svg"));
+        value->setFact("Vehicle", "ClimbRate");
+        value->setIcon("arrow-simple-up.svg");
         value->setText(value->fact()->shortDescription());
         value->setShowUnits(true);
-
-        rowIndex = 0;
-        column = factValueGrid->columns()->value<QmlObjectListModel*>(1);
-
         value = column->value<InstrumentValueData*>(rowIndex++);
-        value->setFact(QStringLiteral("Vehicle"), QStringLiteral("ClimbRate"));
-        value->setIcon(QStringLiteral("arrow-simple-up.svg"));
-        value->setText(value->fact()->shortDescription());
-        value->setShowUnits(true);
-
-        value = column->value<InstrumentValueData*>(rowIndex++);
-        value->setFact(QStringLiteral("Vehicle"), QStringLiteral("GroundSpeed"));
-        value->setIcon(QStringLiteral("arrow-simple-right.svg"));
-        value->setText(value->fact()->shortDescription());
-        value->setShowUnits(true);
-
-        if (includeFWValues) {
-            rowIndex = 0;
-            column = factValueGrid->columns()->value<QmlObjectListModel*>(2);
-
-            value = column->value<InstrumentValueData*>(rowIndex++);
-            value->setFact(QStringLiteral("Vehicle"), QStringLiteral("AirSpeed"));
-            value->setText(QStringLiteral("AirSpd"));
-            value->setShowUnits(true);
-
-            value = column->value<InstrumentValueData*>(rowIndex++);
-            value->setFact(QStringLiteral("Vehicle"), QStringLiteral("ThrottlePct"));
-            value->setText(QStringLiteral("Thr"));
-            value->setShowUnits(true);
-        }
-
-        rowIndex = 0;
-        column = factValueGrid->columns()->value<QmlObjectListModel*>(includeFWValues ? 3 : 2);
-
-        value = column->value<InstrumentValueData*>(rowIndex++);
-        value->setFact(QStringLiteral("Vehicle"), QStringLiteral("FlightTime"));
-        value->setIcon(QStringLiteral("timer.svg"));
+        value->setFact("Vehicle", "FlightTime");
+        value->setIcon("timer.svg");
         value->setText(value->fact()->shortDescription());
         value->setShowUnits(false);
 
         value = column->value<InstrumentValueData*>(rowIndex++);
-        value->setFact(QStringLiteral("Vehicle"), QStringLiteral("FlightDistance"));
-        value->setIcon(QStringLiteral("travel-walk.svg"));
+        value->setFact("Efi", "cylinderTemp");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Efi", "engineLoad");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(false);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Efi", "fuelConsumed");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Efi", "fuelFlow");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Efi", "rpm");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(false);
+
+        rowIndex = 0;
+        column = factValueGrid->columns()->value<QmlObjectListModel*>(columnIndex++);
+
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Vehicle", "DistanceToHome");
+        value->setIcon("bookmark copy 3.svg");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Vehicle", "GroundSpeed");
+        value->setIcon("arrow-simple-right.svg");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Vehicle", "FlightDistance");
+        value->setIcon("travel-walk.svg");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Generator", "batteryCurrent");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Generator", "busVoltage");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Generator", "loadCurrent");
+        value->setText(value->fact()->shortDescription());
+        value->setShowUnits(true);
+        value = column->value<InstrumentValueData*>(rowIndex++);
+        value->setFact("Generator", "powerGenerated");
         value->setText(value->fact()->shortDescription());
         value->setShowUnits(true);
     }

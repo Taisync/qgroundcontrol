@@ -26,18 +26,18 @@
     "shortDesc":        "Fuel Consumed",
     "type":             "float",
     "decimalPlaces":    1,
-    "units":            "cm^3"
+    "units":            "L"
 },
 {
     "name":             "fuelFlow",
-    "shortDesc":        "Fuel Flow",
+    "shortDesc":        "FuelFlow",
     "type":             "float",
     "decimalPlaces":    1,
-    "units":            "cm^3/min"
+    "units":            "L/h"
 },
 {
     "name":             "engineLoad",
-    "shortDesc":        "Engine Load",
+    "shortDesc":        "EngineLoad",
     "type":             "float",
     "decimalPlaces":    1,
     "units":            "%"
@@ -79,7 +79,7 @@
 },
 {
     "name":             "cylinderTemp",
-    "shortDesc":        "Cylinder head temperature",
+    "shortDesc":        "CylinderTemp",
     "type":             "float",
     "decimalPlaces":    1,
     "units":            "°C"

@@ -13,17 +13,10 @@
 VehicleGeneratorFactGroup::VehicleGeneratorFactGroup(QObject *parent)
     : FactGroup(1000, QStringLiteral(":/json/Vehicle/GeneratorFact.json"), parent)
 {
-    _addFact(&_statusFact);
-    _addFact(&_genSpeedFact);
     _addFact(&_batteryCurrentFact);
     _addFact(&_loadCurrentFact);
     _addFact(&_powerGeneratedFact);
     _addFact(&_busVoltageFact);
-    _addFact(&_batCurrentSetpointFact);
-    _addFact(&_rectifierTempFact);
-    _addFact(&_genTempFact);
-    _addFact(&_runtimeFact);
-    _addFact(&_timeMaintenanceFact);
 
     _statusFact.setRawValue(qQNaN());
     _genSpeedFact.setRawValue(qQNaN());
@@ -59,16 +52,10 @@ void VehicleGeneratorFactGroup::_handleGeneratorStatus(const mavlink_message_t &
     mavlink_msg_generator_status_decode(&message, &generator);
 
     status()->setRawValue((generator.status == UINT16_MAX) ? qQNaN() : generator.status);
-    genSpeed()->setRawValue((generator.generator_speed == UINT16_MAX) ? qQNaN() : generator.generator_speed);
     batteryCurrent()->setRawValue(generator.battery_current);
     loadCurrent()->setRawValue(generator.load_current);
     powerGenerated()->setRawValue(generator.power_generated);
     busVoltage()->setRawValue(generator.bus_voltage);
-    rectifierTemp()->setRawValue((generator.rectifier_temperature == INT16_MAX) ? qQNaN() : generator.rectifier_temperature);
-    batCurrentSetpoint()->setRawValue(generator.bat_current_setpoint);
-    genTemp()->setRawValue((generator.generator_temperature == INT16_MAX) ? qQNaN() : generator.generator_temperature);
-    runtime()->setRawValue((generator.runtime == UINT32_MAX) ? qQNaN() : generator.runtime);
-    timeMaintenance()->setRawValue((generator.time_until_maintenance == INT32_MAX) ? qQNaN() : generator.time_until_maintenance);
 
     _setTelemetryAvailable(true);
 }

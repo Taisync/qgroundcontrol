@@ -16,21 +16,21 @@
 },
 {
     "name":             "batteryCurrent",
-    "shortDesc":        "Battery Current",
+    "shortDesc":        "Battery",
     "type":             "float",
     "decimalPlaces":    1,
     "units":            "A"
 },
 {
     "name":             "loadCurrent",
-    "shortDesc":        "Load Current",
+    "shortDesc":        "Load",
     "type":             "float",
     "decimalPlaces":    1,
     "units":            "A"
 },
 {
     "name":             "powerGenerated",
-    "shortDesc":        "Power Generated",
+    "shortDesc":        "Power",
     "type":             "float",
     "decimalPlaces":    1,
     "units":            "W"
