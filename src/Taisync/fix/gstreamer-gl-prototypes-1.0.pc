@@ -1,0 +1,10 @@
+prefix=/home/jan/devel/gstreamer/cerbero/build/dist/android_universal/arm64
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: gstreamer-gl-prototypes-1.0
+Description: Streaming media framework, OpenGL plugins libraries (OpenGL Prototypes)
+Version: 1.18.6
+Requires: gstreamer-gl-1.0
+Libs: -lGLESv2
+Cflags: -I${includedir}/gstreamer-1.0
