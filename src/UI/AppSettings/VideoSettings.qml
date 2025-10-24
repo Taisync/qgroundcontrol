@@ -82,6 +82,28 @@ SettingsPage {
 
     SettingsGroupLayout {
         Layout.fillWidth:   true
+        heading:            qsTr("Forward")
+        visible:            _isStreamSource || _videoAutoStreamConfig
+
+        FactCheckBoxSlider {
+            id:                 forwardEnableCheckBox
+            Layout.fillWidth:   true
+            text:               qsTr("Forward Enable")
+            fact:               _videoSettings.forwardVideo
+            visible:            fact.visible
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("Forward Host")
+            fact:                       _videoSettings.forwardVideoHostName
+            visible:                    forwardEnableCheckBox.checked
+        }
+    }
+
+    SettingsGroupLayout {
+        Layout.fillWidth:   true
         heading:            qsTr("Settings")
         visible:            !_videoSourceDisabled
 
@@ -112,6 +134,7 @@ SettingsPage {
             fact:               _videoSettings.forceVideoDecoder
             visible:            fact.visible
             indexModel:         false
+            enabled:            false
         }
     }
 

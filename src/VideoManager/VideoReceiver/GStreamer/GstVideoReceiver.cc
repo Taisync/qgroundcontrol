@@ -26,6 +26,11 @@
 #include <QtQuick/QQuickItem>
 
 #include <gst/gst.h>
+#pragma push_macro("signals")
+#undef signals
+#include <gio/gio.h>
+#pragma pop_macro("signals")
+
 
 QGC_LOGGING_CATEGORY(GstVideoReceiverLog, "qgc.videomanager.videoreceiver.gstreamer.gstvideoreceiver")
 
@@ -79,6 +84,7 @@ void GstVideoReceiver::start(uint32_t timeout)
 
     GstElement *decoderQueue = nullptr;
     GstElement *recorderQueue = nullptr;
+    GstElement* udpSinkQueue = nullptr;
 
     do {
         _tee = gst_element_factory_make("tee", nullptr);
@@ -130,6 +136,20 @@ void GstVideoReceiver::start(uint32_t timeout)
                      "drop", TRUE,
                      nullptr);
 
+        udpSinkQueue = gst_element_factory_make("queue", nullptr);
+        if(!udpSinkQueue)  {
+            qCCritical(GstVideoReceiverLog) << "gst_element_factory_make('queue') failed";
+            break;
+        }
+
+        _udpSinkValve = gst_element_factory_make("valve", nullptr);
+        if(!_udpSinkValve)  {
+            qCCritical(GstVideoReceiverLog) << "gst_element_factory_make('valve') failed";
+            break;
+        }
+
+        g_object_set(_udpSinkValve, "drop", TRUE, nullptr);
+
         _pipeline = gst_pipeline_new("receiver");
         if (!_pipeline) {
             qCCritical(GstVideoReceiverLog) << "gst_pipeline_new() failed";
@@ -146,7 +166,7 @@ void GstVideoReceiver::start(uint32_t timeout)
             break;
         }
 
-        gst_bin_add_many(GST_BIN(_pipeline), _source, _tee, decoderQueue, _decoderValve, recorderQueue, _recorderValve, nullptr);
+        gst_bin_add_many(GST_BIN(_pipeline), _source, _tee, decoderQueue, _decoderValve, recorderQueue, _recorderValve, udpSinkQueue, _udpSinkValve, nullptr);
 
         pipelineUp = true;
 
@@ -185,6 +205,11 @@ void GstVideoReceiver::start(uint32_t timeout)
             break;
         }
 
+        if(!gst_element_link_many(_tee, udpSinkQueue, _udpSinkValve, nullptr)) {
+            qCCritical(GstVideoReceiverLog) << "Unable to link udpsink queue";
+            break;
+        }
+
         GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(_pipeline));
         if (bus) {
             gst_bus_enable_sync_message_emission(bus);
@@ -211,6 +236,8 @@ void GstVideoReceiver::start(uint32_t timeout)
             gst_clear_object(&decoderQueue);
             gst_clear_object(&_tee);
             gst_clear_object(&_source);
+            gst_clear_object(&_udpSink);
+            gst_clear_object(&_udpSinkValve);
         }
 
         // Rate limit restarts on failure. This sleep is OK because we're in the video worker thread.
@@ -294,6 +321,10 @@ void GstVideoReceiver::stop()
             _shutdownDecodingBranch();
         }
 
+        if (_udpSink || _rtpPay) {
+            _shutdownForwardBranch();
+        }
+
         GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-stopped");
 
         gst_clear_object(&_pipeline);
@@ -303,6 +334,7 @@ void GstVideoReceiver::stop()
         _decoderValve = nullptr;
         _tee = nullptr;
         _source = nullptr;
+        _udpSinkValve = nullptr;
 
         _lastSourceFrameTime = 0;
 
@@ -320,7 +352,7 @@ void GstVideoReceiver::stop()
     _dispatchSignal([this]() { emit onStopComplete(STATUS_OK); });
 }
 
-void GstVideoReceiver::startDecoding(void *sink)
+void GstVideoReceiver::startDecoding(void *sink, QString host, bool forward)
 {
     if (!sink) {
         qCCritical(GstVideoReceiverLog) << "VideoSink is NULL" << _uri;
@@ -328,7 +360,9 @@ void GstVideoReceiver::startDecoding(void *sink)
     }
 
     if (_needDispatch()) {
-        _worker->dispatch([this, sink]() mutable { startDecoding(sink); });
+        QString host_ = host;
+        bool forward_ = forward;
+        _worker->dispatch([this, sink, host_, forward_]() mutable { startDecoding(sink, host_, forward_); });
         return;
     }
 
@@ -368,10 +402,16 @@ void GstVideoReceiver::startDecoding(void *sink)
     gst_object_ref(_videoSink);
 
     _removingDecoder = false;
+    _forward = forward;
+    _host = host;
 
     if (!_streaming) {
         _dispatchSignal([this]() { emit onStartDecodingComplete(STATUS_OK); });
         return;
+    }
+
+    if (forward) {
+        startVideoForward(host);
     }
 
     if (!_addDecoder(_decoderValve)) {
@@ -412,9 +452,128 @@ void GstVideoReceiver::stopDecoding()
 
     const bool ret = _unlinkBranch(_decoderValve);
 
+    stopVideoForward();
+
     // FIXME: it is much better to emit onStopDecodingComplete() after decoding is really stopped
     // (which happens later due to async design) but as for now it is also not so bad...
     _dispatchSignal([this, ret](){ emit onStopDecodingComplete(ret ? STATUS_OK : STATUS_FAIL); });
+}
+
+void GstVideoReceiver::startVideoForward(const QString host) {
+    qCDebug(GstVideoReceiverLog) << "start video forward";
+
+    if (host.isNull()) {
+        qCDebug(GstVideoReceiverLog) << "Host name is NULL";
+        return;
+    }
+
+    if (_pipeline == nullptr) {
+        if (_rtpPay) {
+            gst_clear_object(&_rtpPay);
+        }
+
+        if (_udpSink) {
+            gst_clear_object(&_udpSink);
+        }
+    }
+
+    if (_udpSink != nullptr || _rtpPay != nullptr) {
+        qCDebug(GstVideoReceiverLog) << "Already viddeo forward" << host;
+        return;
+    }
+
+    QString ip;
+    int port;
+
+    if (host.contains(":")) {
+        ip = host.split(":").first();
+        port = host.split(":").last().toUInt();
+    } else {
+        ip = host;
+        port = 8000;
+    }
+
+    _rtpPay = gst_element_factory_make("rtph264pay", nullptr);
+
+    gst_bin_add(GST_BIN(_pipeline), _rtpPay);
+
+    if (!gst_element_link(_udpSinkValve, _rtpPay)) {
+        gst_clear_object(&_rtpPay);
+
+        _rtpPay = gst_element_factory_make("rtph265pay", nullptr);
+        gst_bin_add(GST_BIN(_pipeline), _rtpPay);
+        if (!gst_element_link(_udpSinkValve, _rtpPay)) {
+            gst_clear_object(&_rtpPay);
+            qCDebug(GstVideoReceiverLog) << "Failed to link valve and rtpPay";
+            return;
+        }
+    }
+
+    gst_element_sync_state_with_parent(_rtpPay);
+
+    _udpSink = gst_element_factory_make("udpsink", nullptr);
+    g_object_set(_udpSink, "port", port, "host", ip.toStdString().c_str(), NULL);
+
+    gst_bin_add(GST_BIN(_pipeline), _udpSink);
+
+    if (!gst_element_link(_rtpPay, _udpSink)) {
+        qCDebug(GstVideoReceiverLog) << "Failed to rtpPay and udpsink";
+        return;
+    }
+
+    gst_element_sync_state_with_parent(_udpSink);
+    g_object_set(_udpSinkValve, "drop", FALSE, nullptr);
+
+    // set to non-blocking to avoid the situation where the target IP cannot be reached.
+    // and it must be obtained here; it cannot be obtained in advance.
+    {
+        GSocket *usedSocket = nullptr;
+        g_object_get(_udpSink, "used-socket", &usedSocket, nullptr);
+        if (usedSocket) {
+            g_socket_set_blocking(usedSocket, FALSE);
+            gst_object_unref(&usedSocket);
+        } else {
+            qCCritical(GstVideoReceiverLog) << "can not get used-socket, it may case video forwarding block";
+        }
+    }
+
+    qCDebug(GstVideoReceiverLog) << "video forward done, host" << host;
+}
+
+void GstVideoReceiver::stopVideoForward(void) {
+    qCDebug(GstVideoReceiverLog) << "Stopping video forward";
+
+    // exit immediately if we are not recording
+    if (_pipeline == nullptr || !_udpSink) {
+        qCDebug(GstVideoReceiverLog) << "Not forward!";
+        return;
+    }
+
+    g_object_set(_udpSinkValve, "drop", TRUE, nullptr);
+
+    _unlinkBranch(_udpSinkValve);
+}
+
+void GstVideoReceiver::pauseDecoding()
+{
+    if (_decoderValve) {
+        gboolean is_droped;
+        g_object_get(_decoderValve, "drop", &is_droped, nullptr);
+        if (!is_droped) {
+            qCDebug(GstVideoReceiverLog) << "pause video decoding";
+            g_object_set(_decoderValve, "drop", TRUE, nullptr);
+            _couldResume = true;
+        }
+    }
+}
+
+void GstVideoReceiver::resumeDecoding()
+{
+    if (_couldResume && _decoderValve) {
+        qCDebug(GstVideoReceiverLog) << "resume video decoding";
+        g_object_set(_decoderValve, "drop", FALSE, nullptr);
+    }
+    _couldResume = false;
 }
 
 void GstVideoReceiver::startRecording(const QString &videoFile, FILE_FORMAT format)
@@ -576,6 +735,7 @@ void GstVideoReceiver::_handleEOS()
         stop();
     } else if (_decoding && _removingDecoder) {
         _shutdownDecodingBranch();
+        _shutdownForwardBranch();
     } else if (_recording && _removingRecorder) {
         _shutdownRecordingBranch();
     } /*else {
@@ -598,6 +758,8 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
         return FALSE;
     }
 
+    GstVideoReceiver* self = static_cast<GstVideoReceiver*>(data);
+
     GstCaps *sinkCaps = nullptr;
     GstCaps *filter = nullptr;
     GstStructure *structure = gst_caps_get_structure(srcCaps, 0);
@@ -607,20 +769,38 @@ gboolean GstVideoReceiver::_filterParserCaps(GstElement *bin, GstPad *pad, GstEl
             sinkCaps = gst_caps_from_string("video/x-h265,stream-format=hvc1");
         }
         gst_clear_caps(&filter);
+        self->_isH265 = 1;
+        qCInfo(GstVideoReceiverLog) << "Receive H265 video";
     } else if (gst_structure_has_name(structure, "video/x-h264")) {
         filter = gst_caps_from_string("video/x-h264");
         if (gst_caps_can_intersect(srcCaps, filter)) {
-            sinkCaps = gst_caps_from_string("video/x-h264,stream-format=avc");
+            const gchar *capsStr = gst_caps_to_string(srcCaps);
+            // if support byte-stream, use it first
+            if (capsStr) {
+                if (g_strrstr(capsStr, "byte-stream")) {
+                    sinkCaps = gst_caps_from_string("video/x-h264,stream-format=byte-stream");
+                }
+            }
+            // use avc as default
+            if (!sinkCaps) {
+                sinkCaps = gst_caps_from_string("video/x-h264,stream-format=avc");
+            }
         }
         gst_clear_caps(&filter);
+        self->_isH265 = 0;
+        qCInfo(GstVideoReceiverLog) << "Receive H264 video";
+    } else {
+        self->_isH265 = -1;
+        qCCritical(GstVideoReceiverLog) << "Receive Unknown video";
     }
 
     if (sinkCaps) {
+        qCInfo(GstVideoReceiverLog) << "use sink:" << gst_caps_to_string(sinkCaps);
         gst_query_set_caps_result(query, sinkCaps);
         gst_clear_caps(&sinkCaps);
         return TRUE;
     }
-
+    qCCritical(GstVideoReceiverLog) << "sink is null";
     return FALSE;
 }
 
@@ -661,7 +841,9 @@ GstElement *GstVideoReceiver::_makeSource(const QString &input)
 
             g_object_set(source,
                          "location", input.toUtf8().constData(),
-                         "latency", 25,
+                         "latency", 17,
+                         "udp-reconnect", 1,
+                         "timeout", _udpReconnect_us,
                          nullptr);
         } else if (isTcpMPEGTS) {
             source = gst_element_factory_make("tcpclientsrc", "source");
@@ -688,6 +870,11 @@ GstElement *GstVideoReceiver::_makeSource(const QString &input)
                          "uri", uri.toUtf8().constData(),
                          nullptr);
 
+#ifdef Q_OS_ANDROID
+            if (isUdp264 || isUdp265) {
+                g_object_set(static_cast<gpointer>(source), "multicast-iface", "eth0", NULL);
+            }
+#endif
             GstCaps *caps = nullptr;
             if (isUdp264) {
                 caps = gst_caps_from_string("application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264");
@@ -730,7 +917,7 @@ GstElement *GstVideoReceiver::_makeSource(const QString &input)
             break;
         }
 
-        (void) g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), nullptr);
+        (void) g_signal_connect(parser, "autoplug-query", G_CALLBACK(_filterParserCaps), this);
 
         gst_bin_add_many(GST_BIN(bin), source, parser, nullptr);
 
@@ -802,9 +989,18 @@ GstElement *GstVideoReceiver::_makeDecoder(GstCaps *caps, GstElement *videoSink)
 {
     Q_UNUSED(caps); Q_UNUSED(videoSink)
 
-    GstElement *decoder = gst_element_factory_make("decodebin3", nullptr);
+    const char *name = "decodebin3";
+    if (_isH265 == 0) { // H264
+        name = "avdec_h264";
+    } else if (_isH265 == 1) { // H265
+        // name = "decodebin3";
+    } else { // UNKNOWN
+        // name = "decodebin3";
+    }
+
+    GstElement *decoder = gst_element_factory_make(name, nullptr);
     if (!decoder) {
-        qCCritical(GstVideoReceiverLog) << "gst_element_factory_make('decodebin3') failed";
+        qCCritical(GstVideoReceiverLog) << "gst_element_factory_make('" << name << "') failed";
     }
 
     return decoder;
@@ -906,6 +1102,10 @@ void GstVideoReceiver::_onNewSourcePad(GstPad *pad)
 
     GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-with-new-source-pad");
 
+    if (_forward) {
+        startVideoForward(_host);
+    }
+
     if (!_addDecoder(_decoderValve)) {
         qCCritical(GstVideoReceiverLog) << "_addDecoder() failed";
         return;
@@ -1003,7 +1203,6 @@ bool GstVideoReceiver::_addVideoSink(GstPad *pad)
     (void) gst_bin_add(GST_BIN(_pipeline), _videoSink);
 
     if (!gst_element_link(_decoder, _videoSink)) {
-        (void) gst_bin_remove(GST_BIN(_pipeline), _videoSink);
         qCCritical(GstVideoReceiverLog) << "Unable to link video sink";
         gst_clear_caps(&caps);
         return false;
@@ -1101,7 +1300,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
     if (_decoder) {
         GstObject *parent = gst_element_get_parent(_decoder);
         if (parent) {
-            (void) gst_bin_remove(GST_BIN(_pipeline), _decoder);
             (void) gst_element_set_state(_decoder, GST_STATE_NULL);
             gst_clear_object(&parent);
         }
@@ -1122,7 +1320,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
 
     GstObject *parent = gst_element_get_parent(_videoSink);
     if (parent) {
-        (void) gst_bin_remove(GST_BIN(_pipeline), _videoSink);
         (void) gst_element_set_state(_videoSink, GST_STATE_NULL);
         gst_clear_object(&parent);
     }
@@ -1142,7 +1339,6 @@ void GstVideoReceiver::_shutdownDecodingBranch()
 
 void GstVideoReceiver::_shutdownRecordingBranch()
 {
-    gst_bin_remove(GST_BIN(_pipeline), _fileSink);
     gst_element_set_state(_fileSink, GST_STATE_NULL);
     gst_clear_object(&_fileSink);
 
@@ -1155,6 +1351,18 @@ void GstVideoReceiver::_shutdownRecordingBranch()
     }
 
     GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(_pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline-recording-stopped");
+}
+
+void GstVideoReceiver::_shutdownForwardBranch(void) {
+    qCDebug(GstVideoReceiverLog) << "shuntdown forward branch";
+
+    if (_udpSink) {
+        gst_clear_object(&_udpSink);
+    }
+
+    if (_rtpPay) {
+        gst_clear_object(&_rtpPay);
+    }
 }
 
 bool GstVideoReceiver::_needDispatch()

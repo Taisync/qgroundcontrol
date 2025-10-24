@@ -31,6 +31,7 @@ ApplicationWindow {
 
     property bool   _utmspSendActTrigger
     property bool   _utmspStartTelemetry
+    property real   _unActieTime: (new Date()).getTime()
 
     Component.onCompleted: {
         // Start the sequence of first run prompt(s)
@@ -797,5 +798,21 @@ ApplicationWindow {
          activationApproval:         UTMSPStateStorage.showActivationTab && QGroundControl.utmspManager.utmspVehicle.vehicleActivation
          flightID:                   UTMSPStateStorage.flightID
          anchors.fill:               parent
+    }
+
+    Connections {
+        target: Qt.application
+        function onActiveChanged() {
+            if (!Qt.application.active) {
+                QGroundControl.linkManager.mavlinkReceiveEnabled = false
+                console.log("mavlink shutdown")
+                QGroundControl.videoManager.pauseVideo()
+            }
+            else {
+                QGroundControl.linkManager.mavlinkReceiveEnabled = true
+                console.log("enable mavlink")
+                QGroundControl.videoManager.resumeVideo()
+            }
+        }
     }
 }

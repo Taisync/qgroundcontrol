@@ -27,6 +27,7 @@ import QGroundControl.FlightMap
 import QGroundControl.Palette
 import QGroundControl.ScreenTools
 import QGroundControl.Vehicle
+import TaisyncInfo
 
 // This is the ui overlay layer for the widgets/tools for Fly View
 Item {
@@ -123,6 +124,154 @@ Item {
         guidedController:           _guidedController
         guidedValueSlider:          _guidedValueSlider
         utmspSliderTrigger:         utmspActTrigger
+    }
+
+    TaisyncInfo {
+        id:taisyncPro
+    }
+
+    property bool _paramBoxShowEnable: QGroundControl.settingsManager.appSettings.taisyncFlyViewShow.value
+    property bool _paramBoxVisible: true
+    property bool _paramBoxLoaded: false
+    Rectangle
+    {
+        property bool _draged: false
+
+        id: paramBox
+        border.width: 1
+        border.color: "black"
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        width: gridLayout.implicitWidth + hideButton.width * 2
+        height: gridLayout.implicitHeight + ScreenTools.defaultFontPixelWidth * 2
+        radius: 5
+        clip: true
+        color: Qt.rgba(255,255,255,100/255)
+        visible: _paramBoxShowEnable && _paramBoxVisible && _paramBoxLoaded
+        Component.onCompleted: {
+            Qt.callLater(function() {
+                x = parent.width/2-width/2
+                y = parent.height/2-height/2
+                _paramBoxLoaded = true
+            });
+        }
+        onWidthChanged: {
+            if (!_draged) x = parent.width/2-width/2
+        }
+        onHeightChanged: {
+            if (!_draged) y = parent.height/2-height/2
+        }
+        MouseArea
+        {
+            anchors.fill: parent
+            drag.target: paramBox
+            onPressed: {
+                // When press, we think the box will drag
+                // then paramBox's center will not automic fix to the centre
+                paramBox._draged = true
+            }
+        }
+
+        GridLayout {
+            property var _paramModel: [
+                {"key": "airRSSI1",     "value": "-"+taisyncPro.airRSSI0 +"dBm"},
+                {"key": "gndRSSI1",     "value": "-"+taisyncPro.gndRSSI0+"dBm"},
+                {"key": "airRSSI2",     "value": "-"+taisyncPro.airRSSI1+"dBm"},
+                {"key": "gndRSSI2",     "value": "-"+taisyncPro.gndRSSI1+"dBm"},
+                {"key": "airSNR",       "value": taisyncPro.airSNR + "dB"},
+                {"key": "gndSNR",       "value": taisyncPro.gndSNR + "dB"},
+                {"key": "airPass",      "value": taisyncPro.airLDPCPass},
+                {"key": "gndPass",      "value": taisyncPro.gndLDPCPass},
+                {"key": "airFailed",    "value": taisyncPro.airLDPCFailed},
+                {"key": "gndFailed",    "value": taisyncPro.gndLDPCFailed},
+                {"key": "airAnt",       "value": taisyncPro.ant},
+                {"key": "gndAnt",       "value": taisyncPro.antGnd},
+                {"key": "freq",         "value": taisyncPro.currFreq},
+                {"key": "mcs",          "value": taisyncPro.mcs},
+                {"key": "range",        "value": taisyncPro.range + "m"},
+                {"key": "rate",         "value": taisyncPro.dataRate+"kbps"},
+            ]
+
+            id: gridLayout
+            columns: 4
+            columnSpacing: ScreenTools.defaultFontPixelWidth * 3
+            rowSpacing: ScreenTools.defaultFontPixelWidth
+            anchors.centerIn: parent
+
+            Repeater {
+                model: gridLayout._paramModel.length * 2
+
+                delegate: Label {
+                    required property int index
+                    property real _maxWidth: 0
+
+                    text: index %2 === 0 ? gridLayout._paramModel[Math.floor(index/2)].key : gridLayout._paramModel[Math.floor(index/2)].value
+                    font.pointSize: 12
+                    color: "#000000"
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: _maxWidth
+                    onImplicitWidthChanged: {
+                        if (implicitWidth > _maxWidth) {
+                            _maxWidth = implicitWidth
+                        }
+                    }
+                }
+            }
+        }
+
+        Item {
+            id: hideButton
+            anchors.right: parent.right
+            anchors.top: parent.top
+            width: 50
+            height: 50
+            Image {
+                anchors.margins: paramBox.border.width
+                fillMode: Image.PreserveAspectFit
+                source: "/res/hide.png"
+                width: parseInt(parent.width * 0.8)
+                height: width
+                anchors.right: parent.right
+                anchors.top: parent.top
+            }
+            MouseArea {
+                anchors.fill: parent
+                propagateComposedEvents: true
+                onClicked:
+                {
+                    _paramBoxVisible = false;
+                }
+            }
+        }
+    }
+    Rectangle {
+        id: viewButton
+        visible: _paramBoxShowEnable && !_paramBoxVisible && _paramBoxLoaded
+        x: parent.width/2-width/2
+        y: parent.height/2-height/2
+        width: 50
+        height: 50
+        border.width: 1
+        border.color: "black"
+        radius: 5
+        color: Qt.rgba(255,255,255,100/255)
+        Image {
+            width: parseInt(parent.width * 0.8)
+            height: width
+            anchors.centerIn: parent
+            fillMode: Image.PreserveAspectFit
+            source: "/res/view.png"
+        }
+        MouseArea
+        {
+            anchors.fill: parent
+            onClicked:
+            {
+                _paramBoxVisible = true;
+            }
+            drag.target: viewButton
+        }
     }
 
     //-- Virtual Joystick

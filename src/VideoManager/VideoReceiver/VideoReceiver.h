@@ -94,11 +94,15 @@ signals:
 public slots:
     virtual void start(uint32_t timeout) = 0;
     virtual void stop() = 0;
-    virtual void startDecoding(void *sink) = 0;
+    virtual void startDecoding(void *sink, QString host, bool forward) = 0;
     virtual void stopDecoding() = 0;
     virtual void startRecording(const QString &videoFile, FILE_FORMAT format) = 0;
     virtual void stopRecording() = 0;
     virtual void takeScreenshot(const QString &imageFile) = 0;
+    virtual void startVideoForward(const QString host) = 0;
+    virtual void stopVideoForward(void) = 0;
+    virtual void pauseDecoding(void) = 0;
+    virtual void resumeDecoding(void) = 0;
 
 protected:
     void *_sink = nullptr;

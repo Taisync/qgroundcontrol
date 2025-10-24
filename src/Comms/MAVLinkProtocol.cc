@@ -17,6 +17,10 @@
 #include "MavlinkSettings.h"
 #include "AppSettings.h"
 #include "QmlObjectListModel.h"
+#ifdef Q_OS_ANDROID
+#include "AndroidInterface.h"
+#include "UDPLink.h"
+#endif
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtCore/QDir>
@@ -110,6 +114,12 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
         return;
     }
 
+    bool mavlinkEnabled = LinkManager::instance()->mavlinkReceiveEnabled();
+    if (!mavlinkEnabled) {
+        qCDebug(MAVLinkProtocolLog) << "disable receive mavlink message";
+        return;
+    }
+
     for (const uint8_t &byte: data) {
         const uint8_t mavlinkChannel = link->mavlinkChannel();
         mavlink_message_t message{};
@@ -120,10 +130,13 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
         }
 
         _updateVersion(link, mavlinkChannel);
-        _updateCounters(mavlinkChannel, message);
+
         if (!linkPtr->linkConfiguration()->isForwarding()) {
             _forward(message);
             _forwardSupport(message);
+            _updateCounters(mavlinkChannel, message);
+        } else { // Data is from GCS, try forward to Autopilot
+            _forwardToAutopilot(message);
         }
         _logData(link, message);
 
@@ -180,6 +193,11 @@ void MAVLinkProtocol::_updateCounters(uint8_t mavlinkChannel, const mavlink_mess
     const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
     const float currentLossPercent = (static_cast<double>(_totalLossCounter[mavlinkChannel]) / totalSent) * 100.0f;
     _runningLossPercent[mavlinkChannel] = (currentLossPercent + _runningLossPercent[mavlinkChannel]) * 0.5f;
+
+    if ((_totalReceiveCounter[mavlinkChannel] % 31) == 0) {
+        const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
+        emit mavlinkMessageStatus(message.sysid, totalSent, _totalReceiveCounter[mavlinkChannel], _totalLossCounter[mavlinkChannel], _runningLossPercent[mavlinkChannel]);
+    }
 }
 
 void MAVLinkProtocol::_forward(const mavlink_message_t &message)
@@ -220,6 +238,28 @@ void MAVLinkProtocol::_forwardSupport(const mavlink_message_t &message)
     uint8_t buf[MAVLINK_MAX_PACKET_LEN]{};
     const uint16_t len = mavlink_msg_to_send_buffer(buf, &message);
     (void) forwardingSupportLink->writeBytesThreadSafe(reinterpret_cast<const char*>(buf), len);
+}
+
+void MAVLinkProtocol::_forwardToAutopilot(const mavlink_message_t &message)
+{
+    if (message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
+        return;
+    }
+
+    // no need to recheck forwarding enable
+    // if (!LinkManager::instance()->mavlinkSupportForwardingEnabled()) {
+    //     return;
+    // }
+
+    uint8_t buf[MAVLINK_MAX_PACKET_LEN]{};
+    const uint16_t len = mavlink_msg_to_send_buffer(buf, &message);
+
+    for (const SharedLinkInterfacePtr& link: LinkManager::instance()->links()) {
+        SharedLinkConfigurationPtr config = link->linkConfiguration();
+        if (!config->isForwarding()) {
+            (void) link->writeBytesThreadSafe(reinterpret_cast<const char*>(buf), len);
+        }
+    }
 }
 
 void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &message)
@@ -275,11 +315,6 @@ void MAVLinkProtocol::_logData(LinkInterface *link, const mavlink_message_t &mes
 
 bool MAVLinkProtocol::_updateStatus(LinkInterface *link, const SharedLinkInterfacePtr linkPtr, uint8_t mavlinkChannel, const mavlink_message_t &message)
 {
-    if ((_totalReceiveCounter[mavlinkChannel] % 31) == 0) {
-        const uint64_t totalSent = _totalReceiveCounter[mavlinkChannel] + _totalLossCounter[mavlinkChannel];
-        emit mavlinkMessageStatus(message.sysid, totalSent, _totalReceiveCounter[mavlinkChannel], _totalLossCounter[mavlinkChannel], _runningLossPercent[mavlinkChannel]);
-    }
-
     emit messageReceived(link, message);
 
     if (linkPtr.use_count() == 1) {
@@ -379,6 +414,37 @@ void MAVLinkProtocol::checkForLostLogFiles()
         _saveTelemetryLog(fileInfo.filePath());
     }
 }
+
+#ifdef Q_OS_ANDROID
+void MAVLinkProtocol::broadcastForwardLink()
+{
+    if (!SettingsManager::instance()->mavlinkSettings()->forwardMavlink()->rawValue().toBool()) {
+        qCWarning(MAVLinkProtocolLog) << "not forwarding link";
+        return;
+    }
+    // only support UDP
+    if (SettingsManager::instance()->mavlinkSettings()->forwardMavlinkByTcp()->rawValue().toBool()) {
+        qCWarning(MAVLinkProtocolLog) << "not forwarding UDP";
+        return;
+    }
+
+    SharedLinkInterfacePtr forwardingLink = LinkManager::instance()->mavlinkForwardingLink();
+    if (!forwardingLink) {
+        qCWarning(MAVLinkProtocolLog) << "forwarding link is not exist";
+        return;
+    }
+
+    if (forwardingLink->linkConfiguration()->type() != LinkConfiguration::TypeUdp) {
+        qCWarning(MAVLinkProtocolLog) << "not forwarding UDP";
+        return;
+    }
+
+    UDPConfiguration *udpLinkConfiguration = qobject_cast<UDPConfiguration*>(forwardingLink->linkConfiguration().get());
+    int port = udpLinkConfiguration->localPort();
+    qCDebug(MAVLinkProtocolLog) << "broadcast udp link:" << port;
+    AndroidInterface::broadcast("TaisyncZeroConf", "_mavlink._udp", port);
+}
+#endif
 
 void MAVLinkProtocol::deleteTempLogFiles()
 {

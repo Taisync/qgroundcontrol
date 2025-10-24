@@ -1592,6 +1592,9 @@ void Vehicle::_activeVehicleChanged(Vehicle *newActiveVehicle)
         qCDebug(JoystickLog) << "Vehicle " << this->id() << " is the new active vehicle";
         _captureJoystick();
         _isActiveVehicle = true;
+#ifdef Q_OS_ANDROID
+        MAVLinkProtocol::instance()->broadcastForwardLink();
+#endif
     } else {
         _isActiveVehicle = false;
     }

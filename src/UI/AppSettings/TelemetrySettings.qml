@@ -50,49 +50,6 @@ SettingsPage {
     }
 
     SettingsGroupLayout {
-        id:                 mavlink2SigningGroup
-        Layout.fillWidth:   true
-        heading:            qsTr("MAVLink 2 Signing")
-        headingDescription: qsTr("Signing keys should only be sent to the vehicle over secure links.")
-        visible:            _mavlink2SigningKey.visible
-
-        property Fact _mavlink2SigningKey: _mavlinkSettings.mavlink2SigningKey
-
-        Connections {
-            target:             mavlink2SigningGroup._mavlink2SigningKey
-            onRawValueChanged:  sendToVehiclePrompt.visible = true
-        }
-
-        RowLayout {
-            spacing: ScreenTools.defaultFontPixelWidth
-
-            LabelledFactTextField {
-                Layout.fillWidth:           true
-                textFieldPreferredWidth:    ScreenTools.defaultFontPixelWidth * 32
-                label:                      qsTr("Key")
-                fact:                       mavlink2SigningGroup._mavlink2SigningKey
-            }
-
-            QGCButton {
-                text:       qsTr("Send to Vehicle")
-                enabled:    _activeVehicle
-
-                onClicked: {
-                    sendToVehiclePrompt.visible = false
-                    _activeVehicle.sendSetupSigning()
-                }
-            }
-        }
-
-        QGCLabel {
-            id:                 sendToVehiclePrompt
-            Layout.fillWidth:   true
-            text:               qsTr("Signing key has changed. Don't forget to send to Vehicle(s) if needed.")
-            visible:            false
-        }
-    }
-
-    SettingsGroupLayout {
         Layout.fillWidth:   true
         heading:            qsTr("MAVLink Forwarding")
 
@@ -101,6 +58,14 @@ SettingsPage {
             text:               qsTr("Enable")
             fact:               _mavlinkSettings.forwardMavlink
             visible:            fact.visible
+        }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Use TCP")
+            fact:               _mavlinkSettings.forwardMavlinkByTcp
+            visible:            fact.visible
+            enabled:            _mavlinkSettings.forwardMavlink.rawValue
         }
 
         LabelledFactTextField {
@@ -246,6 +211,49 @@ SettingsPage {
             Layout.fillWidth:   true
             label:              qsTr("Signing:")
             labelText:          _activeVehicle ? (_activeVehicle.mavlinkSigning ? "On" : "Off") : _notConnectedStr
+        }
+    }
+
+    SettingsGroupLayout {
+        id:                 mavlink2SigningGroup
+        Layout.fillWidth:   true
+        heading:            qsTr("MAVLink 2 Signing")
+        headingDescription: qsTr("Signing keys should only be sent to the vehicle over secure links.")
+        visible:            _mavlink2SigningKey.visible
+
+        property Fact _mavlink2SigningKey: _mavlinkSettings.mavlink2SigningKey
+
+        Connections {
+            target:             mavlink2SigningGroup._mavlink2SigningKey
+            onRawValueChanged:  sendToVehiclePrompt.visible = true
+        }
+
+        RowLayout {
+            spacing: ScreenTools.defaultFontPixelWidth
+
+            LabelledFactTextField {
+                Layout.fillWidth:           true
+                textFieldPreferredWidth:    ScreenTools.defaultFontPixelWidth * 32
+                label:                      qsTr("Key")
+                fact:                       mavlink2SigningGroup._mavlink2SigningKey
+            }
+
+            QGCButton {
+                text:       qsTr("Send to Vehicle")
+                enabled:    _activeVehicle
+
+                onClicked: {
+                    sendToVehiclePrompt.visible = false
+                    _activeVehicle.sendSetupSigning()
+                }
+            }
+        }
+
+        QGCLabel {
+            id:                 sendToVehiclePrompt
+            Layout.fillWidth:   true
+            text:               qsTr("Signing key has changed. Don't forget to send to Vehicle(s) if needed.")
+            visible:            false
         }
     }
 }

@@ -13,6 +13,9 @@
 #endif
 #include "UDPLink.h"
 #include "TCPLink.h"
+#ifdef QGC_TCP_FORWARDING_LINK
+#include "TCPServerLink.h"
+#endif
 #include "LogReplayLink.h"
 #ifdef QGC_ENABLE_BLUETOOTH
 #include "BluetoothLink.h"
@@ -22,6 +25,9 @@
 #endif
 #ifndef QGC_AIRLINK_DISABLED
 #include "AirLinkLink.h"
+#endif
+#ifdef Q_OS_ANDROID
+#include "TTYSLink.h"
 #endif
 
 LinkConfiguration::LinkConfiguration(const QString &name, QObject *parent)
@@ -70,12 +76,22 @@ LinkConfiguration *LinkConfiguration::createSettings(int type, const QString &na
         config = new SerialConfiguration(name);
         break;
 #endif
+#ifdef Q_OS_ANDROID
+    case TypeTtys:
+        config = new TTYSConfiguration(name);
+        break;
+#endif
     case TypeUdp:
         config = new UDPConfiguration(name);
         break;
     case TypeTcp:
         config = new TCPConfiguration(name);
         break;
+#ifdef QGC_TCP_FORWARDING_LINK
+    case LinkConfiguration::TypeTcpServer:
+        config = new TCPServerConfiguration(name);
+        break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
     case TypeBluetooth:
         config = new BluetoothConfiguration(name);
@@ -112,12 +128,22 @@ LinkConfiguration *LinkConfiguration::duplicateSettings(const LinkConfiguration 
         dupe = new SerialConfiguration(qobject_cast<const SerialConfiguration*>(source));
         break;
 #endif
+#ifdef Q_OS_ANDROID
+    case TypeTtys:
+        dupe = new TTYSConfiguration(qobject_cast<const TTYSConfiguration*>(source));
+        break;
+#endif
     case TypeUdp:
         dupe = new UDPConfiguration(qobject_cast<const UDPConfiguration*>(source));
         break;
     case TypeTcp:
         dupe = new TCPConfiguration(qobject_cast<const TCPConfiguration*>(source));
         break;
+#ifdef QGC_TCP_FORWARDING_LINK
+    case LinkConfiguration::TypeTcpServer:
+        dupe = new TCPServerConfiguration(qobject_cast<const TCPServerConfiguration*>(source));
+        break;
+#endif
 #ifdef QGC_ENABLE_BLUETOOTH
     case TypeBluetooth:
         dupe = new BluetoothConfiguration(qobject_cast<const BluetoothConfiguration*>(source));

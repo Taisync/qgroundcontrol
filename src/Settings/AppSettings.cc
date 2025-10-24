@@ -169,6 +169,8 @@ DECLARE_SETTINGSFACT(AppSettings, disableAllPersistence)
 DECLARE_SETTINGSFACT(AppSettings, firstRunPromptIdsShown)
 DECLARE_SETTINGSFACT(AppSettings, loginAirLink)
 DECLARE_SETTINGSFACT(AppSettings, passAirLink)
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyViewShow)
+DECLARE_SETTINGSFACT(AppSettings, taisyncFlyDataSave)
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {
@@ -327,6 +329,16 @@ QString AppSettings::mavlinkActionsSavePath(void)
     if (!path.isEmpty() && QDir(path).exists()) {
         QDir dir(path);
         return dir.filePath(mavlinkActionsDirectory);
+    }
+    return QString();
+}
+
+QString AppSettings::linkLogSavePath(void)
+{
+    QString path = savePath()->rawValue().toString();
+    if (!path.isEmpty() && QDir(path).exists()) {
+        QDir dir(path);
+        return dir.filePath(linkLogsDirectory);
     }
     return QString();
 }

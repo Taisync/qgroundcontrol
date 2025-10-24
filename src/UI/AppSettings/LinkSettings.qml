@@ -263,8 +263,12 @@ SettingsPage {
                         if (index !== editingConfig.linkType) {
                             // Save current name
                             var name = nameField.text
+                            var autoConnect = editingConfig == null ? false : editingConfig.autoConnect
+                            var highLatency = editingConfig == null ? false : editingConfig.highLatency
                             // Create new link configuration
                             editingConfig = _linkManager.createConfiguration(index, name)
+                            editingConfig.autoConnect = autoConnect
+                            editingConfig.highLatency = highLatency
                         }
                     }
                 }

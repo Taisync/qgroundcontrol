@@ -195,8 +195,10 @@ void QtMultimediaReceiver::stop()
     emit onStopComplete(STATUS_OK);
 }
 
-void QtMultimediaReceiver::startDecoding(void *sink)
+void QtMultimediaReceiver::startDecoding(void *sink, QString host, bool forward)
 {
+    Q_UNUSED(host); Q_UNUSED(forward);
+
     qCDebug(QtMultimediaReceiverLog) << Q_FUNC_INFO;
 
     if (!sink) {

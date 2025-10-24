@@ -102,3 +102,5 @@ add_subdirectory(VideoManager)
 add_subdirectory(Viewer3D)
 
 add_subdirectory(QtLocationPlugin)
+
+add_subdirectory(Taisync)

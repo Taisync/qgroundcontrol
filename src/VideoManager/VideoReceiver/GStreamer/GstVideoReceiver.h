@@ -63,11 +63,15 @@ public:
 public slots:
     void start(uint32_t timeout) override;
     void stop() override;
-    void startDecoding(void *sink) override;
+    void startDecoding(void *sink, QString Host, bool forward) override;
     void stopDecoding() override;
     void startRecording(const QString &videoFile, FILE_FORMAT format) override;
     void stopRecording() override;
     void takeScreenshot(const QString &imageFile) override;
+    void startVideoForward(const QString host) override;
+    void stopVideoForward(void) override;
+    void pauseDecoding(void) override;
+    void resumeDecoding(void) override;
 
 private slots:
     void _watchdog();
@@ -90,6 +94,7 @@ private:
     bool _unlinkBranch(GstElement *from);
     void _shutdownDecodingBranch();
     void _shutdownRecordingBranch();
+    void _shutdownForwardBranch();
 
     bool _needDispatch();
     void _dispatchSignal(Task emitter);
@@ -113,9 +118,19 @@ private:
     GstElement *_source = nullptr;
     GstElement *_tee = nullptr;
     GstElement *_videoSink = nullptr;
+    GstElement *_udpSinkValve = nullptr;
+    GstElement *_udpSink = nullptr;
+    GstElement *_rtpPay = nullptr;
     GstVideoWorker *_worker = nullptr;
     gulong _teeProbeId = 0;
     gulong _videoSinkProbeId = 0;
+    bool _couldResume = false;
+
+    int _isH265 = -1;
+    int _forward = 0;
+    QString _host;
+    //-- RTSP UDP reconnect timeout
+    uint64_t _udpReconnect_us = 5000000;
 
     static constexpr const char *_kFileMux[FILE_FORMAT_MAX + 1] = {
         "matroskamux",

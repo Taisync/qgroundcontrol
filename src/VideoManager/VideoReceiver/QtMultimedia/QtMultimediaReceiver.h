@@ -42,11 +42,15 @@ public:
 public slots:
     void start(uint32_t timeout) override;
     void stop() override;
-    void startDecoding(void *sink) override;
+    void startDecoding(void *sink, QString host, bool forward) override;
     void stopDecoding() override;
     void startRecording(const QString &videoFile, VideoReceiver::FILE_FORMAT format) override;
     void stopRecording() override;
     void takeScreenshot(const QString &imageFile) override;
+    void startVideoForward(const QString host) override {};
+    void stopVideoForward(void) override {};
+    void pauseDecoding(void) override {};
+    void resumeDecoding(void) override {};
 
 protected:
     QTimer _frameTimer;
