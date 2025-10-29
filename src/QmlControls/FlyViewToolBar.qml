@@ -153,13 +153,14 @@ Rectangle {
         }
     }
 
+    property bool   _isPilot: QGroundControl.settingsManager.appSettings.isPilot
     // Small parameter download progress bar
     Rectangle {
         anchors.bottom: parent.bottom
         height:         _root.height * 0.05
         width:          _activeVehicle ? _activeVehicle.loadProgress * parent.width : 0
         color:          qgcPal.colorGreen
-        visible:        !largeProgressBar.visible
+        visible:        !largeProgressBar.visible && _isPilot
     }
 
     // Large parameter download progress bar
@@ -174,7 +175,7 @@ Rectangle {
 
         property bool _initialDownloadComplete: _activeVehicle ? _activeVehicle.initialConnectComplete : true
         property bool _userHide:                false
-        property bool _showLargeProgress:       !_initialDownloadComplete && !_userHide && qgcPal.globalTheme === QGCPalette.Light
+        property bool _showLargeProgress:       !_initialDownloadComplete && !_userHide && qgcPal.globalTheme === QGCPalette.Light && _isPilot
 
         Connections {
             target:                 QGroundControl.multiVehicleManager
