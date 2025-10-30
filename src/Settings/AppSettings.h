@@ -144,7 +144,7 @@ private:
     } LanguageInfo_t;
     static LanguageInfo_t _rgLanguageInfo[];
 
-    bool _isPilot = false;
+    bool _isPilot = true;
 
     friend class QGCApplication;
 };

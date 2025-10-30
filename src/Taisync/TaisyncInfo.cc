@@ -235,12 +235,10 @@ void TaisyncInfo::receiveParse(QByteArray b)
 
         if (_dataObj.contains("role"))
         {
-            bool ok;
-            int role = _dataObj.value("role").toInt(ok);
-            if (ok) {
-                SettingsManager::instance()->appSettings()->setIsPilot(role == 0);
-            }
-            emit mcsChanged();
+            QString role = _dataObj.value("role").toString();
+            SettingsManager::instance()->appSettings()->setIsPilot(role != "1");
+        } else {
+            SettingsManager::instance()->appSettings()->setIsPilot(true);
         }
 
         savelogInfo(b);
