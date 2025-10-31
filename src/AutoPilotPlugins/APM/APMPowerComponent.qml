@@ -124,16 +124,16 @@ SetupPage {
                         sourceComponent:    _batt1FullSettings.visible ? powerSetupComponent : undefined
 
                         property Fact armVoltMin:       controller.getParameterFact(-1, "r.BATT_ARM_VOLT", false /* reportMissing */)
-                        property Fact battAmpPerVolt:   controller.getParameterFact(-1, "r.BATT_AMP_PERVLT", false /* reportMissing */)
-                        property Fact battAmpOffset:    controller.getParameterFact(-1, "BATT_AMP_OFFSET", false /* reportMissing */)
+                        //property Fact battAmpPerVolt:   controller.getParameterFact(-1, "r.BATT_AMP_PERVLT", false /* reportMissing */)
+                        //property Fact battAmpOffset:    controller.getParameterFact(-1, "BATT_AMP_OFFSET", false /* reportMissing */)
                         property Fact battCapacity:     controller.getParameterFact(-1, "BATT_CAPACITY", false /* reportMissing */)
-                        property Fact battCurrPin:      controller.getParameterFact(-1, "BATT_CURR_PIN", false /* reportMissing */)
-                        property Fact battMonitor:      controller.getParameterFact(-1, "BATT_MONITOR", false /* reportMissing */)
-                        property Fact battVoltMult:     controller.getParameterFact(-1, "BATT_VOLT_MULT", false /* reportMissing */)
-                        property Fact battVoltPin:      controller.getParameterFact(-1, "BATT_VOLT_PIN", false /* reportMissing */)
+                        //property Fact battCurrPin:      controller.getParameterFact(-1, "BATT_CURR_PIN", false /* reportMissing */)
+                        //property Fact battMonitor:      controller.getParameterFact(-1, "BATT_MONITOR", false /* reportMissing */)
+                        //property Fact battVoltMult:     controller.getParameterFact(-1, "BATT_VOLT_MULT", false /* reportMissing */)
+                        //property Fact battVoltPin:      controller.getParameterFact(-1, "BATT_VOLT_PIN", false /* reportMissing */)
                         property FactGroup  _batteryFactGroup:  _batt1FullSettings.visible ? controller.vehicle.getFactGroup("battery0") : null
-                        property Fact vehicleVoltage:   _batteryFactGroup ? _batteryFactGroup.voltage : null
-                        property Fact vehicleCurrent:   _batteryFactGroup ? _batteryFactGroup.current : null
+                        //property Fact vehicleVoltage:   _batteryFactGroup ? _batteryFactGroup.voltage : null
+                        //property Fact vehicleCurrent:   _batteryFactGroup ? _batteryFactGroup.current : null
                     }
                 }
             }
@@ -211,23 +211,23 @@ SetupPage {
                         sourceComponent:    batt2FullSettings.visible ? powerSetupComponent : undefined
 
                         property Fact armVoltMin:       controller.getParameterFact(-1, "r.BATT2_ARM_VOLT", false /* reportMissing */)
-                        property Fact battAmpPerVolt:   controller.getParameterFact(-1, "r.BATT2_AMP_PERVLT", false /* reportMissing */)
-                        property Fact battAmpOffset:    controller.getParameterFact(-1, "BATT2_AMP_OFFSET", false /* reportMissing */)
+                        //property Fact battAmpPerVolt:   controller.getParameterFact(-1, "r.BATT2_AMP_PERVLT", false /* reportMissing */)
+                        //property Fact battAmpOffset:    controller.getParameterFact(-1, "BATT2_AMP_OFFSET", false /* reportMissing */)
                         property Fact battCapacity:     controller.getParameterFact(-1, "BATT2_CAPACITY", false /* reportMissing */)
-                        property Fact battCurrPin:      controller.getParameterFact(-1, "BATT2_CURR_PIN", false /* reportMissing */)
-                        property Fact battMonitor:      controller.getParameterFact(-1, "BATT2_MONITOR", false /* reportMissing */)
-                        property Fact battVoltMult:     controller.getParameterFact(-1, "BATT2_VOLT_MULT", false /* reportMissing */)
-                        property Fact battVoltPin:      controller.getParameterFact(-1, "BATT2_VOLT_PIN", false /* reportMissing */)
+                        //property Fact battCurrPin:      controller.getParameterFact(-1, "BATT2_CURR_PIN", false /* reportMissing */)
+                        //property Fact battMonitor:      controller.getParameterFact(-1, "BATT2_MONITOR", false /* reportMissing */)
+                        //property Fact battVoltMult:     controller.getParameterFact(-1, "BATT2_VOLT_MULT", false /* reportMissing */)
+                        //property Fact battVoltPin:      controller.getParameterFact(-1, "BATT2_VOLT_PIN", false /* reportMissing */)
                         property FactGroup  _batteryFactGroup:  batt2FullSettings.visible ? controller.vehicle.getFactGroup("battery1") : null
-                        property Fact vehicleVoltage:   _batteryFactGroup ? _batteryFactGroup.voltage : null
-                        property Fact vehicleCurrent:   _batteryFactGroup ? _batteryFactGroup.current : null
+                        //property Fact vehicleVoltage:   _batteryFactGroup ? _batteryFactGroup.voltage : null
+                        //property Fact vehicleCurrent:   _batteryFactGroup ? _batteryFactGroup.current : null
                     }
                 }
             }
 
             Column {
                 spacing:    _margins / 2
-                visible:    _escCalibrationAvailable
+                visible:    false
 
                 QGCLabel {
                     text:       qsTr("ESC Calibration")
@@ -289,24 +289,24 @@ SetupPage {
             spacing: _margins
 
             property real _margins:         ScreenTools.defaultFontPixelHeight / 2
-            property bool _showAdvanced:    sensorCombo.currentIndex === sensorModel.count - 1
+            property bool _showAdvanced:    false //sensorCombo.currentIndex === sensorModel.count - 1
             property real _fieldWidth:      ScreenTools.defaultFontPixelWidth * 25
 
-            Component.onCompleted: calcSensor()
+            // Component.onCompleted: calcSensor()
 
-            function calcSensor() {
-                for (var i=0; i<sensorModel.count - 1; i++) {
-                    if (sensorModel.get(i).voltPin === battVoltPin.value &&
-                            sensorModel.get(i).currPin === battCurrPin.value &&
-                            Math.abs(sensorModel.get(i).voltMult - battVoltMult.value) < 0.001 &&
-                            Math.abs(sensorModel.get(i).ampPerVolt - battAmpPerVolt.value) < 0.0001 &&
-                            Math.abs(sensorModel.get(i).ampOffset - battAmpOffset.value) < 0.0001) {
-                        sensorCombo.currentIndex = i
-                        return
-                    }
-                }
-                sensorCombo.currentIndex = sensorModel.count - 1
-            }
+            // function calcSensor() {
+            //     for (var i=0; i<sensorModel.count - 1; i++) {
+            //         if (sensorModel.get(i).voltPin === battVoltPin.value &&
+            //                 sensorModel.get(i).currPin === battCurrPin.value &&
+            //                 Math.abs(sensorModel.get(i).voltMult - battVoltMult.value) < 0.001 &&
+            //                 Math.abs(sensorModel.get(i).ampPerVolt - battAmpPerVolt.value) < 0.0001 &&
+            //                 Math.abs(sensorModel.get(i).ampOffset - battAmpOffset.value) < 0.0001) {
+            //             sensorCombo.currentIndex = i
+            //             return
+            //         }
+            //     }
+            //     sensorCombo.currentIndex = sensorModel.count - 1
+            // }
 
             QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
@@ -369,14 +369,14 @@ SetupPage {
                 rowSpacing:     _margins
                 columnSpacing:  _margins
 
-                QGCLabel { text: qsTr("Battery monitor:") }
+                //QGCLabel { text: qsTr("Battery monitor:") }
 
-                FactComboBox {
-                    id:         monitorCombo
-                    fact:       battMonitor
-                    indexModel: false
-                    sizeToContents: true
-                }
+                // FactComboBox {
+                //     id:         monitorCombo
+                //     fact:       battMonitor
+                //     indexModel: false
+                //     sizeToContents: true
+                // }
 
                 QGCLabel {
                     Layout.row:     1
@@ -402,88 +402,88 @@ SetupPage {
                     fact:   armVoltMin
                 }
 
-                QGCLabel {
-                    Layout.row:     3
-                    Layout.column:  0
-                    text:           qsTr("Power sensor:")
-                }
+                // QGCLabel {
+                //     Layout.row:     3
+                //     Layout.column:  0
+                //     text:           qsTr("Power sensor:")
+                // }
 
-                QGCComboBox {
-                    id:                     sensorCombo
-                    Layout.minimumWidth:    _fieldWidth
-                    model:                  sensorModel
-                    textRole:               "text"
+                // QGCComboBox {
+                //     id:                     sensorCombo
+                //     Layout.minimumWidth:    _fieldWidth
+                //     model:                  sensorModel
+                //     textRole:               "text"
 
-                    onActivated: (index) => {
-                        if (index < sensorModel.count - 1) {
-                            battVoltPin.value = sensorModel.get(index).voltPin
-                            battCurrPin.value = sensorModel.get(index).currPin
-                            battVoltMult.value = sensorModel.get(index).voltMult
-                            battAmpPerVolt.value = sensorModel.get(index).ampPerVolt
-                            battAmpOffset.value = sensorModel.get(index).ampOffset
-                        } else {
+                //     onActivated: (index) => {
+                //         if (index < sensorModel.count - 1) {
+                //             battVoltPin.value = sensorModel.get(index).voltPin
+                //             battCurrPin.value = sensorModel.get(index).currPin
+                //             battVoltMult.value = sensorModel.get(index).voltMult
+                //             battAmpPerVolt.value = sensorModel.get(index).ampPerVolt
+                //             battAmpOffset.value = sensorModel.get(index).ampOffset
+                //         } else {
 
-                        }
-                    }
-                }
+                //         }
+                //     }
+                // }
 
-                QGCLabel {
-                    Layout.row:     4
-                    Layout.column:  0
-                    text:           qsTr("Current pin:")
-                    visible:        _showAdvanced
-                }
+                // QGCLabel {
+                //     Layout.row:     4
+                //     Layout.column:  0
+                //     text:           qsTr("Current pin:")
+                //     visible:        _showAdvanced
+                // }
 
-                FactComboBox {
-                    Layout.minimumWidth:    _fieldWidth
-                    fact:                   battCurrPin
-                    indexModel:             false
-                    visible:                _showAdvanced
-                    sizeToContents:         true
-                }
+                // FactComboBox {
+                //     Layout.minimumWidth:    _fieldWidth
+                //     fact:                   battCurrPin
+                //     indexModel:             false
+                //     visible:                _showAdvanced
+                //     sizeToContents:         true
+                // }
 
-                QGCLabel {
-                    Layout.row:     5
-                    Layout.column:  0
-                    text:           qsTr("Voltage pin:")
-                    visible:        _showAdvanced
-                }
+                // QGCLabel {
+                //     Layout.row:     5
+                //     Layout.column:  0
+                //     text:           qsTr("Voltage pin:")
+                //     visible:        _showAdvanced
+                // }
 
-                FactComboBox {
-                    Layout.minimumWidth:    _fieldWidth
-                    fact:                   battVoltPin
-                    indexModel:             false
-                    visible:                _showAdvanced
-                    sizeToContents:         true
-                }
+                // FactComboBox {
+                //     Layout.minimumWidth:    _fieldWidth
+                //     fact:                   battVoltPin
+                //     indexModel:             false
+                //     visible:                _showAdvanced
+                //     sizeToContents:         true
+                // }
 
-                QGCLabel {
-                    Layout.row:     6
-                    Layout.column:  0
-                    text:           qsTr("Voltage multiplier:")
-                    visible:        _showAdvanced
-                }
+                // QGCLabel {
+                //     Layout.row:     6
+                //     Layout.column:  0
+                //     text:           qsTr("Voltage multiplier:")
+                //     visible:        _showAdvanced
+                // }
 
-                FactTextField {
-                    width:      _fieldWidth
-                    fact:       battVoltMult
-                    visible:    _showAdvanced
-                }
+                // FactTextField {
+                //     width:      _fieldWidth
+                //     fact:       battVoltMult
+                //     visible:    _showAdvanced
+                // }
 
-                QGCButton {
-                    text:       qsTr("Calculate")
-                    visible:    _showAdvanced
-                    onClicked:  calcVoltageMultiplierDlgComponent.createObject(mainWindow, { vehicleVoltageFact: vehicleVoltage, battVoltMultFact: battVoltMult }).open()
-                }
+                // QGCButton {
+                //     text:       qsTr("Calculate")
+                //     visible:    _showAdvanced
+                //     onClicked:  calcVoltageMultiplierDlgComponent.createObject(mainWindow, { vehicleVoltageFact: vehicleVoltage, battVoltMultFact: battVoltMult }).open()
+                // }
 
-                QGCLabel {
-                    Layout.columnSpan:  3
-                    Layout.fillWidth:   true
-                    font.pointSize:     ScreenTools.smallFontPointSize
-                    wrapMode:           Text.WordWrap
-                    text:               qsTr("If the battery voltage reported by the vehicle is largely different than the voltage read externally using a voltmeter you can adjust the voltage multiplier value to correct this. Click the Calculate button for help with calculating a new value.")
-                    visible:            _showAdvanced
-                }
+                // QGCLabel {
+                //     Layout.columnSpan:  3
+                //     Layout.fillWidth:   true
+                //     font.pointSize:     ScreenTools.smallFontPointSize
+                //     wrapMode:           Text.WordWrap
+                //     text:               qsTr("If the battery voltage reported by the vehicle is largely different than the voltage read externally using a voltmeter you can adjust the voltage multiplier value to correct this. Click the Calculate button for help with calculating a new value.")
+                //     visible:            _showAdvanced
+                // }
 
                 QGCLabel {
                     text:       qsTr("Amps per volt:")

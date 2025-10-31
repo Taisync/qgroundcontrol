@@ -717,47 +717,47 @@ SetupPage {
                 sourceComponent: controller.vehicle.fixedWing ? planeRTL : undefined
             }
 
-            Column {
-                spacing: _margins / 2
+            // Column {
+            //     spacing: _margins / 2
 
-                QGCLabel {
-                    text:           qsTr("Arming Checks")
-                    font.bold:      true
-                }
+            //     QGCLabel {
+            //         text:           qsTr("Arming Checks")
+            //         font.bold:      true
+            //     }
 
-                Rectangle {
-                    width:  flowLayout.width
-                    height: armingCheckInnerColumn.height + (_margins * 2)
-                    color:  ggcPal.windowShade
+            //     Rectangle {
+            //         width:  flowLayout.width
+            //         height: armingCheckInnerColumn.height + (_margins * 2)
+            //         color:  ggcPal.windowShade
 
-                    Column {
-                        id:                 armingCheckInnerColumn
-                        anchors.margins:    _margins
-                        anchors.top:        parent.top
-                        anchors.left:       parent.left
-                        anchors.right:      parent.right
-                        spacing: _margins
+            //         Column {
+            //             id:                 armingCheckInnerColumn
+            //             anchors.margins:    _margins
+            //             anchors.top:        parent.top
+            //             anchors.left:       parent.left
+            //             anchors.right:      parent.right
+            //             spacing: _margins
 
-                        FactBitmask {
-                            id:                 armingCheckBitmask
-                            anchors.left:       parent.left
-                            anchors.right:      parent.right
-                            firstEntryIsAll:    true
-                            fact:               _armingCheck
-                        }
+            //             FactBitmask {
+            //                 id:                 armingCheckBitmask
+            //                 anchors.left:       parent.left
+            //                 anchors.right:      parent.right
+            //                 firstEntryIsAll:    true
+            //                 fact:               _armingCheck
+            //             }
 
-                        QGCLabel {
-                            id:             armingCheckWarning
-                            anchors.left:   parent.left
-                            anchors.right:  parent.right
-                            wrapMode:       Text.WordWrap
-                            color:          qgcPal.warningText
-                            text:            qsTr("Warning: Turning off arming checks can lead to loss of Vehicle control.")
-                            visible:        _armingCheck.value != 1
-                        }
-                    }
-                } // Rectangle - Arming checks
-            } // Column - Arming Checks
+            //             QGCLabel {
+            //                 id:             armingCheckWarning
+            //                 anchors.left:   parent.left
+            //                 anchors.right:  parent.right
+            //                 wrapMode:       Text.WordWrap
+            //                 color:          qgcPal.warningText
+            //                 text:            qsTr("Warning: Turning off arming checks can lead to loss of Vehicle control.")
+            //                 visible:        _armingCheck.value != 1
+            //             }
+            //         }
+            //     } // Rectangle - Arming checks
+            // } // Column - Arming Checks
         } // Flow
     } // Component - safetyPageComponent
 } // SetupView

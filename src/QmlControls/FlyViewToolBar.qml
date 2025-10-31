@@ -108,7 +108,7 @@ Rectangle {
         anchors.margins:        ScreenTools.defaultFontPixelHeight * 0.66
         visible:                _activeVehicle && !_communicationLost && x > (toolsFlickable.x + toolsFlickable.contentWidth + ScreenTools.defaultFontPixelWidth)
         fillMode:               Image.PreserveAspectFit
-        source:                 _outdoorPalette ? _brandImageOutdoor : _brandImageIndoor
+        source:                 "/qmlimages/APM/BrandImage"//_outdoorPalette ? _brandImageOutdoor : _brandImageIndoor
         mipmap:                 true
 
         property bool   _outdoorPalette:        qgcPal.globalTheme === QGCPalette.Light

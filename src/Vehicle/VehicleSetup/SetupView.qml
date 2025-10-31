@@ -43,12 +43,28 @@ Rectangle {
         }
     }
 
+    // function _showSummaryPanel() {
+    //     if (_fullParameterVehicleAvailable) {
+    //         if (QGroundControl.multiVehicleManager.activeVehicle.autopilotPlugin.vehicleComponents.length === 0) {
+    //             panelLoader.setSourceComponent(noComponentsVehicleSummaryComponent)
+    //         } else {
+    //             panelLoader.setSource("qrc:/qml/QGroundControl/VehicleSetup/VehicleSummary.qml")
+    //         }
+    //     } else if (QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable) {
+    //         panelLoader.setSourceComponent(missingParametersVehicleSummaryComponent)
+    //     } else {
+    //         panelLoader.setSourceComponent(disconnectedVehicleSummaryComponent)
+    //     }
+    //     summaryButton.checked = true
+    // }
+
     function _showSummaryPanel() {
         if (_fullParameterVehicleAvailable) {
-            if (QGroundControl.multiVehicleManager.activeVehicle.autopilotPlugin.vehicleComponents.length === 0) {
+            if (QGroundControl.multiVehicleManager.activeVehicle.autopilot.vehicleComponents.length === 0) {
                 panelLoader.setSourceComponent(noComponentsVehicleSummaryComponent)
             } else {
-                panelLoader.setSource("qrc:/qml/QGroundControl/VehicleSetup/VehicleSummary.qml")
+                panelLoader.setSourceComponent(newEntryVehicleComponent)
+                //panelLoader.setSource("VehicleSummary.qml")
             }
         } else if (QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable) {
             panelLoader.setSourceComponent(missingParametersVehicleSummaryComponent)
@@ -137,6 +153,23 @@ Rectangle {
     }
 
     Component {
+        id: newEntryVehicleComponent
+        Rectangle{
+            color: qgcPal.windowShade
+            QGCLabel {
+                anchors.margins:        _defaultTextWidth * 2
+                anchors.fill:           parent
+                verticalAlignment:      Text.AlignVCenter
+                horizontalAlignment:    Text.AlignHCenter
+                wrapMode:               Text.WordWrap
+                font.pointSize:         ScreenTools.mediumFontPointSize
+                text:                   "Select a Component to Set Up with the Menu on the Left."
+                onLinkActivated: Qt.openUrlExternally(link)
+            }
+        }
+    }
+
+    Component {
         id: disconnectedVehicleSummaryComponent
         Rectangle {
             color: qgcPal.windowShade
@@ -214,6 +247,7 @@ Rectangle {
                 checked:            true
                 text:               qsTr("Summary")
                 Layout.fillWidth:   true
+                visible:            false
 
                 onClicked: showSummaryPanel()
             }
@@ -229,7 +263,7 @@ Rectangle {
                 id:                 joystickButton
                 icon.source:      "/qmlimages/Joystick.png"
                 setupComplete:      _activeJoystick ? _activeJoystick.calibrated || _buttonsOnly : false
-                visible:            _fullParameterVehicleAvailable && joystickManager.joysticks.length !== 0
+                visible:            false //_fullParameterVehicleAvailable && joystickManager.joysticks.length !== 0
                 text:               _forcedToButtonsOnly ? qsTr("Buttons") : qsTr("Joystick")
                 Layout.fillWidth:   true
                 onClicked:          showPanel(this, "qrc:/qml/QGroundControl/VehicleSetup/JoystickConfig.qml")
@@ -244,10 +278,10 @@ Rectangle {
                 model:  _fullParameterVehicleAvailable ? QGroundControl.multiVehicleManager.activeVehicle.autopilotPlugin.vehicleComponents : 0
 
                 ConfigButton {
-                    icon.source:      modelData.iconResource
+                    icon.source:        modelData.iconResource
                     setupComplete:      modelData.setupComplete
                     text:               modelData.name
-                    visible:            modelData.setupSource.toString() !== ""
+                    visible:            modelData.name !== "Motors" && modelData.name !== "Tuning" && modelData.name !== "Remote Support" && modelData.name !== "Frame" && modelData.name !== "Camera"
                     Layout.fillWidth:   true
                     onClicked:          showVehicleComponentPanel(componentUrl)
 

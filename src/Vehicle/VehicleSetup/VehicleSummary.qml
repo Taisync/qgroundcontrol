@@ -104,7 +104,7 @@ Rectangle {
                         width:      _summaryBoxWidth
                         height:     ScreenTools.defaultFontPixelHeight * 13
                         color:      qgcPal.windowShade
-                        visible:    modelData.summaryQmlSource.toString() !== ""
+                        visible:    modelData.name !== "Motors" && modelData.name !== "Tuning" && modelData.name !== "Remote Support" && modelData.name !== "Frame" && modelData.name !== "Camera"
                         border.width: 1
                         border.color: qgcPal.text
                         Component.onCompleted: {
@@ -132,12 +132,12 @@ Rectangle {
                                 visible:                modelData.requiresSetup && modelData.setupSource !== ""
                             }
 
-                            onClicked : {
-                                //console.log(modelData.setupSource)
-                                if (modelData.setupSource !== "") {
-                                    setupView.showVehicleComponentPanel(modelData)
-                                }
-                            }
+                            // onClicked : {
+                            //     //console.log(modelData.setupSource)
+                            //     if (modelData.setupSource !== "") {
+                            //         setupView.showVehicleComponentPanel(modelData)
+                            //     }
+                            // }
                         }
                         // Summary Qml
                         Rectangle {

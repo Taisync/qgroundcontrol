@@ -22,7 +22,7 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.15)
 include(Git)
 
 # App
-set(QGC_APP_NAME "QGroundControl" CACHE STRING "App Name")
+set(QGC_APP_NAME "ArcskyControl" CACHE STRING "App Name")
 set(QGC_APP_COPYRIGHT "Copyright (c) 2025 QGroundControl. All rights reserved." CACHE STRING "Copyright")
 set(QGC_APP_DESCRIPTION "Open Source Ground Control App" CACHE STRING "Description")
 set(QGC_ORG_NAME "QGroundControl" CACHE STRING "Org Name")

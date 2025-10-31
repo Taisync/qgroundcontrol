@@ -79,30 +79,30 @@ void QGCCorePlugin::registerQmlTypes()
 const QVariantList &QGCCorePlugin::analyzePages()
 {
     static const QVariantList analyzeList = {
-        QVariant::fromValue(new QmlComponentInfo(
-            tr("Log Download"),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/LogDownloadPage.qml")),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/LogDownloadIcon.svg")))),
+        // QVariant::fromValue(new QmlComponentInfo(
+        //     tr("Log Download"),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/LogDownloadPage.qml")),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/LogDownloadIcon.svg")))),
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
         QVariant::fromValue(new QmlComponentInfo(
             tr("GeoTag Images"),
             QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/GeoTagPage.qml")),
             QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/GeoTagIcon.svg")))),
 #endif
-        QVariant::fromValue(new QmlComponentInfo(
-            tr("MAVLink Console"),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/MAVLinkConsolePage.qml")),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/MAVLinkConsoleIcon.svg")))),
+        // QVariant::fromValue(new QmlComponentInfo(
+        //     tr("MAVLink Console"),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/MAVLinkConsolePage.qml")),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/MAVLinkConsoleIcon.svg")))),
 #ifndef QGC_DISABLE_MAVLINK_INSPECTOR
         QVariant::fromValue(new QmlComponentInfo(
             tr("MAVLink Inspector"),
             QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/MAVLinkInspectorPage.qml")),
             QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/MAVLinkInspector.svg")))),
 #endif
-        QVariant::fromValue(new QmlComponentInfo(
-            tr("Vibration"),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/VibrationPage.qml")),
-            QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/VibrationPageIcon")))),
+        // QVariant::fromValue(new QmlComponentInfo(
+        //     tr("Vibration"),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qml/QGroundControl/AnalyzeView/VibrationPage.qml")),
+        //     QUrl::fromUserInput(QStringLiteral("qrc:/qmlimages/VibrationPageIcon")))),
     };
 
     return analyzeList;
@@ -126,7 +126,7 @@ bool QGCCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMeta
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
             outdoorPalette = 0;
 #else
-            outdoorPalette = 1;
+            outdoorPalette = 0;
 #endif
             metaData.setRawDefaultValue(outdoorPalette);
             return true;
@@ -171,8 +171,7 @@ void QGCCorePlugin::factValueGridCreateDefaultSettings(FactValueGrid* factValueG
         QmlObjectListModel* column = factValueGrid->columns()->value<QmlObjectListModel*>(colIndex++);
         InstrumentValueData* value = column->value<InstrumentValueData*>(rowIndex);
         value->setFact("Vehicle", "AltitudeRelative");
-        value->setIcon("arrow-thick-up.svg");
-        value->setText(value->fact()->shortDescription());
+        value->setText("Alt (rel)");
         value->setShowUnits(true);
 
         // second cell

@@ -42,7 +42,7 @@ signals:
     void guidedBarShowROIChanged(bool show);
 
 protected:
-    virtual bool showMultiVehicleList() const { return true; }
+    virtual bool showMultiVehicleList() const { return false; }
     virtual bool showMapScale() const { return true; }
     virtual bool showInstrumentPanel() const { return true; }
     virtual bool guidedBarShowEmergencyStop() const { return true; }
@@ -126,13 +126,13 @@ public:
     virtual bool showSensorCalibrationAccel() const { return true; }
     virtual bool showSensorCalibrationAirspeed() const { return true; }
     virtual bool showSensorCalibrationCompass() const { return true; }
-    virtual bool showSensorCalibrationGyro() const { return true; }
+    virtual bool showSensorCalibrationGyro() const { return false; }
     virtual bool showSensorCalibrationLevel() const { return true; }
 
     /// @return false: custom build has automatically enabled a specific joystick
     virtual bool allowJoystickSelection() const { return true; }
 
-    virtual bool checkFirmwareVersion() const { return true; }
+    virtual bool checkFirmwareVersion() const { return false; }
 
     /// @return true: vehicle connection is disabled
     virtual bool disableVehicleConnection() const { return false; }
@@ -144,11 +144,11 @@ public:
     virtual bool missionWaypointsOnly() const { return false; }
 
     /// @return false: multi vehicle support is disabled
-    virtual bool multiVehicleEnabled() const { return true; }
+    virtual bool multiVehicleEnabled() const { return false; }
 
     virtual bool sensorsHaveFixedOrientation() const { return false; }
 
-    virtual bool showFirmwareUpgrade() const { return true; }
+    virtual bool showFirmwareUpgrade() const { return false; }
     virtual bool showMissionAbsoluteAltitude() const { return true; }
     virtual bool showOfflineMapExport() const { return true; }
     virtual bool showOfflineMapImport() const { return true; }

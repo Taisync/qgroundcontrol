@@ -50,132 +50,132 @@ SetupPage {
             width:      availableWidth
             spacing:     _margins
 
-            Column {
-                spacing: _margins
+            // Column {
+            //     spacing: _margins
 
-                QGCLabel {
-                    id:             flightModeLabel
-                    text:           qsTr("Flight Mode Settings") + (_fltmodeChExists ? "" : qsTr(" (Channel 5)"))
-                    font.bold:      true
-                }
+            //     QGCLabel {
+            //         id:             flightModeLabel
+            //         text:           qsTr("Flight Mode Settings") + (_fltmodeChExists ? "" : qsTr(" (Channel 5)"))
+            //         font.bold:      true
+            //     }
 
-                Rectangle {
-                    id:     flightModeSettings
-                    width:  flightModeColumn.width + (_margins * 2)
-                    height: flightModeColumn.height + ScreenTools.defaultFontPixelHeight
-                    color:  qgcPal.windowShade
+            //     Rectangle {
+            //         id:     flightModeSettings
+            //         width:  flightModeColumn.width + (_margins * 2)
+            //         height: flightModeColumn.height + ScreenTools.defaultFontPixelHeight
+            //         color:  qgcPal.windowShade
 
-                    Column {
-                        id:                 flightModeColumn
-                        anchors.margins:    ScreenTools.defaultFontPixelWidth
-                        anchors.left:       parent.left
-                        anchors.top:        parent.top
-                        spacing:            ScreenTools.defaultFontPixelHeight
+            //         Column {
+            //             id:                 flightModeColumn
+            //             anchors.margins:    ScreenTools.defaultFontPixelWidth
+            //             anchors.left:       parent.left
+            //             anchors.top:        parent.top
+            //             spacing:            ScreenTools.defaultFontPixelHeight
 
-                        Row {
-                            spacing:    _margins
-                            visible:    _fltmodeChExists
+            //             Row {
+            //                 spacing:    _margins
+            //                 visible:    _fltmodeChExists
 
-                            QGCLabel {
-                                id:                 modeChannelLabel
-                                anchors.baseline:   modeChannelCombo.baseline
-                                text:               qsTr("Flight mode channel:")
-                            }
+            //                 QGCLabel {
+            //                     id:                 modeChannelLabel
+            //                     anchors.baseline:   modeChannelCombo.baseline
+            //                     text:               qsTr("Flight mode channel:")
+            //                 }
 
-                            QGCComboBox {
-                                id:             modeChannelCombo
-                                width:          ScreenTools.defaultFontPixelWidth * 15
-                                model:          [ qsTr("Not assigned"), qsTr("Channel 1"), qsTr("Channel 2"),
-                                    qsTr("Channel 3"),    qsTr("Channel 4"), qsTr("Channel 5"),
-                                    qsTr("Channel 6"),    qsTr("Channel 7"), qsTr("Channel 8") ]
+            //                 QGCComboBox {
+            //                     id:             modeChannelCombo
+            //                     width:          ScreenTools.defaultFontPixelWidth * 15
+            //                     model:          [ qsTr("Not assigned"), qsTr("Channel 1"), qsTr("Channel 2"),
+            //                         qsTr("Channel 3"),    qsTr("Channel 4"), qsTr("Channel 5"),
+            //                         qsTr("Channel 6"),    qsTr("Channel 7"), qsTr("Channel 8") ]
 
-                                currentIndex:   _fltmodeCh.value
-                                onActivated: (index) => { _fltmodeCh.value = index }
-                            }
-                        }
+            //                     currentIndex:   _fltmodeCh.value
+            //                     onActivated: (index) => { _fltmodeCh.value = index }
+            //                 }
+            //             }
 
-                        GridLayout {
-                            rows:   _customSimpleMode ? 7 : 6
-                            flow:   GridLayout.TopToBottom
+            //             GridLayout {
+            //                 rows:   _customSimpleMode ? 7 : 6
+            //                 flow:   GridLayout.TopToBottom
 
-                            QGCLabel { text: ""; visible: _customSimpleMode }
-                            Repeater {
-                                model:  6
+            //                 QGCLabel { text: ""; visible: _customSimpleMode }
+            //                 Repeater {
+            //                     model:  6
 
-                                QGCLabel {
-                                    text:   qsTr("Flight Mode ") + index
-                                    color:  controller.activeFlightMode == index ? "yellow" : qgcPal.text
+            //                     QGCLabel {
+            //                         text:   qsTr("Flight Mode ") + index
+            //                         color:  controller.activeFlightMode == index ? "yellow" : qgcPal.text
 
-                                    property int index: modelData + 1
-                                }
-                            }
+            //                         property int index: modelData + 1
+            //                     }
+            //                 }
 
-                            QGCLabel { text: ""; visible: _customSimpleMode }
-                            Repeater {
-                                model:  6
+            //                 QGCLabel { text: ""; visible: _customSimpleMode }
+            //                 Repeater {
+            //                     model:  6
 
-                                FactComboBox {
-                                    Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 15
-                                    fact:                   controller.getParameterFact(-1, _modeParamPrefix + index)
-                                    indexModel:             false
+            //                     FactComboBox {
+            //                         Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 15
+            //                         fact:                   controller.getParameterFact(-1, _modeParamPrefix + index)
+            //                         indexModel:             false
 
-                                    property int index: modelData + 1
-                                }
-                            }
+            //                         property int index: modelData + 1
+            //                     }
+            //                 }
 
-                            QGCLabel {
-                                text:           qsTr("Simple")
-                                font.pointSize: ScreenTools.smallFontPointSize
-                                visible:        _customSimpleMode
-                            }
-                            Repeater {
-                                model:  controller.simpleModeEnabled
-                                QGCCheckBox {
-                                    Layout.alignment:   Qt.AlignHCenter
-                                    visible:            _customSimpleMode
-                                    checked:            modelData
-                                    onClicked:          controller.setSimpleMode(index, checked)
-                                }
-                            }
+            //                 QGCLabel {
+            //                     text:           qsTr("Simple")
+            //                     font.pointSize: ScreenTools.smallFontPointSize
+            //                     visible:        _customSimpleMode
+            //                 }
+            //                 Repeater {
+            //                     model:  controller.simpleModeEnabled
+            //                     QGCCheckBox {
+            //                         Layout.alignment:   Qt.AlignHCenter
+            //                         visible:            _customSimpleMode
+            //                         checked:            modelData
+            //                         onClicked:          controller.setSimpleMode(index, checked)
+            //                     }
+            //                 }
 
-                            QGCLabel {
-                                text:           qsTr("Super-Simple")
-                                font.pointSize: ScreenTools.smallFontPointSize
-                                visible:        _customSimpleMode
-                            }
-                            Repeater {
-                                model:  controller.superSimpleModeEnabled
-                                QGCCheckBox {
-                                    Layout.alignment:   Qt.AlignHCenter
-                                    visible:            _customSimpleMode
-                                    checked:            modelData
-                                    onClicked:          controller.setSuperSimpleMode(index, checked)
-                                }
-                            }
+            //                 QGCLabel {
+            //                     text:           qsTr("Super-Simple")
+            //                     font.pointSize: ScreenTools.smallFontPointSize
+            //                     visible:        _customSimpleMode
+            //                 }
+            //                 Repeater {
+            //                     model:  controller.superSimpleModeEnabled
+            //                     QGCCheckBox {
+            //                         Layout.alignment:   Qt.AlignHCenter
+            //                         visible:            _customSimpleMode
+            //                         checked:            modelData
+            //                         onClicked:          controller.setSuperSimpleMode(index, checked)
+            //                     }
+            //                 }
 
-                            QGCLabel { text: ""; visible: _customSimpleMode }
-                            Repeater {
-                                model:  6
+            //                 QGCLabel { text: ""; visible: _customSimpleMode }
+            //                 Repeater {
+            //                     model:  6
 
-                                QGCLabel { text: _pwmStrings[modelData] }
-                            }
-                        }
+            //                     QGCLabel { text: _pwmStrings[modelData] }
+            //                 }
+            //             }
 
-                        RowLayout {
-                            spacing: _margins
-                            visible: controller.simpleModesSupported
+            //             RowLayout {
+            //                 spacing: _margins
+            //                 visible: controller.simpleModesSupported
 
-                            QGCLabel { text: qsTr("Simple Mode") }
+            //                 QGCLabel { text: qsTr("Simple Mode") }
 
-                            QGCComboBox {
-                                model:          controller.simpleModeNames
-                                currentIndex:   controller.simpleMode
-                                onActivated: (index) => { controller.simpleMode = index }
-                            }
-                        }
-                    } // Column - Flight Modes
-                } // Rectangle - Flight Modes
-            } // Column - Flight Modes
+            //                 QGCComboBox {
+            //                     model:          controller.simpleModeNames
+            //                     currentIndex:   controller.simpleMode
+            //                     onActivated: (index) => { controller.simpleMode = index }
+            //                 }
+            //             }
+            //         } // Column - Flight Modes
+            //     } // Rectangle - Flight Modes
+            // } // Column - Flight Modes
 
             Column {
                 spacing: _margins
