@@ -350,20 +350,20 @@ ApplicationWindow {
                             }
                         }
 
-                        SubMenuButton {
-                            id:                 analyzeButton
-                            height:             toolSelectDialog._toolButtonHeight
-                            Layout.fillWidth:   true
-                            text:               qsTr("Analyze Tools")
-                            imageResource:      "/qmlimages/Analyze.svg"
-                            visible:            QGroundControl.corePlugin.showAdvancedUI
-                            onClicked: {
-                                if (mainWindow.allowViewSwitch()) {
-                                    mainWindow.closeIndicatorDrawer()
-                                    mainWindow.showAnalyzeTool()
-                                }
-                            }
-                        }
+                        // SubMenuButton {
+                        //     id:                 analyzeButton
+                        //     height:             toolSelectDialog._toolButtonHeight
+                        //     Layout.fillWidth:   true
+                        //     text:               qsTr("Analyze Tools")
+                        //     imageResource:      "/qmlimages/Analyze.svg"
+                        //     visible:            QGroundControl.corePlugin.showAdvancedUI
+                        //     onClicked: {
+                        //         if (mainWindow.allowViewSwitch()) {
+                        //             mainWindow.closeIndicatorDrawer()
+                        //             mainWindow.showAnalyzeTool()
+                        //         }
+                        //     }
+                        // }
 
                         SubMenuButton {
                             id:                 setupButton

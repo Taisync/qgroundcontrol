@@ -174,7 +174,7 @@ RowLayout {
         id: overallStatusIndicatorPage
 
         ToolIndicatorPage {
-            showExpand:         _activeVehicle.mainStatusIndicatorContentItem ? true : false
+            showExpand:         false //_activeVehicle.mainStatusIndicatorContentItem ? true : false
             waitForParameters:  _activeVehicle.mainStatusIndicatorContentItem ? true : false
             contentComponent:   mainStatusContentComponent
             expandedComponent:  mainStatusExpandedComponent
@@ -188,34 +188,34 @@ RowLayout {
             id:         mainLayout
             spacing:    _spacing
 
-            QGCButton {
-                // FIXME: forceArm is not possible anymore if _healthAndArmingChecksSupported == true
-                enabled:            _armed || !_healthAndArmingChecksSupported || _activeVehicle.healthAndArmingCheckReport.canArm
-                text:               _armed ?  qsTr("Disarm") : (forceArm ? qsTr("Force Arm") : qsTr("Arm"))
-                Layout.alignment:   Qt.AlignLeft
+            // QGCButton {
+            //     // FIXME: forceArm is not possible anymore if _healthAndArmingChecksSupported == true
+            //     enabled:            _armed || !_healthAndArmingChecksSupported || _activeVehicle.healthAndArmingCheckReport.canArm
+            //     text:               _armed ?  qsTr("Disarm") : (forceArm ? qsTr("Force Arm") : qsTr("Arm"))
+            //     Layout.alignment:   Qt.AlignLeft
 
-                property bool forceArm: false
+            //     property bool forceArm: false
 
-                onPressAndHold: forceArm = true
+            //     onPressAndHold: forceArm = true
 
-                onClicked: {
-                    if (_armed) {
-                        mainWindow.disarmVehicleRequest()
-                    } else {
-                        if (forceArm) {
-                            mainWindow.forceArmVehicleRequest()
-                        } else {
-                            mainWindow.armVehicleRequest()
-                        }
-                    }
-                    forceArm = false
-                    mainWindow.closeIndicatorDrawer()
-                }
-            }
+            //     onClicked: {
+            //         if (_armed) {
+            //             mainWindow.disarmVehicleRequest()
+            //         } else {
+            //             if (forceArm) {
+            //                 mainWindow.forceArmVehicleRequest()
+            //             } else {
+            //                 mainWindow.armVehicleRequest()
+            //             }
+            //         }
+            //         forceArm = false
+            //         mainWindow.closeIndicatorDrawer()
+            //     }
+            // }
 
             SettingsGroupLayout {
                 //Layout.fillWidth:   true
-                heading:            qsTr("Vehicle Messages")
+                heading:            qsTr("Message Window")
                 visible:            !vehicleMessageList.noMessages
 
                 VehicleMessageList { 

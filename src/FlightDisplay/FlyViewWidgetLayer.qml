@@ -126,6 +126,32 @@ Item {
         utmspSliderTrigger:         utmspActTrigger
     }
 
+    Button {
+        text: "Stream\n#"
+        onClicked: QGroundControl.videoManager.switchRTSPStream()
+        width: 100
+        height: 100
+        anchors.left: parent.left
+        anchors.leftMargin: 20
+
+        // Position roughly 75% up the left side
+        y: parent.height * 0.25 - height / 2
+
+        background: Rectangle {
+            color: "#444"
+            radius: 20
+            opacity: 0.6
+        }
+        contentItem: Text {
+            text: "Stream\n" + QGroundControl.videoManager.currentStream
+            color: "white"
+            font.bold: true
+            font.pixelSize: 20
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
     TaisyncInfo {
         id:taisyncPro
     }
@@ -328,7 +354,7 @@ Item {
         anchors.top:            parent.top
         z:                      QGroundControl.zOrderWidgets
         maxHeight:              parent.height - y - parentToolInsets.bottomEdgeLeftInset - _toolsMargin
-        visible:                !QGroundControl.videoManager.fullScreen
+        visible:                false //!QGroundControl.videoManager.fullScreen
 
         onDisplayPreFlightChecklist: {
             if (!preFlightChecklistLoader.active) {

@@ -77,13 +77,13 @@ SetupPage {
                             id:                 batt1MonitorRow
                             spacing:            ScreenTools.defaultFontPixelWidth
 
-                            QGCLabel { text: qsTr("Battery1 monitor:") }
-                            FactComboBox {
-                                id:         monitor1Combo
-                                fact:       _batt1Monitor
-                                indexModel: false
-                                sizeToContents: true
-                            }
+                            // QGCLabel { text: qsTr("Battery1 monitor:") }
+                            // FactComboBox {
+                            //     id:         monitor1Combo
+                            //     fact:       _batt1Monitor
+                            //     indexModel: false
+                            //     sizeToContents: true
+                            // }
                         }
 
                         QGCLabel {
@@ -164,13 +164,13 @@ SetupPage {
                             id:                 batt2MonitorRow
                             spacing:            ScreenTools.defaultFontPixelWidth
 
-                            QGCLabel { text: qsTr("Battery2 monitor:") }
-                            FactComboBox {
-                                id:         monitor2Combo
-                                fact:       _batt2Monitor
-                                indexModel: false
-                                sizeToContents: true
-                            }
+                            // QGCLabel { text: qsTr("Battery2 monitor:") }
+                            // FactComboBox {
+                            //     id:         monitor2Combo
+                            //     fact:       _batt2Monitor
+                            //     indexModel: false
+                            //     sizeToContents: true
+                            // }
                         }
 
                         QGCLabel {

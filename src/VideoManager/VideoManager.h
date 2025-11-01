@@ -49,6 +49,7 @@ class VideoManager : public QObject
     Q_PROPERTY(QSize    videoSize               READ videoSize                                  NOTIFY videoSizeChanged)
     Q_PROPERTY(QString  imageFile               READ imageFile                                  NOTIFY imageFileChanged)
     Q_PROPERTY(QString  uvcVideoSourceID        READ uvcVideoSourceID                           NOTIFY uvcVideoSourceIDChanged)
+    Q_PROPERTY(QString  currentStream           READ currentStream                              NOTIFY streamChangedRtsp)
 
 public:
     explicit VideoManager(QObject *parent = nullptr);
@@ -57,6 +58,7 @@ public:
     static VideoManager *instance();
     static void registerQmlTypes();
 
+    Q_INVOKABLE void switchRTSPStream();
     Q_INVOKABLE void grabImage(const QString &imageFile = QString());
     Q_INVOKABLE void startRecording(const QString &videoFile = QString());
     Q_INVOKABLE void startVideo();
@@ -88,6 +90,17 @@ public:
     static bool qtmultimediaEnabled();
     static bool uvcEnabled();
 
+   QString currentStream(){
+        if(_currentStream == 1)
+        {
+            return "1";
+        }
+        else
+        {
+            return "2";
+        }
+    }    
+
 signals:
     void aspectRatioChanged();
     void autoStreamConfiguredChanged();
@@ -103,6 +116,7 @@ signals:
     void streamingChanged();
     void uvcVideoSourceIDChanged();
     void videoSizeChanged();
+    void streamChangedRtsp();
 
 private slots:
     void _communicationLostChanged(bool communicationLost);
@@ -137,6 +151,7 @@ private:
     Vehicle *_activeVehicle = nullptr;
     QString _forwardHost;
     bool _forwardVideo;
+    uint8_t _currentStream = 1;
 };
 
 /*===========================================================================*/

@@ -300,118 +300,118 @@ Item {
                     property Fact _fact: QGroundControl.settingsManager.batteryIndicatorSettings.valueDisplay
                 }
 
-                ColumnLayout {
-                    QGCLabel { text: qsTr("Coloring") }
+                // ColumnLayout {
+                //     QGCLabel { text: qsTr("Coloring") }
 
-                    RowLayout {
-                        spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Reduced spacing between elements
+                //     RowLayout {
+                //         spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Reduced spacing between elements
 
-                        // Battery 100%
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
-                            QGCColoredImage {
-                                source: "/qmlimages/BatteryGreen.svg"
-                                width: ScreenTools.defaultFontPixelWidth * 6
-                                height: width
-                                fillMode: Image.PreserveAspectFit
-                                color: qgcPal.colorGreen
-                            }
-                            QGCLabel { text: qsTr("100%") }
-                        }
+                //         // Battery 100%
+                //         RowLayout {
+                //             spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
+                //             QGCColoredImage {
+                //                 source: "/qmlimages/BatteryGreen.svg"
+                //                 width: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: width
+                //                 fillMode: Image.PreserveAspectFit
+                //                 color: qgcPal.colorGreen
+                //             }
+                //             QGCLabel { text: qsTr("100%") }
+                //         }
 
-                        // Threshold 1
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and field
-                            QGCColoredImage {
-                                source: "/qmlimages/BatteryYellowGreen.svg"
-                                width: ScreenTools.defaultFontPixelWidth * 6
-                                height: width
-                                fillMode: Image.PreserveAspectFit
-                                color: qgcPal.colorYellowGreen
-                            }
-                            FactTextField {
-                                id: threshold1Field
-                                fact: _batterySettings.threshold1
-                                implicitWidth: ScreenTools.defaultFontPixelWidth * 6
-                                height: ScreenTools.defaultFontPixelHeight * 1.5
-                                enabled: fact.visible
-                                onEditingFinished: {
-                                    // Validate and set the new threshold value
-                                    _batterySettings.setThreshold1(parseInt(text));
-                                }
-                            }
-                        }
+                //         // Threshold 1
+                //         RowLayout {
+                //             spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and field
+                //             QGCColoredImage {
+                //                 source: "/qmlimages/BatteryYellowGreen.svg"
+                //                 width: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: width
+                //                 fillMode: Image.PreserveAspectFit
+                //                 color: qgcPal.colorYellowGreen
+                //             }
+                //             FactTextField {
+                //                 id: threshold1Field
+                //                 fact: _batterySettings.threshold1
+                //                 implicitWidth: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: ScreenTools.defaultFontPixelHeight * 1.5
+                //                 enabled: fact.visible
+                //                 onEditingFinished: {
+                //                     // Validate and set the new threshold value
+                //                     _batterySettings.setThreshold1(parseInt(text));
+                //                 }
+                //             }
+                //         }
 
-                        // Threshold 2
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and field
-                            QGCColoredImage {
-                                source: "/qmlimages/BatteryYellow.svg"
-                                width: ScreenTools.defaultFontPixelWidth * 6
-                                height: width
-                                fillMode: Image.PreserveAspectFit
-                                color: qgcPal.colorYellow
-                            }
-                            FactTextField {
-                                fact: _batterySettings.threshold2
-                                implicitWidth: ScreenTools.defaultFontPixelWidth * 6
-                                height: ScreenTools.defaultFontPixelHeight * 1.5
-                                enabled: fact.visible
-                                onEditingFinished: {
-                                    // Validate and set the new threshold value
-                                    _batterySettings.setThreshold2(parseInt(text));                                
-                                }
-                            }
-                        }
+                //         // Threshold 2
+                //         RowLayout {
+                //             spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and field
+                //             QGCColoredImage {
+                //                 source: "/qmlimages/BatteryYellow.svg"
+                //                 width: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: width
+                //                 fillMode: Image.PreserveAspectFit
+                //                 color: qgcPal.colorYellow
+                //             }
+                //             FactTextField {
+                //                 fact: _batterySettings.threshold2
+                //                 implicitWidth: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: ScreenTools.defaultFontPixelHeight * 1.5
+                //                 enabled: fact.visible
+                //                 onEditingFinished: {
+                //                     // Validate and set the new threshold value
+                //                     _batterySettings.setThreshold2(parseInt(text));                                
+                //                 }
+                //             }
+                //         }
 
-                        // Low state
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
-                            QGCColoredImage {
-                                source: "/qmlimages/BatteryOrange.svg"
-                                width: ScreenTools.defaultFontPixelWidth * 6
-                                height: width
-                                fillMode: Image.PreserveAspectFit
-                                color: qgcPal.colorOrange
-                            }
-                            QGCLabel { text: qsTr("Low") }
-                        }
+                //         // Low state
+                //         RowLayout {
+                //             spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
+                //             QGCColoredImage {
+                //                 source: "/qmlimages/BatteryOrange.svg"
+                //                 width: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: width
+                //                 fillMode: Image.PreserveAspectFit
+                //                 color: qgcPal.colorOrange
+                //             }
+                //             QGCLabel { text: qsTr("Low") }
+                //         }
 
-                        // Critical state
-                        RowLayout {
-                            spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
-                            QGCColoredImage {
-                                source: "/qmlimages/BatteryCritical.svg"
-                                width: ScreenTools.defaultFontPixelWidth * 6
-                                height: width
-                                fillMode: Image.PreserveAspectFit
-                                color: qgcPal.colorRed
-                            }
-                            QGCLabel { text: qsTr("Critical") }
-                        }
-                    }
-                }
-            }
+                //         // Critical state
+                //         RowLayout {
+                //             spacing: ScreenTools.defaultFontPixelWidth * 0.05  // Tighter spacing for icon and label
+                //             QGCColoredImage {
+                //                 source: "/qmlimages/BatteryCritical.svg"
+                //                 width: ScreenTools.defaultFontPixelWidth * 6
+                //                 height: width
+                //                 fillMode: Image.PreserveAspectFit
+                //                 color: qgcPal.colorRed
+                //             }
+                //             QGCLabel { text: qsTr("Critical") }
+                //         }
+                //     }
+                // }
+            } // end of settings group layout
 
-            Loader {
-                Layout.fillWidth: true
-                sourceComponent: expandedPageComponent
-            }
+            // Loader {
+            //     Layout.fillWidth: true
+            //     sourceComponent: expandedPageComponent
+            // }
 
-            SettingsGroupLayout {
-                visible: _activeVehicle.autopilotPlugin.knownVehicleComponentAvailable(AutoPilotPlugin.KnownPowerVehicleComponent) &&
-                            QGroundControl.corePlugin.showAdvancedUI
+            // SettingsGroupLayout {
+            //     visible: _activeVehicle.autopilotPlugin.knownVehicleComponentAvailable(AutoPilotPlugin.KnownPowerVehicleComponent) &&
+            //                 QGroundControl.corePlugin.showAdvancedUI
 
-                LabelledButton {
-                    label:      qsTr("Vehicle Power")
-                    buttonText: qsTr("Configure")
+            //     LabelledButton {
+            //         label:      qsTr("Vehicle Power")
+            //         buttonText: qsTr("Configure")
 
-                    onClicked: {
-                        mainWindow.showKnownVehicleComponentConfigPage(AutoPilotPlugin.KnownPowerVehicleComponent)
-                        mainWindow.closeIndicatorDrawer()
-                    }
-                }                
-            }
+            //         onClicked: {
+            //             mainWindow.showKnownVehicleComponentConfigPage(AutoPilotPlugin.KnownPowerVehicleComponent)
+            //             mainWindow.closeIndicatorDrawer()
+            //         }
+            //     }                
+            // }
         }
     }
 }

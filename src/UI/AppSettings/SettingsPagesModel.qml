@@ -52,7 +52,7 @@ ListModel {
         name: qsTr("ADSB Server")
         url: "qrc:/qml/QGroundControl/AppSettings/ADSBServerSettings.qml"
         iconUrl: "qrc:/InstrumentValueIcons/airplane.svg"
-        pageVisible: function() { return true }
+        pageVisible: function() { return false }
     }
 
     ListElement {
@@ -73,12 +73,12 @@ ListModel {
         name: qsTr("PX4 Log Transfer")
         url: "qrc:/qml/QGroundControl/AppSettings/PX4LogTransferSettings.qml"
         iconUrl: "qrc:/InstrumentValueIcons/inbox-download.svg"
-        pageVisible: function() { 
-            var activeVehicle = QGroundControl.multiVehicleManager.activeVehicle
-            return QGroundControl.corePlugin.options.showPX4LogTransferOptions && 
-                        QGroundControl.px4ProFirmwareSupported && 
-                        (activeVehicle ? activeVehicle.px4Firmware : true)
-        }
+        pageVisible: function() { return false }
+        //     var activeVehicle = QGroundControl.multiVehicleManager.activeVehicle
+        //     return QGroundControl.corePlugin.options.showPX4LogTransferOptions &&
+        //                 QGroundControl.px4ProFirmwareSupported &&
+        //                 (activeVehicle ? activeVehicle.px4Firmware : true)
+        // }
     }
 
     ListElement {
@@ -99,7 +99,7 @@ ListModel {
         name: qsTr("Help")
         url: "qrc:/qml/QGroundControl/AppSettings/HelpSettings.qml"
         iconUrl: "qrc:/InstrumentValueIcons/question.svg"
-        pageVisible: function() { return true }
+        pageVisible: function() { return false }
     }
 
     ListElement {
@@ -122,5 +122,11 @@ ListModel {
         iconUrl: "qrc:/InstrumentValueIcons/photo.svg"
         pageVisible: function() { return ScreenTools.isDebug }
     }
-}
 
+    ListElement {
+        name: qsTr("MAVLink Inspector")
+        url: "qrc:/qml/QGroundControl/AnalyzeView/MAVLinkInspectorPage.qml"
+        iconUrl: "qrc:/qmlimages/MAVLinkInspector.svg"
+        pageVisible: function() { return true }
+    }    
+}

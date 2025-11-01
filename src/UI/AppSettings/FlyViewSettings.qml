@@ -55,30 +55,30 @@ SettingsPage {
         Layout.fillWidth:   true
         heading:            qsTr("General")
 
-        FactCheckBoxSlider {
-            id:                 useCheckList
-            Layout.fillWidth:   true
-            text:               qsTr("Use Preflight Checklist")
-            fact:               _useChecklist
-            visible:            _useChecklist.visible && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
-            property Fact _useChecklist:      _settingsManager.appSettings.useChecklist
-        }
+        // FactCheckBoxSlider {
+        //     id:                 useCheckList
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Use Preflight Checklist")
+        //     fact:               _useChecklist
+        //     visible:            _useChecklist.visible && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
+        //     property Fact _useChecklist:      _settingsManager.appSettings.useChecklist
+        // }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Enforce Preflight Checklist")
-            fact:               _enforceChecklist
-            enabled:            _settingsManager.appSettings.useChecklist.value
-            visible:            useCheckList.visible && _enforceChecklist.visible
-            property Fact _enforceChecklist: _settingsManager.appSettings.enforceChecklist
-        }
+        // FactCheckBoxSlider {
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Enforce Preflight Checklist")
+        //     fact:               _enforceChecklist
+        //     enabled:            _settingsManager.appSettings.useChecklist.value
+        //     visible:            useCheckList.visible && _enforceChecklist.visible
+        //     property Fact _enforceChecklist: _settingsManager.appSettings.enforceChecklist
+        // }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Enable Multi-Vehicle Panel")
-            fact:               _enableMultiVehiclePanel
-            visible:            _enableMultiVehiclePanel.visible
-        }
+        // FactCheckBoxSlider {
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Enable Multi-Vehicle Panel")
+        //     fact:               _enableMultiVehiclePanel
+        //     visible:            _enableMultiVehiclePanel.visible
+        // }
 
         FactCheckBoxSlider {
             Layout.fillWidth:   true
@@ -88,13 +88,13 @@ SettingsPage {
             property Fact _keepMapCenteredOnVehicle: _flyViewSettings.keepMapCenteredOnVehicle
         }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Show Telemetry Log Replay Status Bar")
-            fact:               _showLogReplayStatusBar
-            visible:            _showLogReplayStatusBar.visible
-            property Fact _showLogReplayStatusBar: _flyViewSettings.showLogReplayStatusBar
-        }
+        // FactCheckBoxSlider {
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Show Telemetry Log Replay Status Bar")
+        //     fact:               _showLogReplayStatusBar
+        //     visible:            _showLogReplayStatusBar.visible
+        //     property Fact _showLogReplayStatusBar: _flyViewSettings.showLogReplayStatusBar
+        // }
 
         FactCheckBoxSlider {
             Layout.fillWidth:   true
@@ -130,225 +130,225 @@ SettingsPage {
         }
     }
 
-    SettingsGroupLayout {
-        Layout.fillWidth:   true
-        heading:            qsTr("Guided Commands")
-        visible:            _guidedMinimumAltitude.visible || _guidedMaximumAltitude.visible ||
-                            _maxGoToLocationDistance.visible || _forwardFlightGoToLocationLoiterRad.visible ||
-                            _goToLocationRequiresConfirmInGuided.visible
+    // SettingsGroupLayout {
+    //     Layout.fillWidth:   true
+    //     heading:            qsTr("Guided Commands")
+    //     visible:            _guidedMinimumAltitude.visible || _guidedMaximumAltitude.visible ||
+    //                         _maxGoToLocationDistance.visible || _forwardFlightGoToLocationLoiterRad.visible ||
+    //                         _goToLocationRequiresConfirmInGuided.visible
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Minimum Altitude")
-            fact:               _guidedMinimumAltitude
-            visible:            fact.visible
-        }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Minimum Altitude")
+    //         fact:               _guidedMinimumAltitude
+    //         visible:            fact.visible
+    //     }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Maximum Altitude")
-            fact:               _guidedMaximumAltitude
-            visible:            fact.visible
-        }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Maximum Altitude")
+    //         fact:               _guidedMaximumAltitude
+    //         visible:            fact.visible
+    //     }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Go To Location Max Distance")
-            fact:               _maxGoToLocationDistance
-            visible:            fact.visible
-        }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Go To Location Max Distance")
+    //         fact:               _maxGoToLocationDistance
+    //         visible:            fact.visible
+    //     }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Loiter Radius in Forward Flight Guided Mode")
-            fact:               _forwardFlightGoToLocationLoiterRad
-            visible:            fact.visible
-        }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Loiter Radius in Forward Flight Guided Mode")
+    //         fact:               _forwardFlightGoToLocationLoiterRad
+    //         visible:            fact.visible
+    //     }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Require Confirmation for Go To Location in Guided Mode")
-            fact:               _goToLocationRequiresConfirmInGuided
-            visible:            fact.visible
-        }
-    }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Require Confirmation for Go To Location in Guided Mode")
+    //         fact:               _goToLocationRequiresConfirmInGuided
+    //         visible:            fact.visible
+    //     }
+    // }
 
-    SettingsGroupLayout {
-        Layout.fillWidth:       true
-        Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 35
-        heading:                qsTr("MAVLink Actions")
-        headingDescription:     qsTr("Action JSON files should be created in the '%1' folder.").arg(QGroundControl.settingsManager.appSettings.mavlinkActionsSavePath)
+    // SettingsGroupLayout {
+    //     Layout.fillWidth:       true
+    //     Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 35
+    //     heading:                qsTr("MAVLink Actions")
+    //     headingDescription:     qsTr("Action JSON files should be created in the '%1' folder.").arg(QGroundControl.settingsManager.appSettings.mavlinkActionsSavePath)
 
-        LabelledComboBox {
-            Layout.fillWidth:   true
-            label:              qsTr("Fly View Actions")
-            model:              mavlinkActionList()
-            onActivated:        (index) => index == 0 ? _mavlinkActionsSettings.flyViewActionsFile.rawValue = "" : _mavlinkActionsSettings.flyViewActionsFile.rawValue = comboBox.currentText
-            enabled:            model.length > 1
+    //     LabelledComboBox {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Fly View Actions")
+    //         model:              mavlinkActionList()
+    //         onActivated:        (index) => index == 0 ? _mavlinkActionsSettings.flyViewActionsFile.rawValue = "" : _mavlinkActionsSettings.flyViewActionsFile.rawValue = comboBox.currentText
+    //         enabled:            model.length > 1
 
-            Component.onCompleted: {
-                var index = comboBox.find(_mavlinkActionsSettings.flyViewActionsFile.valueString)
-                comboBox.currentIndex = index == -1 ? 0 : index
-            }
-        }
+    //         Component.onCompleted: {
+    //             var index = comboBox.find(_mavlinkActionsSettings.flyViewActionsFile.valueString)
+    //             comboBox.currentIndex = index == -1 ? 0 : index
+    //         }
+    //     }
 
-        LabelledComboBox {
-            Layout.fillWidth:   true
-            label:              qsTr("Joystick Actions")
-            model:              mavlinkActionList()
-            onActivated:        (index) => index == 0 ? _mavlinkActionsSettings.joystickActionsFile.rawValue = "" : _mavlinkActionsSettings.joystickActionsFile.rawValue = comboBox.currentText
-            enabled:            model.length > 1
+    //     LabelledComboBox {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Joystick Actions")
+    //         model:              mavlinkActionList()
+    //         onActivated:        (index) => index == 0 ? _mavlinkActionsSettings.joystickActionsFile.rawValue = "" : _mavlinkActionsSettings.joystickActionsFile.rawValue = comboBox.currentText
+    //         enabled:            model.length > 1
 
-            Component.onCompleted: {
-                var index = comboBox.find(_mavlinkActionsSettings.joystickActionsFile.valueString)
-                comboBox.currentIndex = index == -1 ? 0 : index
-            }
-        }
-    }
+    //         Component.onCompleted: {
+    //             var index = comboBox.find(_mavlinkActionsSettings.joystickActionsFile.valueString)
+    //             comboBox.currentIndex = index == -1 ? 0 : index
+    //         }
+    //     }
+    // }
 
-    SettingsGroupLayout {
-        Layout.fillWidth:   true
-        heading:            qsTr("Virtual Joystick")
-        visible:            _virtualJoystick.visible || _virtualJoystickAutoCenterThrottle.visible || _virtualJoystickLeftHandedMode.visible
+    // SettingsGroupLayout {
+    //     Layout.fillWidth:   true
+    //     heading:            qsTr("Virtual Joystick")
+    //     visible:            _virtualJoystick.visible || _virtualJoystickAutoCenterThrottle.visible || _virtualJoystickLeftHandedMode.visible
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Enabled")
-            visible:            _virtualJoystick.visible
-            fact:               _virtualJoystick
-        }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Enabled")
+    //         visible:            _virtualJoystick.visible
+    //         fact:               _virtualJoystick
+    //     }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Auto-Center Throttle")
-            visible:            _virtualJoystickAutoCenterThrottle.visible
-            enabled:            _virtualJoystick.rawValue
-            fact:               _virtualJoystickAutoCenterThrottle
-        }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Auto-Center Throttle")
+    //         visible:            _virtualJoystickAutoCenterThrottle.visible
+    //         enabled:            _virtualJoystick.rawValue
+    //         fact:               _virtualJoystickAutoCenterThrottle
+    //     }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Left-Handed Mode (swap sticks)")
-            visible:            _virtualJoystickLeftHandedMode.visible
-            enabled:            _virtualJoystick.rawValue
-            fact:               _virtualJoystickLeftHandedMode
-        }
-    }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Left-Handed Mode (swap sticks)")
+    //         visible:            _virtualJoystickLeftHandedMode.visible
+    //         enabled:            _virtualJoystick.rawValue
+    //         fact:               _virtualJoystickLeftHandedMode
+    //     }
+    // }
 
-    SettingsGroupLayout {
-        Layout.fillWidth:   true
-        heading:            qsTr("Instrument Panel")
-        visible:            _showAdditionalIndicatorsCompass.visible || _lockNoseUpCompass.visible
+    // SettingsGroupLayout {
+    //     Layout.fillWidth:   true
+    //     heading:            qsTr("Instrument Panel")
+    //     visible:            _showAdditionalIndicatorsCompass.visible || _lockNoseUpCompass.visible
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Show additional heading indicators on Compass")
-            visible:            _showAdditionalIndicatorsCompass.visible
-            fact:               _showAdditionalIndicatorsCompass
-        }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Show additional heading indicators on Compass")
+    //         visible:            _showAdditionalIndicatorsCompass.visible
+    //         fact:               _showAdditionalIndicatorsCompass
+    //     }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Lock Compass Nose-Up")
-            visible:            _lockNoseUpCompass.visible
-            fact:               _lockNoseUpCompass
-        }
-    }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Lock Compass Nose-Up")
+    //         visible:            _lockNoseUpCompass.visible
+    //         fact:               _lockNoseUpCompass
+    //     }
+    // }
 
-    SettingsGroupLayout {
-        Layout.fillWidth:   true
-        heading:            qsTr("3D View")
-        visible:            _viewer3DSettings.visible
+    // SettingsGroupLayout {
+    //     Layout.fillWidth:   true
+    //     heading:            qsTr("3D View")
+    //     visible:            _viewer3DSettings.visible
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Enabled")
-            fact:               _viewer3DEnabled
-            visible:            _viewer3DEnabled.visible
-        }
+    //     FactCheckBoxSlider {
+    //         Layout.fillWidth:   true
+    //         text:               qsTr("Enabled")
+    //         fact:               _viewer3DEnabled
+    //         visible:            _viewer3DEnabled.visible
+    //     }
 
-        ColumnLayout{
-            Layout.fillWidth:   true
-            spacing:            ScreenTools.defaultFontPixelWidth
-            enabled:            _viewer3DEnabled.rawValue
-            visible:            _viewer3DOsmFilePath.rawValue
+    //     ColumnLayout{
+    //         Layout.fillWidth:   true
+    //         spacing:            ScreenTools.defaultFontPixelWidth
+    //         enabled:            _viewer3DEnabled.rawValue
+    //         visible:            _viewer3DOsmFilePath.rawValue
 
-            RowLayout{
-                Layout.fillWidth:   true
-                spacing:            ScreenTools.defaultFontPixelWidth
+    //         RowLayout{
+    //             Layout.fillWidth:   true
+    //             spacing:            ScreenTools.defaultFontPixelWidth
 
-                QGCLabel {
-                    wrapMode:   Text.WordWrap
-                    visible:    true
-                    text:       qsTr("3D Map File:")
-                }
+    //             QGCLabel {
+    //                 wrapMode:   Text.WordWrap
+    //                 visible:    true
+    //                 text:       qsTr("3D Map File:")
+    //             }
 
-                QGCTextField {
-                    id:                 osmFileTextField
-                    height:             ScreenTools.defaultFontPixelWidth * 4.5
-                    unitsLabel:         ""
-                    showUnits:          false
-                    visible:            true
-                    Layout.fillWidth:   true
-                    readOnly:           true
-                    text:               _viewer3DOsmFilePath.rawValue
-                }
-            }
+    //             QGCTextField {
+    //                 id:                 osmFileTextField
+    //                 height:             ScreenTools.defaultFontPixelWidth * 4.5
+    //                 unitsLabel:         ""
+    //                 showUnits:          false
+    //                 visible:            true
+    //                 Layout.fillWidth:   true
+    //                 readOnly:           true
+    //                 text:               _viewer3DOsmFilePath.rawValue
+    //             }
+    //         }
 
-            RowLayout{
-                Layout.alignment:   Qt.AlignRight
-                spacing:            ScreenTools.defaultFontPixelWidth
+    //         RowLayout{
+    //             Layout.alignment:   Qt.AlignRight
+    //             spacing:            ScreenTools.defaultFontPixelWidth
 
-                QGCButton {
-                    text: qsTr("Clear")
+    //             QGCButton {
+    //                 text: qsTr("Clear")
 
-                    onClicked: {
-                        osmFileTextField.text = "Please select an OSM file"
-                        _viewer3DOsmFilePath.value = osmFileTextField.text
-                    }
-                }
+    //                 onClicked: {
+    //                     osmFileTextField.text = "Please select an OSM file"
+    //                     _viewer3DOsmFilePath.value = osmFileTextField.text
+    //                 }
+    //             }
 
-                QGCButton {
-                    text: qsTr("Select File")
+    //             QGCButton {
+    //                 text: qsTr("Select File")
 
-                    onClicked: {
-                        var filename = _viewer3DOsmFilePath.rawValue;
-                        const found = filename.match(/(.*)[\/\\]/);
-                        if(found){
-                            filename = found[1]||''; // extracting the directory from the file path
-                            fileDialog.folder = (filename[0] === "/")?(filename.slice(1)):(filename);
-                        }
-                        fileDialog.openForLoad()
-                    }
+    //                 onClicked: {
+    //                     var filename = _viewer3DOsmFilePath.rawValue;
+    //                     const found = filename.match(/(.*)[\/\\]/);
+    //                     if(found){
+    //                         filename = found[1]||''; // extracting the directory from the file path
+    //                         fileDialog.folder = (filename[0] === "/")?(filename.slice(1)):(filename);
+    //                     }
+    //                     fileDialog.openForLoad()
+    //                 }
 
-                    QGCFileDialog {
-                        id:             fileDialog
-                        nameFilters:    [qsTr("OpenStreetMap files (*.osm)")]
-                        title:          qsTr("Select map file")
+    //                 QGCFileDialog {
+    //                     id:             fileDialog
+    //                     nameFilters:    [qsTr("OpenStreetMap files (*.osm)")]
+    //                     title:          qsTr("Select map file")
 
-                        onAcceptedForLoad: (file) => {
-                                               osmFileTextField.text = file
-                                               _viewer3DOsmFilePath.value = osmFileTextField.text
-                        }
-                    }
-                }
-            }
-        }
+    //                     onAcceptedForLoad: (file) => {
+    //                                            osmFileTextField.text = file
+    //                                            _viewer3DOsmFilePath.value = osmFileTextField.text
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Average Building Level Height")
-            fact:               _viewer3DBuildingLevelHeight
-            enabled:            _viewer3DEnabled.rawValue
-            visible:            _viewer3DBuildingLevelHeight.visible
-        }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Average Building Level Height")
+    //         fact:               _viewer3DBuildingLevelHeight
+    //         enabled:            _viewer3DEnabled.rawValue
+    //         visible:            _viewer3DBuildingLevelHeight.visible
+    //     }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("Vehicles Altitude Bias")
-            fact:               _viewer3DAltitudeBias
-            enabled:            _viewer3DEnabled.rawValue
-            visible:            _viewer3DAltitudeBias.visible
-        }
-    }
+    //     LabelledFactTextField {
+    //         Layout.fillWidth:   true
+    //         label:              qsTr("Vehicles Altitude Bias")
+    //         fact:               _viewer3DAltitudeBias
+    //         enabled:            _viewer3DEnabled.rawValue
+    //         visible:            _viewer3DAltitudeBias.visible
+    //     }
+    // }
 }

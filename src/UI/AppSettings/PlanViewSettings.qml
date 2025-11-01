@@ -31,19 +31,19 @@ SettingsPage {
             visible:            fact.visible
         }
 
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              qsTr("VTOL TransitionDistance")
-            fact:               _planViewSettings.vtolTransitionDistance
-            visible:            fact.visible
-        }
+        // LabelledFactTextField {
+        //     Layout.fillWidth:   true
+        //     label:              qsTr("VTOL TransitionDistance")
+        //     fact:               _planViewSettings.vtolTransitionDistance
+        //     visible:            fact.visible
+        // }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Use MAV_CMD_CONDITION_GATE for pattern generation")
-            fact:               _planViewSettings.useConditionGate
-            visible:            fact.visible
-        }
+        // FactCheckBoxSlider {
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Use MAV_CMD_CONDITION_GATE for pattern generation")
+        //     fact:               _planViewSettings.useConditionGate
+        //     visible:            fact.visible
+        // }
 
         FactCheckBoxSlider {
             Layout.fillWidth:   true
@@ -52,11 +52,11 @@ SettingsPage {
             visible:            fact.visible
         }
 
-        FactCheckBoxSlider {
-            Layout.fillWidth:   true
-            text:               qsTr("Allow configuring multiple landing sequences")
-            fact:               _planViewSettings.allowMultipleLandingPatterns
-            visible:            fact.visible
-        }
+        // FactCheckBoxSlider {
+        //     Layout.fillWidth:   true
+        //     text:               qsTr("Allow configuring multiple landing sequences")
+        //     fact:               _planViewSettings.allowMultipleLandingPatterns
+        //     visible:            fact.visible
+        // }
     }
 }

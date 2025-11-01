@@ -19,7 +19,7 @@ import QGroundControl.FactSystem
 import QGroundControl.FactControls
 
 ToolIndicatorPage {
-    showExpand: true
+    showExpand: false //true
 
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
 

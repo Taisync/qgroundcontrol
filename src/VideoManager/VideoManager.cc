@@ -527,7 +527,15 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
     } else if (source == VideoSettings::videoSourceMPEGTS) {
         settingsChanged |= _updateVideoUri(receiver, QStringLiteral("mpegts://%1").arg(_videoSettings->udpUrl()->rawValue().toString()));
     } else if (source == VideoSettings::videoSourceRTSP) {
-        settingsChanged |= _updateVideoUri(receiver, _videoSettings->rtspUrl()->rawValue().toString());
+        if (_currentStream == 1)
+        {
+            settingsChanged |= _updateVideoUri(receiver, _videoSettings->rtspUrl()->rawValue().toString());
+        }
+        else if (_currentStream == 2)
+        {
+            settingsChanged |= _updateVideoUri(receiver, _videoSettings->rtspUrl2()->rawValue().toString());
+        }
+        
     } else if (source == VideoSettings::videoSourceTCP) {
         settingsChanged |= _updateVideoUri(receiver, QStringLiteral("tcp://%1").arg(_videoSettings->tcpUrl()->rawValue().toString()));
     } else if (source == VideoSettings::videoSource3DRSolo) {
@@ -825,4 +833,21 @@ FinishVideoInitialization::~FinishVideoInitialization()
 void FinishVideoInitialization::run()
 {
     VideoManager::instance()->startVideo();
+}
+
+void VideoManager::switchRTSPStream()
+{
+
+    if(_currentStream == 1)
+    {
+        _currentStream = 2;
+    }
+    else
+    {
+        _currentStream = 1;
+    }
+
+    emit streamChangedRtsp();
+
+    _restartAllVideos();
 }

@@ -65,6 +65,14 @@ SettingsPage {
 
         LabelledFactTextField {
             Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("RTSP URL 2")
+            fact:                       _videoSettings.rtspUrl2
+            visible:                    _isRTSP && _videoSettings.rtspUrl.visible
+        }        
+
+        LabelledFactTextField {
+            Layout.fillWidth:           true
             label:                      qsTr("TCP URL")
             textFieldPreferredWidth:    _urlFieldWidth
             fact:                       _videoSettings.tcpUrl

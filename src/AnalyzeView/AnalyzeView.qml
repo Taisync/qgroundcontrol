@@ -115,9 +115,9 @@ Rectangle {
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
-        source:                 "LogDownloadPage.qml"
+        source:                 (QGroundControl.corePlugin && QGroundControl.corePlugin.analyzePages.length > 0) ? QGroundControl.corePlugin.analyzePages[0].url : ""
 
-        property string title
+        property string title:  (QGroundControl.corePlugin && QGroundControl.corePlugin.analyzePages.length > 0) ? QGroundControl.corePlugin.analyzePages[0].title : ""
 
         Connections {
             target:     panelLoader.item

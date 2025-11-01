@@ -104,19 +104,19 @@ SetupPage {
                             Layout.fillWidth:   true
                         }
 
-                        QGCLabel { text: qsTr("Low mAh threshold:") }
-                        FactTextField {
-                            fact:               failsafeBattLowMah
-                            showUnits:          true
-                            Layout.fillWidth:   true
-                        }
+                        // QGCLabel { text: qsTr("Low mAh threshold:") }
+                        // FactTextField {
+                        //     fact:               failsafeBattLowMah
+                        //     showUnits:          true
+                        //     Layout.fillWidth:   true
+                        // }
 
-                        QGCLabel { text: qsTr("Critical mAh threshold:") }
-                        FactTextField {
-                            fact:               failsafeBattCritMah
-                            showUnits:          true
-                            Layout.fillWidth:   true
-                        }
+                        // QGCLabel { text: qsTr("Critical mAh threshold:") }
+                        // FactTextField {
+                        //     fact:               failsafeBattCritMah
+                        //     showUnits:          true
+                        //     Layout.fillWidth:   true
+                        // }
                     } // GridLayout
                 } // Column
             }
@@ -143,7 +143,7 @@ SetupPage {
                 visible: _batt1MonitorEnabled
 
                 QGCLabel {
-                    text:       qsTr("Battery1 Failsafe Triggers")
+                    text:       qsTr("Battery Failsafe Triggers")
                     font.bold:   true
                 }
 
@@ -299,7 +299,7 @@ SetupPage {
                                 indexModel:         false
                             }
 
-                            QGCLabel { text: qsTr("Throttle failsafe:") }
+                            QGCLabel { text: qsTr("Radio failsafe:") }
                             FactComboBox {
                                 Layout.fillWidth:   true
                                 fact:               _failsafeThrEnable
@@ -369,7 +369,7 @@ SetupPage {
                                     Layout.fillWidth:   true
                                 }
 
-                                QGCLabel { text: qsTr("Throttle failsafe:") }
+                                QGCLabel { text: qsTr("Radio failsafe:") }
                                 QGCComboBox {
                                     model:              [qsTr("Disabled"), qsTr("Always RTL"),
                                         qsTr("Continue with Mission in Auto Mode"), qsTr("Always Land")]
@@ -379,12 +379,12 @@ SetupPage {
                                     onActivated: (index) => { _failsafeThrEnable.value = index }
                                 }
 
-                                QGCLabel { text: qsTr("PWM threshold:") }
-                                FactTextField {
-                                    fact:               _failsafeThrValue
-                                    showUnits:          true
-                                    Layout.fillWidth:   true
-                                }
+                                // QGCLabel { text: qsTr("PWM threshold:") }
+                                // FactTextField {
+                                //     fact:               _failsafeThrValue
+                                //     showUnits:          true
+                                //     Layout.fillWidth:   true
+                                // }
                             } // GridLayout
                         } // Column
                     } // Rectangle - Failsafe Settings

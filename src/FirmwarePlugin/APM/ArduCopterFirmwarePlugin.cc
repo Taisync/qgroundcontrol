@@ -48,7 +48,7 @@ ArduCopterFirmwarePlugin::ArduCopterFirmwarePlugin(QObject *parent)
 
     static FlightModeList availableFlightModes = {
         // Mode Name             , Custom Mode                CanBeSet  adv
-        { _stabilizeFlightMode   , APMCopterMode::STABILIZE,     true , true },
+        { _stabilizeFlightMode   , APMCopterMode::STABILIZE,     false , false },
         { _acroFlightMode        , APMCopterMode::ACRO,          false , false },
         { _altHoldFlightMode     , APMCopterMode::ALT_HOLD,      true , true },
         { _autoFlightMode        , APMCopterMode::AUTO,          true , true },

@@ -62,7 +62,7 @@ RowLayout {
         id: drawerComponent
 
         ToolIndicatorPage {
-            showExpand:         true
+            showExpand:         false
             waitForParameters:  control.waitForParameters
 
             contentComponent:    flightModeContentComponent
