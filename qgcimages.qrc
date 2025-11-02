@@ -100,7 +100,9 @@
         <file alias="GeoFence.svg">src/AutoPilotPlugins/PX4/Images/GeoFence.svg</file>
         <file alias="GeoFenceLight.svg">src/AutoPilotPlugins/PX4/Images/GeoFenceLight.svg</file>
         <file alias="GeoTagIcon.svg">src/AnalyzeView/GeoTagIcon.svg</file>
-        <file alias="Gps.svg">src/UI/toolbar/Images/Gps.svg</file>
+        <file alias="Gps.svg">src/UI/toolbar/Images/Gps.svg</file>        
+        <file alias="Gps-ntrip-bad.svg">src/ui/toolbar/Images/Gps-ntrip-bad.svg</file>
+        <file alias="Gps-ntrip-good.svg">src/ui/toolbar/Images/Gps-ntrip-good.svg</file>
         <file alias="Hamburger.svg">src/UI/toolbar/Images/Hamburger.svg</file>
         <file alias="HamburgerThin.svg">src/UI/toolbar/Images/HamburgerThin.svg</file>
         <file alias="Help.svg">src/FlightMap/Images/Help.svg</file>
@@ -172,6 +174,12 @@
         <file alias="rollDialWhite.svg">src/FlightMap/Images/rollDialWhite.svg</file>
         <file alias="rollPointerWhite.svg">src/FlightMap/Images/rollPointerWhite.svg</file>
         <file alias="RTK.svg">src/UI/toolbar/Images/RTK.svg</file>
+        <file alias="RTK-fixed.svg">src/ui/toolbar/Images/RTK-fixed.svg</file>
+        <file alias="RTK-fixed-ntrip-bad.svg">src/ui/toolbar/Images/RTK-fixed-ntrip-bad.svg</file>
+        <file alias="RTK-fixed-ntrip-good.svg">src/ui/toolbar/Images/RTK-fixed-ntrip-good.svg</file>
+        <file alias="RTK-float.svg">src/ui/toolbar/Images/RTK-float.svg</file>
+        <file alias="RTK-float-ntrip-bad.svg">src/ui/toolbar/Images/RTK-float-ntrip-bad.svg</file>
+        <file alias="RTK-float-ntrip-good.svg">src/ui/toolbar/Images/RTK-float-ntrip-good.svg</file>
         <file alias="SafetyComponentIcon.png">src/AutoPilotPlugins/Common/Images/SafetyComponentIcon.png</file>
         <file alias="scale.png">src/FlightMap/Images/scale.png</file>
         <file alias="scale_end.png">src/FlightMap/Images/scale_end.png</file>

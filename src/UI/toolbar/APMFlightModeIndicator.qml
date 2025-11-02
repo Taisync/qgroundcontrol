@@ -30,9 +30,9 @@ FlightModeIndicator {
 
         SettingsGroupLayout {
             Layout.fillWidth:   true
-            heading:            qsTr("Return to Launch")
+            heading:            qsTr("Waypoint Speed")
 
-            property Fact rtlAltFact: controller.getParameterFact(-1, "RTL_ALT")
+            property Fact rtlAltFact: controller.getParameterFact(-1, "WPNAV_SPEED")
 
             FactPanelController { id: controller }
 
@@ -43,37 +43,37 @@ FlightModeIndicator {
                 QGCLabel {
                     id:                 label  
                     Layout.fillWidth:   true
-                    text:               qsTr("Return At")
+                    text:               qsTr("Speed")
                 }
 
-                QGCComboBox {
-                    id:             returnAtCombo
-                    sizeToContents: true
-                    model:          [ qsTr("Current alttiude"), qsTr("Specified altitude") ]
+                // QGCComboBox {
+                //     id:             returnAtCombo
+                //     sizeToContents: true
+                //     model:          [ qsTr("Current alttiude"), qsTr("Specified altitude") ]
 
-                    function setCurrentIndex() {
-                        if (rtlAltFact.value === 0) {
-                            returnAtCombo.currentIndex = 0
-                        } else {
-                            returnAtCombo.currentIndex = 1
-                        }
-                    }
+                //     function setCurrentIndex() {
+                //         if (rtlAltFact.value === 0) {
+                //             returnAtCombo.currentIndex = 0
+                //         } else {
+                //             returnAtCombo.currentIndex = 1
+                //         }
+                //     }
 
-                    Component.onCompleted: setCurrentIndex()
+                //     Component.onCompleted: setCurrentIndex()
 
-                    onActivated: (index) => {
-                        if (index === 0) {
-                            rtlAltFact.rawValue = 0
-                        } else {
-                            rtlAltFact.rawValue = 1500
-                        }
-                    }
+                //     onActivated: (index) => {
+                //         if (index === 0) {
+                //             rtlAltFact.rawValue = 0
+                //         } else {
+                //             rtlAltFact.rawValue = 1500
+                //         }
+                //     }
 
-                    Connections {
-                        target:             rtlAltFact
-                        onRawValueChanged:  returnAtCombo.setCurrentIndex()
-                    }
-                }
+                //     Connections {
+                //         target:             rtlAltFact
+                //         onRawValueChanged:  returnAtCombo.setCurrentIndex()
+                //     }
+                // }
 
                 FactTextField {
                     fact:       rtlAltFact

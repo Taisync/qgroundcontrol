@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
+  <!-- Generator: Adobe Illustrator 29.4.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 152)  -->
+  <defs>
+    <style>
+      .st0 {
+        stroke-width: 1.5px;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6 {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .st0, .st2 {
+        fill: #fff;
+      }
+
+      .st0, .st2, .st3, .st6 {
+        stroke: #fff;
+      }
+
+      .st1 {
+        stroke-width: .2px;
+      }
+
+      .st1, .st3, .st4, .st5, .st6 {
+        fill: none;
+      }
+
+      .st1, .st4 {
+        stroke: #eb008b;
+      }
+
+      .st2 {
+        stroke-width: 1.5px;
+      }
+
+      .st7 {
+        fill: #3d9300;
+      }
+
+      .st3 {
+        stroke-width: 3.9px;
+      }
+
+      .st8 {
+        display: none;
+      }
+
+      .st4 {
+        stroke-width: .2px;
+      }
+
+      .st5 {
+        stroke: #224a80;
+        stroke-width: 3px;
+      }
+
+      .st6 {
+        stroke-width: 4.5px;
+      }
+    </style>
+  </defs>
+  <g id="svg3852" inkscape:version="0.91 r13725" sodipodi:docname="gps.svg">
+    <sodipodi:namedview id="namedview3929" bordercolor="#666666" borderopacity="1" gridtolerance="10" guidetolerance="10" inkscape:current-layer="svg3852" inkscape:cx="55" inkscape:cy="55" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="480" inkscape:window-width="640" inkscape:zoom="11.136364" objecttolerance="10" pagecolor="#808080" showgrid="false"/>
+    <g id="Layer_2_copy_4" class="st8">
+      <g id="g3861">
+        <rect id="rect3863" class="st1" x="-36.1" y="-131.3" width="56.3" height="56.3"/>
+        <circle id="circle3865" class="st4" cx="-8.1" cy="-103.2" r="28.2"/>
+      </g>
+      <g id="g3867">
+        <rect id="rect3869" class="st1" x="28.3" y="-131.3" width="56.3" height="56.3"/>
+        <circle id="circle3871" class="st1" cx="56.5" cy="-103.2" r="28.2"/>
+      </g>
+      <g id="g3873">
+        <rect id="rect3875" class="st1" x="91.5" y="-131.3" width="56.3" height="56.3"/>
+        <circle id="circle3877" class="st1" cx="119.7" cy="-103.2" r="28.2"/>
+      </g>
+    </g>
+    <rect id="rect3882" class="st0" x="4.4" y="45.5" width="22.3" height="11.1" transform="translate(-31.5 25.9) rotate(-45)"/>
+    <rect id="rect3884" class="st0" x="39.9" y="10" width="22.3" height="11.1" transform="translate(3.9 40.7) rotate(-45)"/>
+    <path id="path3886" class="st2" d="M19.5,19.4c-3.2,3.2-3.2,8.6,0,11.8l15.8,15.7,11.8-11.8-15.7-15.7c-3.3-3.2-8.6-3.2-11.9,0Z" inkscape:connector-curvature="0"/>
+    <path id="path3888" class="st2" d="M41.2,41.1c-4.3,4.3-4.3,11.4,0,15.7l15.7-15.7c-4.3-4.3-11.4-4.3-15.7,0Z" inkscape:connector-curvature="0"/>
+    <path id="path3890" class="st3" d="M42.9,64.3c5.7,5.7,15,5.7,20.7,0s5.7-15,0-20.7" inkscape:connector-curvature="0"/>
+    <path id="path3892" class="st3" d="M48.1,57.4c2.5,2.5,6.4,2.5,8.9,0s2.5-6.4,0-8.9" inkscape:connector-curvature="0"/>
+    <line id="line3894" class="st6" x1="23.5" y1="43" x2="27.5" y2="39.1"/>
+    <line id="line3896" class="st6" x1="39.3" y1="27.3" x2="43.2" y2="23.4"/>
+    <g id="Layer_2_copy_2" class="st8">
+      <g id="g3905">
+        <rect id="rect3907" class="st1" x="-36.1" y="-26.7" width="56.3" height="56.3"/>
+        <circle id="circle3909" class="st4" cx="-8" cy="1.5" r="28.2"/>
+      </g>
+      <g id="g3911">
+        <rect id="rect3913" class="st1" x="28.3" y="-26.7" width="56.3" height="56.3"/>
+        <circle id="circle3915" class="st1" cx="56.5" cy="1.5" r="28.2"/>
+      </g>
+      <g id="g3917">
+        <rect id="rect3919" class="st1" x="91.5" y="-26.7" width="56.3" height="56.3"/>
+        <circle id="circle3921" class="st1" cx="119.7" cy="1.5" r="28.2"/>
+      </g>
+    </g>
+    <g id="Layer_6" class="st8">
+      <polygon id="polygon3927" class="st5" points="-14.6 1.2 -19.5 1.2 -19.5 42.2 3.4 42.2 3.4 1.2 -1.5 1.2 -1.5 -5.3 -14.6 -5.3 -14.6 1.2"/>
+    </g>
+  </g>
+  <polygon class="st7" points="17.8 1.9 17.8 14.6 16.1 14.6 10.1 5.2 10.1 14.6 8.3 14.6 8.3 1.9 9.9 1.9 16 11.4 16 1.9 17.8 1.9"/>
+</svg>

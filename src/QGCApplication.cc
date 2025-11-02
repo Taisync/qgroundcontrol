@@ -42,6 +42,7 @@
 #include "FollowMe.h"
 #include "GeoTagController.h"
 #include "GimbalController.h"
+#include "NTRIP.h"
 #include "GPSRtk.h"
 #include "JoystickConfigController.h"
 #include "JoystickManager.h"
@@ -97,6 +98,26 @@ static QObject *mavlinkSingletonFactory(QQmlEngine*, QJSEngine*)
 {
     return new QGCMAVLink();
 }
+
+static QObject* ntripSingletonFactory(QQmlEngine*, QJSEngine*)
+{
+    // Directly access the app singleton and its SettingsManager
+    auto app = qgcApp();
+    if (!app)
+        return nullptr;
+
+    auto settingsMgr = SettingsManager::instance();
+    if (!settingsMgr)
+        return nullptr;
+
+    auto ntripSettings = settingsMgr->ntripSettings();
+    if (!ntripSettings)
+        return nullptr;
+
+    return new NTRIP(ntripSettings, app);
+}
+
+
 
 QGCApplication::QGCApplication(int &argc, char *argv[], bool unitTesting, bool simpleBootTest)
     : QApplication(argc, argv)
@@ -309,7 +330,10 @@ void QGCApplication::init()
     (void) qmlRegisterSingletonType<ShapeFileHelper>("QGroundControl.ShapeFileHelper", 1, 0, "ShapeFileHelper", [](QQmlEngine *, QJSEngine *) { return new ShapeFileHelper(); });
     qmlRegisterType<TaisyncInfo>("TaisyncInfo", 1, 0, "TaisyncInfo");
 
+
     qmlRegisterSingletonType<QGCMAVLink>("MAVLink", 1, 0, "MAVLink", mavlinkSingletonFactory);
+    qmlRegisterSingletonType<NTRIP>("QGroundControl.NTRIP", 1, 0, "NTRIP", ntripSingletonFactory);
+
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {

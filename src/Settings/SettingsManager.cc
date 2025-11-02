@@ -23,6 +23,7 @@
 #include "FlightModeSettings.h"
 #include "FlyViewSettings.h"
 #include "GimbalControllerSettings.h"
+#include "NTRIPSettings.h"
 #include "MapsSettings.h"
 #include "OfflineMapsSettings.h"
 #include "PlanViewSettings.h"
@@ -66,6 +67,7 @@ void SettingsManager::registerQmlTypes()
 void SettingsManager::init()
 {
     _unitsSettings = new UnitsSettings(this); // Must be first since AppSettings references it
+    _ntripSettings = new NTRIPSettings(this);
 
     _adsbVehicleManagerSettings = new ADSBVehicleManagerSettings(this);
 #ifndef QGC_NO_ARDUPILOT_DIALECT
@@ -107,6 +109,7 @@ FlightMapSettings *SettingsManager::flightMapSettings() const { return _flightMa
 FlightModeSettings *SettingsManager::flightModeSettings() const { return _flightModeSettings; }
 FlyViewSettings *SettingsManager::flyViewSettings() const { return _flyViewSettings; }
 GimbalControllerSettings *SettingsManager::gimbalControllerSettings() const { return _gimbalControllerSettings; }
+NTRIPSettings *SettingsManager::ntripSettings() const { return _ntripSettings; }
 MapsSettings *SettingsManager::mapsSettings() const { return _mapsSettings; }
 OfflineMapsSettings *SettingsManager::offlineMapsSettings() const { return _offlineMapsSettings; }
 PlanViewSettings *SettingsManager::planViewSettings() const { return _planViewSettings; }

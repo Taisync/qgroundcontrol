@@ -1262,7 +1262,7 @@ void MockLink::_sendGpsRawInt()
         mavlinkChannel(),
         &msg,
         timeTick++,                             // time since boot
-        GPS_FIX_TYPE_3D_FIX,
+        GPS_FIX_TYPE_RTK_FLOAT,
         static_cast<int32_t>(_vehicleLatitude * 1E7),
         static_cast<int32_t>(_vehicleLongitude * 1E7),
         static_cast<int32_t>(_vehicleAltitudeAMSL * 1000),

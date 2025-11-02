@@ -1,9 +1,8 @@
 /****************************************************************************
  *
- * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ * (c) 2009-2025 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
  *
- * QGroundControl is licensed according to the terms in the file
- * COPYING.md in the root of the source code directory.
+ * Modified to include Arcsky NTRIP status and controls
  *
  ****************************************************************************/
 
@@ -17,22 +16,24 @@ import QGroundControl.ScreenTools
 import QGroundControl.Palette
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
-
-// This indicator page is used both when showing RTK status only with no vehicle connect and when showing GPS/RTK status with a vehicle connected
+import QGroundControl.NTRIP 1.0
 
 ToolIndicatorPage {
     showExpand: false
 
-    property var    activeVehicle:      QGroundControl.multiVehicleManager.activeVehicle
-    property string na:                 qsTr("N/A", "No data to display")
-    property string valueNA:            qsTr("--.--", "No data to display")
-    property var    rtkSettings:        QGroundControl.settingsManager.rtkSettings
-    property bool   useFixedPosition:   rtkSettings.useFixedBasePosition.rawValue
+    property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property string na: qsTr("N/A")
+    property string valueNA: qsTr("--.--")
+
+    // 🔹 Use the global NTRIP singleton we registered in C++
+    property var ntrip: NTRIP
+
 
     contentComponent: Component {
         ColumnLayout {
             spacing: ScreenTools.defaultFontPixelHeight / 2
 
+            // --- GPS Status section ---
             SettingsGroupLayout {
                 heading: qsTr("Vehicle GPS Status")
                 visible: activeVehicle
@@ -63,115 +64,35 @@ ToolIndicatorPage {
                 }
             }
 
+            // --- NTRIP section ---
             SettingsGroupLayout {
-                heading:    qsTr("RTK GPS Status")
-                visible:    QGroundControl.gpsRtk.connected.value
+                heading: qsTr("NTRIP Correction Link")
+                visible: ntrip && ntrip.masterEnable
+
+                QGCButton {
+                    id: ntripToggleButton
+                    text: ntrip && ntrip.enabled ? qsTr("Disconnect NTRIP") : qsTr("Connect NTRIP")
+                    Layout.alignment: Qt.AlignHCenter
+                    onClicked: {
+                        if (ntrip)
+                            ntrip.enabled = !ntrip.enabled
+                    }
+                }
 
                 QGCLabel {
-                    text: (QGroundControl.gpsRtk.active.value) ? qsTr("Survey-in Active") : qsTr("RTK Streaming")
-                }
-
-                LabelledLabel {
-                    label:      qsTr("Satellites")
-                    labelText:  QGroundControl.gpsRtk.numSatellites.value
-                }
-
-                LabelledLabel {
-                    label:      qsTr("Duration")
-                    labelText:  QGroundControl.gpsRtk.currentDuration.value + ' s'
-                }
-
-                LabelledLabel {
-                    label:      QGroundControl.gpsRtk.valid.value ? qsTr("Accuracy") : qsTr("Current Accuracy")
-                    labelText:  QGroundControl.gpsRtk.currentAccuracy.valueString + " " + QGroundControl.unitsConversion.appSettingsHorizontalDistanceUnitsString
-                    visible:    QGroundControl.gpsRtk.currentAccuracy.value > 0
-                }
-            }
-        }
-    }
-
-    expandedComponent: Component {
-        SettingsGroupLayout {
-            heading:        qsTr("RTK GPS Settings")
-
-            property real sliderWidth: ScreenTools.defaultFontPixelWidth * 40
-
-            FactCheckBoxSlider {
-                Layout.fillWidth:   true
-                text:               qsTr("AutoConnect")
-                fact:               QGroundControl.settingsManager.autoConnectSettings.autoConnectRTKGPS
-                visible:            fact.visible
-            }
-
-            RowLayout {
-                visible: rtkSettings.useFixedBasePosition.visible
-
-                QGCRadioButton {
-                    text:       qsTr("Survey-In")
-                    checked:    !useFixedPosition
-                    onClicked:  rtkSettings.useFixedBasePosition.rawValue = false
-                }
-
-                QGCRadioButton {
-                    text: qsTr("Specify position")
-                    checked:    useFixedPosition
-                    onClicked:  rtkSettings.useFixedBasePosition.rawValue = true
-                }
-            }
-
-            FactSlider {
-                Layout.fillWidth:       true
-                Layout.preferredWidth:  sliderWidth
-                label:                  qsTr("Accuracy (u-blox only)")
-                fact:                   QGroundControl.settingsManager.rtkSettings.surveyInAccuracyLimit
-                majorTickStepSize:      0.1
-                visible:                !useFixedPosition && rtkSettings.surveyInAccuracyLimit.visible
-            }
-
-            FactSlider {
-                Layout.fillWidth:       true
-                Layout.preferredWidth:  sliderWidth
-                label:                  qsTr("Min Duration")
-                fact:                   rtkSettings.surveyInMinObservationDuration
-                majorTickStepSize:      10
-                visible:                !useFixedPosition && rtkSettings.surveyInMinObservationDuration.visible
-            }
-
-            LabelledFactTextField {
-                label:                  rtkSettings.fixedBasePositionLatitude.shortDescription
-                fact:                   rtkSettings.fixedBasePositionLatitude
-                visible:                useFixedPosition && rtkSettings.fixedBasePositionLatitude.visible
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionLongitude.shortDescription
-                fact:               rtkSettings.fixedBasePositionLongitude
-                visible:            useFixedPosition && rtkSettings.fixedBasePositionLongitude.visible
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionAltitude.shortDescription
-                fact:               rtkSettings.fixedBasePositionAltitude
-                visible:            useFixedPosition && rtkSettings.fixedBasePositionAltitude.visible
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionAccuracy.shortDescription
-                fact:               rtkSettings.fixedBasePositionAccuracy
-                visible:            useFixedPosition && rtkSettings.fixedBasePositionAccuracy.visible
-            }
-
-            LabelledButton {
-                label:              qsTr("Current Base Position")
-                buttonText:         enabled ? qsTr("Save") : qsTr("Not Yet Valid")
-                visible:            useFixedPosition
-                enabled:            QGroundControl.gpsRtk.valid.value
-
-                onClicked: {
-                    rtkSettings.fixedBasePositionLatitude.rawValue  = QGroundControl.gpsRtk.currentLatitude.rawValue
-                    rtkSettings.fixedBasePositionLongitude.rawValue = QGroundControl.gpsRtk.currentLongitude.rawValue
-                    rtkSettings.fixedBasePositionAltitude.rawValue  = QGroundControl.gpsRtk.currentAltitude.rawValue
-                    rtkSettings.fixedBasePositionAccuracy.rawValue  = QGroundControl.gpsRtk.currentAccuracy.rawValue
+                    id: ntripStatusLabel
+                    Layout.alignment: Qt.AlignHCenter
+                    text: {
+                        if (!ntrip) return "NTRIP STATUS: Unknown"
+                        switch (ntrip.connectionStatus) {
+                            case 0: return "NTRIP STATUS: Off"
+                            case 1: return "NTRIP STATUS: Connecting"
+                            case 2: return "NTRIP STATUS: Connected"
+                            case 3: return "NTRIP STATUS: Retrying"
+                            case 4: return "NTRIP STATUS: Timed Out"
+                            default: return "NTRIP STATUS: Unknown"
+                        }
+                    }
                 }
             }
         }

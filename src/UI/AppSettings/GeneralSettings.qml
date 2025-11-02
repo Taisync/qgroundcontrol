@@ -1,12 +1,11 @@
 /****************************************************************************
  *
- * (c) 2009-2020 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
+ * (c) 2009-2025 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
  *
  * QGroundControl is licensed according to the terms in the file
  * COPYING.md in the root of the source code directory.
  *
  ****************************************************************************/
-
 
 import QtQuick
 import QtQuick.Controls
@@ -29,7 +28,12 @@ SettingsPage {
     property Fact   _userBrandImageIndoor:      _brandImageSettings.userBrandImageIndoor
     property Fact   _userBrandImageOutdoor:     _brandImageSettings.userBrandImageOutdoor
     property Fact   _appSavePath:               _appSettings.savePath
+    property var    ntripSettings:             _settingsManager.ntripSettings
 
+
+    // ────────────────────────────────
+    // General Settings
+    // ────────────────────────────────
     SettingsGroupLayout {
         Layout.fillWidth:   true
         heading:            qsTr("General")
@@ -58,8 +62,8 @@ SettingsPage {
         FactCheckBoxSlider {
             Layout.fillWidth: true
             text:           qsTr("Mute all audio output")
-            fact:       _audioMuted
-            visible:    _audioMuted.visible
+            fact:           _audioMuted
+            visible:        _audioMuted.visible
             property Fact _audioMuted: _appSettings.audioMuted
         }
 
@@ -84,14 +88,15 @@ SettingsPage {
             }
         }
 
+        // UI Scaling
         RowLayout {
-            Layout.fillWidth:   true
-            spacing:            ScreenTools.defaultFontPixelWidth * 2
-            visible:            _appFontPointSize.visible
+            Layout.fillWidth: true
+            spacing: ScreenTools.defaultFontPixelWidth * 2
+            visible: _appFontPointSize.visible
 
-            QGCLabel { 
-                Layout.fillWidth:   true
-                text:               qsTr("UI Scaling") 
+            QGCLabel {
+                Layout.fillWidth: true
+                text: qsTr("UI Scaling")
             }
 
             RowLayout {
@@ -109,9 +114,9 @@ SettingsPage {
                 }
 
                 QGCLabel {
-                    id:                     baseFontEdit
-                    width:                  ScreenTools.defaultFontPixelWidth * 6
-                    text:                   (QGroundControl.settingsManager.appSettings.appFontPointSize.value / ScreenTools.platformFontPointSize * 100).toFixed(0) + "%"
+                    id: baseFontEdit
+                    width: ScreenTools.defaultFontPixelWidth * 6
+                    text: (QGroundControl.settingsManager.appSettings.appFontPointSize.value / ScreenTools.platformFontPointSize * 100).toFixed(0) + "%"
                 }
 
                 QGCButton {
@@ -127,138 +132,119 @@ SettingsPage {
             }
         }
 
+        // Application Save Path
         RowLayout {
-            Layout.fillWidth:   true
-            spacing:            ScreenTools.defaultFontPixelWidth * 2
-            visible:            _appSavePath.visible && !ScreenTools.isMobile
+            Layout.fillWidth: true
+            spacing: ScreenTools.defaultFontPixelWidth * 2
+            visible: _appSavePath.visible && !ScreenTools.isMobile
 
             ColumnLayout {
-                Layout.fillWidth:   true
-                spacing:            0
+                Layout.fillWidth: true
+                spacing: 0
 
                 QGCLabel { text: qsTr("Application Load/Save Path") }
-                QGCLabel { 
-                    Layout.fillWidth:   true
-                    font.pointSize:     ScreenTools.smallFontPointSize
-                    text:               _appSavePath.rawValue === "" ? qsTr("<default location>") : _appSavePath.value
-                    elide:              Text.ElideMiddle
+                QGCLabel {
+                    Layout.fillWidth: true
+                    font.pointSize: ScreenTools.smallFontPointSize
+                    text: _appSavePath.rawValue === "" ? qsTr("<default location>") : _appSavePath.value
+                    elide: Text.ElideMiddle
                 }
             }
 
             QGCButton {
-                text:       qsTr("Browse")
-                onClicked:  savePathBrowseDialog.openForLoad()
+                text: qsTr("Browse")
+                onClicked: savePathBrowseDialog.openForLoad()
                 QGCFileDialog {
-                    id:                 savePathBrowseDialog
-                    title:              qsTr("Choose the location to save/load files")
-                    folder:             _appSavePath.rawValue
-                    selectFolder:       true
-                    onAcceptedForLoad:  (file) => _appSavePath.rawValue = file
+                    id: savePathBrowseDialog
+                    title: qsTr("Choose the location to save/load files")
+                    folder: _appSavePath.rawValue
+                    selectFolder: true
+                    onAcceptedForLoad: (file) => _appSavePath.rawValue = file
                 }
             }
         }
     }
 
+    // ────────────────────────────────
+    // Units Settings
+    // ────────────────────────────────
     SettingsGroupLayout {
-        Layout.fillWidth:   true
-        heading:            qsTr("Units")
-        visible:            QGroundControl.settingsManager.unitsSettings.visible
+        Layout.fillWidth: true
+        heading: qsTr("Units")
+        visible: QGroundControl.settingsManager.unitsSettings.visible
 
         Repeater {
-            model: [ QGroundControl.settingsManager.unitsSettings.horizontalDistanceUnits, QGroundControl.settingsManager.unitsSettings.verticalDistanceUnits, QGroundControl.settingsManager.unitsSettings.areaUnits, QGroundControl.settingsManager.unitsSettings.speedUnits, QGroundControl.settingsManager.unitsSettings.temperatureUnits ]
+            model: [
+                QGroundControl.settingsManager.unitsSettings.horizontalDistanceUnits,
+                QGroundControl.settingsManager.unitsSettings.verticalDistanceUnits,
+                QGroundControl.settingsManager.unitsSettings.areaUnits,
+                QGroundControl.settingsManager.unitsSettings.speedUnits,
+                QGroundControl.settingsManager.unitsSettings.temperatureUnits
+            ]
 
             LabelledFactComboBox {
-                label:                  modelData.shortDescription
-                fact:                   modelData
-                indexModel:             false
+                label: modelData.shortDescription
+                fact: modelData
+                indexModel: false
             }
         }
     }
 
-    // SettingsGroupLayout {
-    //     Layout.fillWidth:   true
-    //     heading:            qsTr("Brand Image")
-    //     visible:            _brandImageSettings.visible && !ScreenTools.isMobile
-        
-    //     RowLayout {
-    //         Layout.fillWidth:   true
-    //         spacing:            ScreenTools.defaultFontPixelWidth * 2
-    //         visible:            _userBrandImageIndoor.visible
+    // ────────────────────────────────
+    // 🛰️ NTRIP / RTCM Settings Section (Safe Null Binding)
+    // ────────────────────────────────
+    SettingsGroupLayout {
+        Layout.fillWidth: true
+        heading: qsTr("NTRIP / RTCM")
 
-    //         ColumnLayout {
-    //             Layout.fillWidth:   true
-    //             spacing:            0
+        visible: ntripSettings ? ntripSettings.visible : false
 
-    //             QGCLabel {
-    //                 Layout.fillWidth:   true
-    //                 text:               qsTr("Indoor Image")
-    //             }
-    //             QGCLabel {
-    //                 Layout.fillWidth:   true
-    //                 font.pointSize:     ScreenTools.smallFontPointSize
-    //                 text:               _userBrandImageIndoor.valueString.replace("file:///", "")
-    //                 elide:              Text.ElideMiddle
-    //                 visible:            _userBrandImageIndoor.valueString.length > 0
-    //             }
-    //         }
+        FactCheckBox {
+            text:    ntripSettings ? ntripSettings.ntripServerConnectEnabled.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripServerConnectEnabled : null
+            visible: ntripSettings ? ntripSettings.ntripServerConnectEnabled.visible : false
+        }
 
-    //         QGCButton {
-    //             text:       qsTr("Browse")
-    //             onClicked:  userBrandImageIndoorBrowseDialog.openForLoad()
+        FactCheckBox {
+            text:    ntripSettings ? ntripSettings.ntripEnableVRS.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripEnableVRS : null
+            visible: ntripSettings ? ntripSettings.ntripEnableVRS.visible : false
+        }
 
-    //             QGCFileDialog {
-    //                 id:                 userBrandImageIndoorBrowseDialog
-    //                 title:              qsTr("Choose custom brand image file")
-    //                 folder:             _userBrandImageIndoor.rawValue.replace("file:///", "")
-    //                 selectFolder:       false
-    //                 onAcceptedForLoad:  (file) => _userBrandImageIndoor.rawValue = "file:///" + file
-    //             }
-    //         }
-    //     }
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripServerHostAddress.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripServerHostAddress : null
+            visible: ntripSettings ? ntripSettings.ntripServerHostAddress.visible : false
+        }
 
-    //     RowLayout {
-    //         Layout.fillWidth:   true
-    //         spacing:            ScreenTools.defaultFontPixelWidth * 2
-    //         visible:            _userBrandImageOutdoor.visible
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripServerPort.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripServerPort : null
+            visible: ntripSettings ? ntripSettings.ntripServerPort.visible : false
+        }
 
-    //         ColumnLayout {
-    //             Layout.fillWidth:   true
-    //             spacing:            0
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripUsername.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripUsername : null
+            visible: ntripSettings ? ntripSettings.ntripUsername.visible : false
+        }
 
-    //             QGCLabel {
-    //                 Layout.fillWidth:   true
-    //                 text:               qsTr("Outdoor Image")
-    //             }
-    //             QGCLabel {
-    //                 Layout.fillWidth:   true
-    //                 font.pointSize:     ScreenTools.smallFontPointSize
-    //                 text:               _userBrandImageOutdoor.valueString.replace("file:///", "")
-    //                 elide:              Text.ElideMiddle
-    //                 visible:            _userBrandImageOutdoor.valueString.length > 0
-    //             }
-    //         }
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripPassword.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripPassword : null
+            visible: ntripSettings ? ntripSettings.ntripPassword.visible : false
+        }
 
-    //         QGCButton {
-    //             text:       qsTr("Browse")
-    //             onClicked:  userBrandImageOutdoorBrowseDialog.openForLoad()
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripMountpoint.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripMountpoint : null
+            visible: ntripSettings ? ntripSettings.ntripMountpoint.visible : false
+        }
 
-    //             QGCFileDialog {
-    //                 id:                 userBrandImageOutdoorBrowseDialog
-    //                 title:              qsTr("Choose custom brand image file")
-    //                 folder:             _userBrandImageOutdoor.rawValue.replace("file:///", "")
-    //                 selectFolder:       false
-    //                 onAcceptedForLoad:  (file) => _userBrandImageOutdoor.rawValue = "file:///" + file
-    //             }
-    //         }
-    //     }
-
-    //     LabelledButton {
-    //         label:      qsTr("Reset Images")
-    //         buttonText: qsTr("Reset")
-    //         onClicked:  {
-    //             _userBrandImageIndoor.rawValue = ""
-    //             _userBrandImageOutdoor.rawValue = ""
-    //         }
-    //     }
-    // }
+        LabelledFactTextField {
+            label:   ntripSettings ? ntripSettings.ntripWhitelist.shortDescription : ""
+            fact:    ntripSettings ? ntripSettings.ntripWhitelist : null
+            visible: ntripSettings ? ntripSettings.ntripWhitelist.visible : false
+        }
+    }
 }

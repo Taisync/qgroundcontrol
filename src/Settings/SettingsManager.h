@@ -25,6 +25,7 @@ class FlightMapSettings;
 class FlightModeSettings;
 class FlyViewSettings;
 class GimbalControllerSettings;
+class NTRIPSettings;
 class MapsSettings;
 class OfflineMapsSettings;
 class PlanViewSettings;
@@ -57,6 +58,7 @@ class SettingsManager : public QObject
     Q_MOC_INCLUDE("FlightModeSettings.h")
     Q_MOC_INCLUDE("FlyViewSettings.h")
     Q_MOC_INCLUDE("GimbalControllerSettings.h")
+    Q_MOC_INCLUDE("NTRIPSettings.h")
     Q_MOC_INCLUDE("MapsSettings.h")
     Q_MOC_INCLUDE("OfflineMapsSettings.h")
     Q_MOC_INCLUDE("PlanViewSettings.h")
@@ -82,6 +84,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QObject *flightModeSettings              READ flightModeSettings             CONSTANT)
     Q_PROPERTY(QObject *flyViewSettings                 READ flyViewSettings                CONSTANT)
     Q_PROPERTY(QObject *gimbalControllerSettings        READ gimbalControllerSettings       CONSTANT)
+    Q_PROPERTY(QObject *ntripSettings                   READ ntripSettings                  CONSTANT)
     Q_PROPERTY(QObject *mapsSettings                    READ mapsSettings                   CONSTANT)
     Q_PROPERTY(QObject *offlineMapsSettings             READ offlineMapsSettings            CONSTANT)
     Q_PROPERTY(QObject *planViewSettings                READ planViewSettings               CONSTANT)
@@ -116,6 +119,7 @@ public:
     FlightModeSettings *flightModeSettings() const;
     FlyViewSettings *flyViewSettings() const;
     GimbalControllerSettings *gimbalControllerSettings() const;
+    NTRIPSettings *ntripSettings() const;
     MapsSettings *mapsSettings() const;
     OfflineMapsSettings *offlineMapsSettings() const;
     PlanViewSettings *planViewSettings() const;
@@ -143,6 +147,7 @@ private:
     FlightModeSettings *_flightModeSettings = nullptr;
     FlyViewSettings *_flyViewSettings = nullptr;
     GimbalControllerSettings *_gimbalControllerSettings = nullptr;
+    NTRIPSettings *_ntripSettings = nullptr;
     MapsSettings *_mapsSettings = nullptr;
     OfflineMapsSettings *_offlineMapsSettings = nullptr;
     PlanViewSettings *_planViewSettings = nullptr;
