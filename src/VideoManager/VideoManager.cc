@@ -607,10 +607,12 @@ void VideoManager::_communicationLostChanged(bool connectionLost)
 
 void VideoManager::_restartAllVideos()
 {
-    for (VideoReceiver *videoReceiver : std::as_const(_videoReceivers)) {
-        _restartVideo(videoReceiver);
+    for (VideoReceiver* receiver : std::as_const(_videoReceivers)) {
+        _updateSettings(receiver);   // Make sure URL and other params are fresh
+        _restartVideo(receiver);
     }
 }
+
 
 void VideoManager::_restartVideo(VideoReceiver *receiver)
 {
@@ -848,6 +850,7 @@ void VideoManager::switchRTSPStream()
     }
 
     emit streamChangedRtsp();
+
 
     _restartAllVideos();
 }
