@@ -15,6 +15,7 @@ import QGroundControl.Controls
 import QGroundControl.MultiVehicleManager
 import QGroundControl.ScreenTools
 import QGroundControl.Palette
+import QGroundControl.NTRIP 1.0
 
 // Used as the base class control for nboth VehicleGPSIndicator and RTKGPSIndicator
 
@@ -26,7 +27,7 @@ Item {
 
     property var    _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
     property bool   _rtkConnected:  QGroundControl.gpsRtk.connected.value
-    property var    _ntrip:         QGroundControl.ntrip
+    //property var    _ntrip:         QGroundControl.ntrip
 
     Row {
         id:             gpsIndicatorRow
@@ -56,8 +57,8 @@ Item {
                 //source:             "/qmlimages/Gps.svg"
                 source: {
                     const lock = _activeVehicle ? _activeVehicle.gps.lock.rawValue : 0
-                    const ntripEnabled = QGroundControl.ntrip.masterEnable && QGroundControl.ntrip.enabled
-                    const ntripConnected = QGroundControl.ntrip.connectionStatus === 2
+                    const ntripEnabled = NTRIP.masterEnable && NTRIP.enabled
+                    const ntripConnected = NTRIP.connectionStatus === 2
 
                     if (lock === 6) { // RTK Fixed
                         if (!ntripEnabled) return "/qmlimages/RTK-fixed.svg"
@@ -72,8 +73,8 @@ Item {
                     return ntripConnected ? "/qmlimages/Gps-ntrip-good.svg" : "/qmlimages/Gps-ntrip-bad.svg"
                 }
                 color: {
-                    const ntripEnabled = QGroundControl.ntrip.masterEnable && QGroundControl.ntrip.enabled
-                    const ntripConnected = QGroundControl.ntrip.connectionStatus === 2
+                    const ntripEnabled = NTRIP.masterEnable && NTRIP.enabled
+                    const ntripConnected = NTRIP.connectionStatus === 2
                     if (ntripEnabled) {
                         return ntripConnected ? "green" : "red"
                     }
@@ -114,6 +115,6 @@ Item {
     Component {
         id: gpsIndicatorPage
 
-        GPSIndicatorPage { ntrip: _ntrip }
+        GPSIndicatorPage { }//{ ntrip: _ntrip }
     }
 }

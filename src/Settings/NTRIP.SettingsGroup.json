@@ -15,7 +15,7 @@
     "name":                 "ntripServerHostAddress",
     "shortDesc":     "Host address",
     "type":                 "string",
-    "default":         "127.0.0.1",
+    "default":         "3.143.243.81",
     "qgcRebootRequired":    false
 },
 {
@@ -29,14 +29,14 @@
     "name":                 "ntripUsername",
     "shortDesc":     "Username",
     "type":                 "string",
-    "default":         "",
+    "default":         "justinlsquire-at-gmail-d-com",
     "qgcRebootRequired":    false
 },
 {
     "name":                 "ntripPassword",
     "shortDesc":     "Password",
     "type":                 "string",
-    "default":         "",
+    "default":         "none",
     "qgcRebootRequired":    false
 },
 {
@@ -44,7 +44,7 @@
     "shortDesc":     "Mount Point",
     "longDesc":      "NTRIP Mount Point. Leave blank for RTCM over TCP",
     "type":                 "string",
-    "default":         "",
+    "default":         "AUS_LOFT_GNSS",
     "qgcRebootRequired":    false
 },
 {

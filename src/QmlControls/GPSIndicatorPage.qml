@@ -26,7 +26,7 @@ ToolIndicatorPage {
     property string valueNA: qsTr("--.--")
 
     // 🔹 Use the global NTRIP singleton we registered in C++
-    property var ntrip: NTRIP
+    //property var ntrip: NTRIP
 
 
     contentComponent: Component {
@@ -67,15 +67,15 @@ ToolIndicatorPage {
             // --- NTRIP section ---
             SettingsGroupLayout {
                 heading: qsTr("NTRIP Correction Link")
-                visible: ntrip && ntrip.masterEnable
+                visible: NTRIP && NTRIP.masterEnable
 
                 QGCButton {
                     id: ntripToggleButton
-                    text: ntrip && ntrip.enabled ? qsTr("Disconnect NTRIP") : qsTr("Connect NTRIP")
+                    text: NTRIP && NTRIP.enabled ? qsTr("Disconnect NTRIP") : qsTr("Connect NTRIP")
                     Layout.alignment: Qt.AlignHCenter
                     onClicked: {
-                        if (ntrip)
-                            ntrip.enabled = !ntrip.enabled
+                        if (NTRIP)
+                            NTRIP.enabled = !NTRIP.enabled
                     }
                 }
 
@@ -83,8 +83,8 @@ ToolIndicatorPage {
                     id: ntripStatusLabel
                     Layout.alignment: Qt.AlignHCenter
                     text: {
-                        if (!ntrip) return "NTRIP STATUS: Unknown"
-                        switch (ntrip.connectionStatus) {
+                        if (!NTRIP) return "NTRIP STATUS: Unknown"
+                        switch (NTRIP.connectionStatus) {
                             case 0: return "NTRIP STATUS: Off"
                             case 1: return "NTRIP STATUS: Connecting"
                             case 2: return "NTRIP STATUS: Connected"

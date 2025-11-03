@@ -1,18 +1,7 @@
-/****************************************************************************
- *
- * (c) 2009-2025 QGROUNDCONTROL PROJECT <http://www.qgroundcontrol.org>
- *
- * QGroundControl is licensed according to the terms in the file
- * COPYING.md in the root of the source code directory.
- *
- ****************************************************************************/
-
 #pragma once
 
-#include <QThread>
+#include <QObject>
 #include <QTcpSocket>
-#include <QGeoCoordinate>
-#include <QUrl>
 #include <QTimer>
 #include <QSet>
 
@@ -24,12 +13,12 @@ Q_DECLARE_LOGGING_CATEGORY(NTRIPLog)
 
 class NTRIPSettings;
 
-class NTRIPTCPLink : public QThread {
+class NTRIPTCPLink : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(NTRIPStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
 
-public:
+   public:
     enum class NTRIPStatus {
         Off,
         Connecting,
@@ -39,67 +28,62 @@ public:
     };
     Q_ENUM(NTRIPStatus)
 
-    NTRIPTCPLink(const QString& hostAddress,
-                 int port,
-                 const QString& username,
-                 const QString& password,
-                 const QString& mountpoint,
-                 const QString& whitelist,
-                 const bool& enableVRS);
+    explicit NTRIPTCPLink(const QString& hostAddress,
+                          int port,
+                          const QString& username,
+                          const QString& password,
+                          const QString& mountpoint,
+                          const QString& whitelist,
+                          const bool& enableVRS,
+                          QObject* parent = nullptr);
     ~NTRIPTCPLink();
 
     bool enabled() const { return _enabled; }
     void setEnabled(bool en);
     NTRIPStatus connectionStatus() const { return _connectionStatus; }
 
-signals:
-    void error(const QString errorMsg);
+   signals:
+    void error(const QString& errorMsg);
     void RTCMDataUpdate(QByteArray message);
     void connectionStatusChanged();
     void enabledChanged();
 
-protected:
-    void run() final;
-
-private slots:
+   private slots:
+    void _socketConnected();
+    void _socketDisconnected();
+    void _socketError(QAbstractSocket::SocketError err);
     void _readBytes();
-
-private:
-    enum class NTRIPState {
-        uninitialised,
-        waiting_for_http_response,
-        waiting_for_rtcm_header,
-        accumulating_rtcm_packet,
-    };
-
-    void _hardwareConnect();
-    void _parse(const QByteArray &buffer);
-    void _setConnectionStatus(NTRIPStatus newStatus);
-    void _startNTRIP();
-    void _stopNTRIP();
     void _retryConnection();
     void _sendNmeaGga();
 
-    QTcpSocket*     _socket = nullptr;
-    QString         _hostAddress;
-    int             _port;
-    QString         _username;
-    QString         _password;
-    QString         _mountpoint;
-    QSet<int>       _whitelist;
-    bool            _isVRSEnable = false;
-    int             _vrsSendRateMSecs = 3000;
-    bool            _ntripForceV1 = false;
+   private:
+    void _initSocket();
+    void _setConnectionStatus(NTRIPStatus newStatus);
 
-    QTimer*         _reconnectTimer = nullptr;
-    QTimer*         _vrsSendTimer = nullptr;
-    int             _retryCount = 0;
-    const int       _maxRetries = 5;
-    bool            _enabled = false;
+    QString _hostAddress;
+    int _port;
+    QString _username;
+    QString _password;
+    QString _mountpoint;
+    QSet<int> _whitelist;
+    bool _isVRSEnable = false;
+    int _vrsSendRateMSecs = 3000;
 
-    NTRIPStatus     _connectionStatus = NTRIPStatus::Off;
-    RTCMParsing*    _rtcm_parsing = nullptr;
-    NTRIPState      _state;
+    int _retryCount = 0;
+    const int _maxRetries = 5;
+    const int _reconnectDelayMS = 2000;
+
+    QTcpSocket* _socket = nullptr;
+    RTCMParsing* _rtcm_parsing = nullptr;
+    QTimer* _reconnectTimer = nullptr;
+    QTimer* _vrsSendTimer = nullptr;
+
+    bool _enabled = false;
+    NTRIPStatus _connectionStatus = NTRIPStatus::Off;
+
+    QTimer* _heartbeatTimer = nullptr;
+    const int _heartbeatTimeoutMS = 5000; // 5 seconds, adjust as needed
+
 };
 
 //---------------------------------------------------------------
@@ -110,7 +94,7 @@ class NTRIP : public QObject {
     Q_PROPERTY(int connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool masterEnable READ masterEnable NOTIFY masterEnableChanged)
 
-public:
+   public:
     explicit NTRIP(NTRIPSettings* settings, QObject* parent = nullptr);
     ~NTRIP();
 
@@ -121,19 +105,19 @@ public:
     int connectionStatus() const;
     bool masterEnable() const;
 
-signals:
+   signals:
     void enabledChanged();
     void connectionStatusChanged();
     void masterEnableChanged();
 
-private slots:
-    void _tcpError(const QString errorMsg);
+   private slots:
+    void _tcpError(const QString& errorMsg);
 
-private:
+   private:
     void _initLink();
     void _stopLink();
 
-    NTRIPSettings*  _settings = nullptr;
-    NTRIPTCPLink*   _tcpLink = nullptr;
-    RTCMMavlink*    _rtcmMavlink = nullptr;
+    NTRIPSettings* _settings = nullptr;
+    NTRIPTCPLink* _tcpLink = nullptr;
+    RTCMMavlink* _rtcmMavlink = nullptr;
 };

@@ -19,6 +19,7 @@ import QGroundControl.Controls
 import QGroundControl.ScreenTools
 import QGroundControl.MultiVehicleManager
 import QGroundControl.Palette
+import QGroundControl.NTRIP 1.0
 
 SettingsPage {
     property var    _settingsManager:           QGroundControl.settingsManager
@@ -29,6 +30,8 @@ SettingsPage {
     property Fact   _userBrandImageOutdoor:     _brandImageSettings.userBrandImageOutdoor
     property Fact   _appSavePath:               _appSettings.savePath
     property var    ntripSettings:             _settingsManager.ntripSettings
+    // 🔹 Use the global NTRIP singleton we registered in C++
+    //property var ntrip: NTRIP
 
 
     // ────────────────────────────────
@@ -246,5 +249,39 @@ SettingsPage {
             fact:    ntripSettings ? ntripSettings.ntripWhitelist : null
             visible: ntripSettings ? ntripSettings.ntripWhitelist.visible : false
         }
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: implicitHeight
+            visible: NTRIP && NTRIP.masterEnable
+            spacing: ScreenTools.defaultFontPixelHeight
+
+            QGCLabel {
+                text: qsTr("NTRIP Status")
+                font.bold: true
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            QGCButton {
+                text: NTRIP && NTRIP.enabled ? qsTr("Disconnect NTRIP") : qsTr("Connect NTRIP")
+                Layout.alignment: Qt.AlignHCenter
+                onClicked: if (NTRIP) NTRIP.enabled = !NTRIP.enabled
+            }
+
+            QGCLabel {
+                Layout.alignment: Qt.AlignHCenter
+                text: {
+                    if (!NTRIP) return "NTRIP STATUS: Unknown"
+                    switch (NTRIP.connectionStatus) {
+                        case 0: return "NTRIP STATUS: Off"
+                        case 1: return "NTRIP STATUS: Connecting"
+                        case 2: return "NTRIP STATUS: Connected"
+                        case 3: return "NTRIP STATUS: Retrying"
+                        case 4: return "NTRIP STATUS: Timed Out"
+                        default: return "NTRIP STATUS: Unknown"
+                    }
+                }
+            }
+        }
+
     }
 }
