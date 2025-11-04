@@ -43,28 +43,12 @@ Rectangle {
         }
     }
 
-    // function _showSummaryPanel() {
-    //     if (_fullParameterVehicleAvailable) {
-    //         if (QGroundControl.multiVehicleManager.activeVehicle.autopilotPlugin.vehicleComponents.length === 0) {
-    //             panelLoader.setSourceComponent(noComponentsVehicleSummaryComponent)
-    //         } else {
-    //             panelLoader.setSource("qrc:/qml/QGroundControl/VehicleSetup/VehicleSummary.qml")
-    //         }
-    //     } else if (QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable) {
-    //         panelLoader.setSourceComponent(missingParametersVehicleSummaryComponent)
-    //     } else {
-    //         panelLoader.setSourceComponent(disconnectedVehicleSummaryComponent)
-    //     }
-    //     summaryButton.checked = true
-    // }
-
     function _showSummaryPanel() {
         if (_fullParameterVehicleAvailable) {
-            if (QGroundControl.multiVehicleManager.activeVehicle.autopilot.vehicleComponents.length === 0) {
+            if (QGroundControl.multiVehicleManager.activeVehicle.autopilotPlugin.vehicleComponents.length === 0) {
                 panelLoader.setSourceComponent(noComponentsVehicleSummaryComponent)
             } else {
-                panelLoader.setSourceComponent(newEntryVehicleComponent)
-                //panelLoader.setSource("VehicleSummary.qml")
+                panelLoader.setSource("qrc:/qml/QGroundControl/VehicleSetup/VehicleSummary.qml")
             }
         } else if (QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable) {
             panelLoader.setSourceComponent(missingParametersVehicleSummaryComponent)
@@ -73,6 +57,22 @@ Rectangle {
         }
         summaryButton.checked = true
     }
+
+    // function _showSummaryPanel() {
+    //     if (_fullParameterVehicleAvailable) {
+    //         if (QGroundControl.multiVehicleManager.activeVehicle.autopilot.vehicleComponents.length === 0) {
+    //             panelLoader.setSourceComponent(noComponentsVehicleSummaryComponent)
+    //         } else {
+    //             //panelLoader.setSourceComponent(newEntryVehicleComponent)
+    //             panelLoader.setSource("VehicleSummary.qml")
+    //         }
+    //     } else if (QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable) {
+    //         panelLoader.setSourceComponent(missingParametersVehicleSummaryComponent)
+    //     } else {
+    //         panelLoader.setSourceComponent(disconnectedVehicleSummaryComponent)
+    //     }
+    //     summaryButton.checked = true
+    // }
 
     function showPanel(button, qmlSource) {
         if (mainWindow.allowViewSwitch()) {

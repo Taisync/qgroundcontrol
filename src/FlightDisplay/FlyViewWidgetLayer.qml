@@ -129,8 +129,8 @@ Item {
     Button {
         text: "Stream\n#"
         onClicked: QGroundControl.videoManager.switchRTSPStream()
-        width: 100
-        height: 100
+        width: 70
+        height: 70
         anchors.left: parent.left
         anchors.leftMargin: 20
 
@@ -139,14 +139,14 @@ Item {
 
         background: Rectangle {
             color: "#444"
-            radius: 20
+            radius: 15
             opacity: 0.6
         }
         contentItem: Text {
             text: "Stream\n" + QGroundControl.videoManager.currentStream
             color: "white"
             font.bold: true
-            font.pixelSize: 20
+            font.pixelSize: 15
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
         }
