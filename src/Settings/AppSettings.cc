@@ -343,6 +343,22 @@ QString AppSettings::linkLogSavePath(void)
     return QString();
 }
 
+void AppSettings::setIsPilot(bool s)
+{
+    if (_isPilot != s) {
+        _isPilot = s;
+        emit isPilotChanged();
+    }
+}
+
+void AppSettings::setShowExtra(bool s)
+{
+    if (_showExtra != s) {
+        _showExtra = s;
+        emit showExtraChanged();
+    }
+}
+
 QList<int> AppSettings::firstRunPromptsIdsVariantToList(const QVariant& firstRunPromptIds)
 {
     QList<int> rgIds;
