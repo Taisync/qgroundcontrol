@@ -12,12 +12,31 @@ import QtQuick
 import QGroundControl
 import QGroundControl.Controls
 
+
 SelectableControl {
     z:                      QGroundControl.zOrderWidgets
     selectionUIRightAnchor: true
     selectedControl:        QGroundControl.settingsManager.flyViewSettings.instrumentQmlFile2
+    _showSelectionUI:       false
 
     property var  missionController:    _missionController
     property real extraInset:           innerControl.extraInset
     property real extraValuesWidth:     innerControl.extraValuesWidth
+
+    contentItem: Item {
+        implicitWidth:  loader.item.width
+        implicitHeight: loader.item.height
+
+        Loader {
+            id:     loader
+            source: "qrc:/qml/QGroundControl/FlightMap/Widgets/HorizontalCompassAttitude.qml"
+        }
+
+        QGCMouseArea {
+            anchors.fill:       parent
+            enabled: false
+        }
+    }
 }
+
+

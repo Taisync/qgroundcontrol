@@ -131,11 +131,16 @@ Item {
         onClicked: QGroundControl.videoManager.switchRTSPStream()
         width: 70
         height: 70
-        anchors.left: parent.left
-        anchors.leftMargin: 20
+        //anchors.left: parent.left
+        anchors.right: parent.right
+        //anchors.leftMargin: 20
+        anchors.rightMargin: 20
 
         // Position roughly 75% up the left side
-        y: parent.height * 0.25 - height / 2
+        //y: parent.height * 0.25 - height / 2
+        y: parent.height * 0.6 - height / 2
+
+        //visible: QGroundControl.videoManager.videoSource === QGroundControl.settingsManager.videoSettings.videoSourceRTSP
 
         background: Rectangle {
             color: "#444"
@@ -151,6 +156,7 @@ Item {
             verticalAlignment: Text.AlignVCenter
         }
     }
+
 
     TaisyncInfo {
         id:taisyncPro

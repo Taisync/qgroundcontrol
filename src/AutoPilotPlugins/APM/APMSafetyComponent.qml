@@ -581,21 +581,42 @@ SetupPage {
                             anchors.topMargin:  _innerMargin
                             anchors.top:        returnAtCurrentRadio.bottom
                             anchors.left:       returnAtCurrentRadio.left
-                            text:               qsTr("Return at specified altitude:")
+                            text:               qsTr("Return at specified altitude (m):")
                             checked:            _rtlAltFact.value != 0
 
                             onClicked: _rtlAltFact.value = 1500
                         }
 
-                        FactTextField {
-                            id:                 rltAltField
+                        QGCTextField {
+                            id: rltAltField
                             anchors.leftMargin: _margins
-                            anchors.left:       returnAltRadio.right
-                            anchors.baseline:   returnAltRadio.baseline
-                            fact:               _rtlAltFact
-                            showUnits:          true
-                            enabled:            returnAltRadio.checked
+                            anchors.left: returnAltRadio.right
+                            anchors.baseline: returnAltRadio.baseline
+                            text: _rtlAltFact ? (_rtlAltFact.value / 100).toFixed(1) : "--"
+                            //showUnits: true
+                            enabled: returnAltRadio.checked
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+
+                            onEditingFinished: {
+                                if (!_rtlAltFact) return
+                                var value = parseFloat(text)
+                                if (isNaN(value)) value = 0
+                                // Clamp in meters
+                                value = Math.max(0, Math.min(300, value))
+                                // Write back in cm
+                                _rtlAltFact.value = Math.round(value * 100)
+                                text = value.toFixed(1)
+                            }
+
+                            Connections {
+                                target: _rtlAltFact
+                                onValueChanged: {
+                                    var val = _rtlAltFact ? (_rtlAltFact.value / 100) : 0
+                                    rltAltField.text = val.toFixed(1)
+                                }
+                            }
                         }
+
 
                         QGCCheckBox {
                             id:                 homeLoiterCheckbox
@@ -623,14 +644,34 @@ SetupPage {
                             text:               qsTr("Final land stage altitude:")
                         }
 
-                        FactTextField {
-                            id:                 rltAltFinalField
-                            anchors.topMargin:  _innerMargin
-                            anchors.left:       rltAltField.left
-                            anchors.top:        landDelayField.bottom
-                            fact:               _rtlAltFinalFact
-                            showUnits:          true
+                        QGCTextField {
+                            id: rltAltFinalField
+                            anchors.topMargin: _innerMargin
+                            anchors.left: rltAltField.left
+                            anchors.top: landDelayField.bottom
+                            text: _rtlAltFinalFact ? (_rtlAltFinalFact.value / 100).toFixed(1) : "--"
+                            //showUnits: true
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+
+                            onEditingFinished: {
+                                if (!_rtlAltFinalFact) return
+                                var value = parseFloat(text)
+                                if (isNaN(value)) value = 0
+                                // Clamp in meters
+                                value = Math.max(0, Math.min(300, value))
+                                _rtlAltFinalFact.value = Math.round(value * 100)
+                                text = value.toFixed(1)
+                            }
+
+                            Connections {
+                                target: _rtlAltFinalFact
+                                onValueChanged: {
+                                    var val = _rtlAltFinalFact ? (_rtlAltFinalFact.value / 100) : 0
+                                    rltAltFinalField.text = val.toFixed(1)
+                                }
+                            }
                         }
+
 
                         QGCLabel {
                             anchors.left:       returnAtCurrentRadio.left

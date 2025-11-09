@@ -135,7 +135,7 @@ Item {
 
         VehicleSummaryRow {
             labelText:  qsTr("RTL min alt:")
-            valueText:  fact ? (fact.value == 0 ? qsTr("current") : fact.valueString + " " + fact.units) : ""
+            valueText:  fact ? (fact.value == 0 ? qsTr("current") : (fact.value / 100).toFixed(1) + " m") : ""
             visible:    controller.vehicle.multiRotor
 
             property Fact fact: controller.getParameterFact(-1, "RTL_ALT", false /* reportMissing */)

@@ -90,7 +90,10 @@ Item {
 
         VehicleSummaryRow {
             labelText: qsTr("RTL min alt:")
-            valueText: _rtlAltFact.value == 0 ? qsTr("current") : _rtlAltFact.valueString + " " + _rtlAltFact.units
+            valueText: _rtlAltFact.value == 0
+                ? qsTr("current")
+                : (_rtlAltFact.value / 100).toFixed(1) + " m"
         }
+
     }
 }
