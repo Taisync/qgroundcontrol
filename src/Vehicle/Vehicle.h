@@ -287,6 +287,28 @@ public:
 
     Q_PROPERTY(bool     mavlinkSigning              READ mavlinkSigning             NOTIFY mavlinkSigningChanged)
 
+    // Geotagging Mode (DATA64 byte4)
+    Q_PROPERTY(char geoMode READ geoMode NOTIFY geoStatusChanged)
+
+    // Geotagging Session Status (DATA64 byte5)
+    Q_PROPERTY(int geoSessionStatus READ geoSessionStatus NOTIFY geoStatusChanged)
+
+    // Auto-trigger status (DATA64 byte6)
+    Q_PROPERTY(int geoAutoTriggerStatus READ geoAutoTriggerStatus NOTIFY geoStatusChanged)
+
+    // Logging Status (DATA16 byte2)
+    Q_PROPERTY(int geoLoggingStatus READ geoLoggingStatus NOTIFY geoStatusChanged)
+
+    // Geotagging Progress (DATA16 byte3)
+    Q_PROPERTY(int geoProgressPercent READ geoProgressPercent NOTIFY geoStatusChanged)
+
+    // Photo Count (DATA16 byte4+5)
+    Q_PROPERTY(int geoPhotoCount READ geoPhotoCount NOTIFY geoStatusChanged)
+
+    Q_PROPERTY(QString geoStatusText READ geoStatusText NOTIFY geoStatusChanged)
+    Q_PROPERTY(bool geoCompleted READ geoCompleted NOTIFY geoStatusChanged)
+
+
     /// Resets link status counters
     Q_INVOKABLE void resetCounters  ();
 
@@ -592,6 +614,31 @@ public:
     void startUAVCANBusConfig(void);
     void stopUAVCANBusConfig(void);
 
+    int entireGeotagMode() const { return _entireGeotagMode; }
+    char geoMode() const               { return _geoMode; }
+    int  geoSessionStatus() const      { return _geoSessionStatus; }
+    int  geoAutoTriggerStatus() const  { return _geoAutoTriggerStatus; }
+    int  geoLoggingStatus() const      { return _geoLoggingStatus; }
+    int  geoProgressPercent() const    { return _geoProgressPercent; }
+    int  geoPhotoCount() const         { return _geoPhotoCount; }
+    QString geoStatusText() const {
+        switch (_geoSessionStatus) {
+            case 0: return "Idle";
+            case 1: return "Init";
+            case 2: return "Run";
+            case 3: return "Save";
+            case 100: return "Err";
+            default: return QString("Unknown (%1)").arg(_geoSessionStatus);
+        }
+    }
+
+    bool geoCompleted() const {
+        // Completed = Saving → Idle OR 100%
+        return (_geoSessionStatus == 0 && _geoProgressPercent == 100);
+    }
+
+
+
     FactGroup* vehicleFactGroup             () { return _vehicleFactGroup; }
     FactGroup* gpsFactGroup                 () { return &_gpsFactGroup; }
     FactGroup* gps2FactGroup                () { return &_gps2FactGroup; }
@@ -882,6 +929,13 @@ signals:
     void vehicleUIDChanged              ();
     void loadProgressChanged            (float value);
 
+    void entireData64Received(const QByteArray& data);
+    void entireData16Received(const QByteArray& data);
+    void geoStatusChanged();
+    void geoCompletedTriggered();
+
+
+
     /// New RC channel values coming from RC_CHANNELS message
     ///     @param channelCount Number of available channels, maxRcChannels max
     ///     @param pwmValues -1 signals channel not available
@@ -948,6 +1002,9 @@ private slots:
     void _doSetHomeTerrainReceived          (bool success, QList<double> heights);
     void _updateAltAboveTerrain             ();
     void _altitudeAboveTerrainReceived      (bool sucess, QList<double> heights);
+    void handleEntireData64(const QByteArray& data);
+    void handleEntireData16(const QByteArray& data);
+
 
 private:
     void _loadJoystickSettings          ();
@@ -1227,6 +1284,16 @@ private:
     // these flags are used to determine if the speed change action from fly view should be shown
     bool _multirotor_speed_limits_available = false;
     bool _fixed_wing_airspeed_limits_available = false;
+
+    int _entireGeotagMode{0};
+    char _geoMode = 'n';
+    int  _geoSessionStatus = 0;
+    int  _geoAutoTriggerStatus = 0;
+
+    int  _geoLoggingStatus = 0;
+    int  _geoProgressPercent = 0;
+    int  _geoPhotoCount = 0;
+
 
     // FactGroup facts
 

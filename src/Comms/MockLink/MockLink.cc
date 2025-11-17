@@ -484,24 +484,164 @@ void MockLink::_sendBatteryStatus()
     respondWithMavlinkMessage(msg);
 }
 
+// void MockLink::_sendVibration()
+// {
+
+//     static uint8_t sessionStatus = 0x00;
+
+//     // mavlink_message_t msg{};
+//     // (void) mavlink_msg_vibration_pack_chan(
+//     //     _vehicleSystemId,
+//     //     _vehicleComponentId,
+//     //     mavlinkChannel(),
+//     //     &msg,
+//     //     0,       // time_usec
+//     //     50.5,    // vibration_x,
+//     //     10.5,    // vibration_y,
+//     //     60.0,    // vibration_z,
+//     //     1,       // clipping_0
+//     //     2,       // clipping_0
+//     //     3        // clipping_0
+//     // );
+//     // respondWithMavlinkMessage(msg);
+
+//     // Build a MAVLink DATA64 message for ENTIRE
+//     mavlink_message_t msg{};
+//     mavlink_data64_t data64{};
+//     memset(&data64, 0, sizeof(data64));
+
+//     data64.data[0] = 0xAC;           // byte 0
+//     data64.data[1] = 0xA0;           // byte 1 = status packet
+//     data64.data[2] = 0b00000101;   // camera connected + WiFi active
+//     data64.data[4] = 1;            // geotagging mode
+//     data64.data[5] = sessionStatus;            // geotagging session active
+//     data64.data[6] = 1;            // auto trigger enabled
+
+//     data64.len = 25;
+
+
+//     // you can fill other bytes as needed
+
+//             // Encode the message
+//     mavlink_msg_data64_encode_chan(
+//         _vehicleSystemId,   // sysid (1 for vehicle)
+//         105,                // compid (ENTIRE)
+//         mavlinkChannel(),
+//         &msg,
+//         &data64
+//         );
+
+//     respondWithMavlinkMessage(msg);
+
+//     if (sessionStatus == 2)
+//     {
+//         sessionStatus = 0;
+//     }
+//     else
+//     {
+//         sessionStatus = sessionStatus + 1;
+//     }
+// }
+
 void MockLink::_sendVibration()
 {
-    mavlink_message_t msg{};
-    (void) mavlink_msg_vibration_pack_chan(
-        _vehicleSystemId,
-        _vehicleComponentId,
-        mavlinkChannel(),
-        &msg,
-        0,       // time_usec
-        50.5,    // vibration_x,
-        10.5,    // vibration_y,
-        60.0,    // vibration_z,
-        1,       // clipping_0
-        2,       // clipping_0
-        3        // clipping_0
-    );
-    respondWithMavlinkMessage(msg);
+    // ------------------------------------------------------------------------
+    // Simulation state
+    // ------------------------------------------------------------------------
+    static int elapsedSeconds = 0;
+    static int photoCount = 0;
+    static int progressPercent = 0;
+    static uint8_t geoSessionStatus = 0; // DATA64 byte5
+    static uint8_t loggingStatus = 0;    // DATA16 byte2
+    static uint8_t geoMode = 1;          // DATA64 byte4 (geotagging mode)
+    static bool savingInProgress = false;
+
+            // ------------------------------------------------------------------------
+            // Determine current session phase based on elapsedSeconds
+            // ------------------------------------------------------------------------
+    if (elapsedSeconds < 10) {
+        // IDLE
+        geoSessionStatus = 0;
+        loggingStatus = 0;
+        photoCount = 0;
+        progressPercent = 0;
+        savingInProgress = false;
+    } else if (elapsedSeconds < 20) {
+        //Initialization
+        geoSessionStatus = 1;
+        loggingStatus = 1;
+        photoCount = 0;
+        progressPercent = 0;
+        savingInProgress = false;
+    } else if (elapsedSeconds < 40) {
+        // RUN
+        geoSessionStatus = 2;
+        loggingStatus = 2;
+        // Increment photo count once per second
+        photoCount = elapsedSeconds - 20 + 1; // 1 → 20
+        progressPercent = 0;
+        savingInProgress = false;
+    } else if (elapsedSeconds < 45) {
+        // Saving
+        geoSessionStatus = 3;
+        loggingStatus = 3;
+        savingInProgress = true;
+        // Keep photo count at 20
+        //photoCount = 20;
+        // Progress 0 → 100% over 5s
+        progressPercent = (elapsedSeconds - 45 + 1) * 20; // 20%,40%,...,100%
+        if (progressPercent > 100) progressPercent = 100;
+    } else {
+        // IDLE again (finished)
+        geoSessionStatus = 0;
+        loggingStatus = 0;
+        photoCount = 20;
+        progressPercent = 100;
+        savingInProgress = false;
+    }
+
+            // ------------------------------------------------------------------------
+            // Build DATA64 message
+            // ------------------------------------------------------------------------
+    mavlink_message_t msg64{};
+    mavlink_data64_t data64{};
+    memset(&data64, 0, sizeof(data64));
+
+    data64.data[0] = 0xAC;
+    data64.data[1] = 0xA0;
+    data64.data[2] = 0b00000101; // camera connected + WiFi active
+    data64.data[4] = geoMode;     // geotagging mode
+    data64.data[5] = geoSessionStatus; // geotagging session status
+    data64.data[6] = 1;           // auto trigger enabled
+    data64.len = 25;
+
+    mavlink_msg_data64_encode_chan(_vehicleSystemId, 105, mavlinkChannel(), &msg64, &data64);
+    respondWithMavlinkMessage(msg64);
+
+            // ------------------------------------------------------------------------
+            // Build DATA16 message
+            // ------------------------------------------------------------------------
+    mavlink_message_t msg16{};
+    mavlink_data16_t data16{};
+    memset(&data16, 0, sizeof(data16));
+
+    data16.data[0] = 0xAC;
+    data16.data[1] = 0xA9;
+    data16.data[2] = loggingStatus; // logging session status mirrors DATA64 session
+    data16.data[3] = progressPercent;
+    data16.data[4] = photoCount & 0xFF;        // LSB
+    data16.data[5] = (photoCount >> 8) & 0xFF; // MSB
+    data16.len = 8;
+
+    mavlink_msg_data16_encode_chan(_vehicleSystemId, 105, mavlinkChannel(), &msg16, &data16);
+    respondWithMavlinkMessage(msg16);
+
+            // ------------------------------------------------------------------------
+            // Advance simulation counter
+            // ------------------------------------------------------------------------
+    elapsedSeconds++;
 }
+
 
 void MockLink::respondWithMavlinkMessage(const mavlink_message_t &msg)
 {
@@ -1058,6 +1198,14 @@ void MockLink::_handleCommandLong(const mavlink_message_t &msg)
     uint8_t commandResult = MAV_RESULT_UNSUPPORTED;
 
     switch (request.command) {
+        case MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN: {
+            qDebug() << "MockLink: received MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN"
+                     << "param1:" << request.param1;
+
+                    // Accept the reboot request
+            commandResult = MAV_RESULT_ACCEPTED;
+        }
+        break;
     case MAV_CMD_COMPONENT_ARM_DISARM:
         if (request.param1 == 0.0f) {
             _mavBaseMode &= ~MAV_MODE_FLAG_SAFETY_ARMED;

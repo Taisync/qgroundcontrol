@@ -83,6 +83,9 @@ QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 
 const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode not supported by Vehicle.");
 
+int _prevGeoSessionStatus = 0;
+int _prevGeoProgressPercent = 0;
+
 // Standard connected vehicle
 Vehicle::Vehicle(LinkInterface*             link,
                  int                        vehicleId,
@@ -119,6 +122,12 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _terrainFactGroup             (this)
     , _terrainProtocolHandler       (new TerrainProtocolHandler(this, &_terrainFactGroup, this))
 {
+    connect(this, &Vehicle::entireData64Received,
+                      this, &Vehicle::handleEntireData64);
+
+    connect(this, &Vehicle::entireData16Received,
+            this, &Vehicle::handleEntireData16);
+
     connect(JoystickManager::instance(), &JoystickManager::activeJoystickChanged, this, &Vehicle::_loadJoystickSettings);
     connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &Vehicle::_activeVehicleChanged);
 
@@ -141,6 +150,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     connect(this, &Vehicle::remoteControlRSSIChanged,   this, &Vehicle::_remoteControlRSSIChanged);
 
     _commonInit();
+
+
 
     _vehicleLinkManager->_addLink(link);
 
@@ -660,7 +671,29 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_COMMAND_LONG:
         _handleCommandLong(message);
         break;
+    case MAVLINK_MSG_ID_DATA64:
+    {
+        if (message.compid == 105) {
+            mavlink_data64_t data;
+            mavlink_msg_data64_decode(&message, &data);
+            //qDebug() << "ENTIRE DATA64 byte 5:" << static_cast<int>(data.data[5]);
+            //qDebug() << "ENTIRE data length:" << static_cast<int>(data.len);
+            emit entireData64Received(QByteArray(reinterpret_cast<char*>(data.data), data.len));
+        }
+        break;
     }
+
+    case MAVLINK_MSG_ID_DATA16:
+    {
+        if (message.compid == 105) {
+            mavlink_data16_t data;
+            mavlink_msg_data16_decode(&message, &data);
+            emit entireData16Received(QByteArray(reinterpret_cast<char*>(data.data), data.len));
+        }
+        break;
+    }
+    }
+
 
     // This must be emitted after the vehicle processes the message. This way the vehicle state is up to date when anyone else
     // does processing.
@@ -1114,6 +1147,86 @@ void Vehicle::_handleHomePosition(mavlink_message_t& message)
                                     homePos.altitude / 1000.0);
     _setHomePosition(newHomePosition);
 }
+
+void Vehicle::handleEntireData64(const QByteArray& data)
+{
+    if (data.size() < 7) return;
+
+    bool changed = false;
+
+            // Byte4 — geotag mode ('n','s','c','p')
+    char newMode = data[4];
+    if (_geoMode != newMode) {
+        _geoMode = newMode;
+        changed = true;
+    }
+
+            // Byte5 — session status (0,1,2,3,100)
+    int newSessionStatus = (uint8_t)data[5];
+    if (_geoSessionStatus != newSessionStatus) {
+        _geoSessionStatus = newSessionStatus;
+        changed = true;
+    }
+
+            // Byte6 — auto trigger mode
+    int newAutoTriggerStatus = (uint8_t)data[6];
+    if (_geoAutoTriggerStatus != newAutoTriggerStatus) {
+        _geoAutoTriggerStatus = newAutoTriggerStatus;
+        changed = true;
+    }
+
+    if (changed) {
+        emit geoStatusChanged();
+    }
+}
+
+void Vehicle::handleEntireData16(const QByteArray& data)
+{
+    if (data.size() < 8) return;
+
+    bool changed = false;
+
+    _prevGeoSessionStatus = _geoSessionStatus;
+    _prevGeoProgressPercent = _geoProgressPercent;
+
+            // Logging status
+    int loggingStatus = (uint8_t)data[2];
+    if (_geoLoggingStatus != loggingStatus) {
+        _geoLoggingStatus = loggingStatus;
+        changed = true;
+    }
+
+            // Progress
+    int progress = (uint8_t)data[3];
+    if (_geoProgressPercent != progress) {
+        _geoProgressPercent = progress;
+        changed = true;
+    }
+
+            // Photo count
+    int count = ((uint8_t)data[5] << 8) | (uint8_t)data[4];
+    if (_geoPhotoCount != count) {
+        _geoPhotoCount = count;
+        changed = true;
+    }
+
+    if (changed) {
+        emit geoStatusChanged();
+
+                // Detect completion: Saving → Idle OR progress hits 100%
+        bool completed =
+            ((_prevGeoSessionStatus == 3 && _geoSessionStatus == 0) ||
+             (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100));
+
+        if (completed) {
+            emit geoCompletedTriggered();   // <── Instead of calling qgcApp()->showMessage
+        }
+    }
+}
+
+
+
+
 
 void Vehicle::_updateArmed(bool armed)
 {

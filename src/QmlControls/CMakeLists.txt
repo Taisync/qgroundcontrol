@@ -227,6 +227,8 @@ qt_add_qml_module(QGroundControlControlsModule
         VehicleMessageList.qml
         QuickSettingsIndicator.qml
         QuickSettingsIndicatorPage.qml
+        MavlinkSenderIndicator.qml
+        MavlinkSenderPage.qml
 
         # src/QtLocationPlugin/QMLControl/
         OfflineMapEditor.qml
