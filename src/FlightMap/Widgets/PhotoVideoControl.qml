@@ -55,7 +55,7 @@ Rectangle {
         ColumnLayout {
             Layout.fillHeight:  true
             spacing:            _margins
-            visible:            _camera.hasZoom
+            visible:            false//_camera.hasZoom
 
             QGCLabel {
                 Layout.alignment:   Qt.AlignHCenter

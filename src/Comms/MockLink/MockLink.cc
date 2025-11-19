@@ -589,7 +589,7 @@ void MockLink::_sendVibration()
         // Keep photo count at 20
         //photoCount = 20;
         // Progress 0 → 100% over 5s
-        progressPercent = (elapsedSeconds - 45 + 1) * 20; // 20%,40%,...,100%
+        progressPercent = (elapsedSeconds - 40 + 1) * 20; // 20%,40%,...,100%
         if (progressPercent > 100) progressPercent = 100;
     } else {
         // IDLE again (finished)

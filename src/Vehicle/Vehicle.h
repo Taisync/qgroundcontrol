@@ -133,6 +133,13 @@ public:
     };
     Q_ENUM(CheckList)
 
+    enum PayloadType {
+        PayloadUnknown = 0,
+        PayloadILX,
+        PayloadVIO
+    };
+    Q_ENUM(PayloadType)
+
     Q_PROPERTY(int                  id                          READ id                                                             CONSTANT)
     Q_PROPERTY(AutoPilotPlugin*     autopilotPlugin             MEMBER _autopilotPlugin                                             CONSTANT)
     Q_PROPERTY(QGeoCoordinate       coordinate                  READ coordinate                                                     NOTIFY coordinateChanged)
@@ -308,6 +315,9 @@ public:
     Q_PROPERTY(QString geoStatusText READ geoStatusText NOTIFY geoStatusChanged)
     Q_PROPERTY(bool geoCompleted READ geoCompleted NOTIFY geoStatusChanged)
 
+    Q_PROPERTY(int imageCount READ imageCount NOTIFY imageCountChanged)
+
+    Q_PROPERTY(PayloadType payloadType READ payloadType NOTIFY payloadTypeChanged)
 
     /// Resets link status counters
     Q_INVOKABLE void resetCounters  ();
@@ -637,6 +647,10 @@ public:
         return (_geoSessionStatus == 0 && _geoProgressPercent == 100);
     }
 
+    int imageCount() const { return _unifiedImageCount;}
+
+    PayloadType payloadType() const { return _payloadType; }
+
 
 
     FactGroup* vehicleFactGroup             () { return _vehicleFactGroup; }
@@ -933,7 +947,8 @@ signals:
     void entireData16Received(const QByteArray& data);
     void geoStatusChanged();
     void geoCompletedTriggered();
-
+    void imageCountChanged();
+    void payloadTypeChanged(PayloadType type);
 
 
     /// New RC channel values coming from RC_CHANNELS message
@@ -1004,6 +1019,7 @@ private slots:
     void _altitudeAboveTerrainReceived      (bool sucess, QList<double> heights);
     void handleEntireData64(const QByteArray& data);
     void handleEntireData16(const QByteArray& data);
+    void _updateUnifiedImageCount();
 
 
 private:
@@ -1293,6 +1309,13 @@ private:
     int  _geoLoggingStatus = 0;
     int  _geoProgressPercent = 0;
     int  _geoPhotoCount = 0;
+    int _cameraData16ImageCount = 0;
+    int _cameraCaptureImageCount = 0;
+    int _unifiedImageCount = 0;
+
+    PayloadType _payloadType = PayloadUnknown;
+    void _updatePayloadType();   // declared
+
 
 
     // FactGroup facts

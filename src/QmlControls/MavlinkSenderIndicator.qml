@@ -1,6 +1,7 @@
 /****************************************************************************
- *   Toolbar MAVLink Sender Indicator
+ * Toolbar MAVLink Sender Indicator
  ****************************************************************************/
+
 import QtQuick
 import QGroundControl
 import QGroundControl.Controls
@@ -13,8 +14,7 @@ Item {
     width: indicatorRow.width
     anchors.top: parent.top
     anchors.bottom: parent.bottom
-
-    property bool   showIndicator:          true
+    property bool showIndicator: true
     property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
     property bool savingPopupVisible: false
 
@@ -29,11 +29,9 @@ Item {
                 savingPopupVisible = true
                 mainWindow.showMessageDialog(
                     "Geotagging in Progress",
-                    "Geotagging started for " +
-                    activeVehicle.geoPhotoCount + " photos."
+                    "Geotagging started for " + activeVehicle.geoPhotoCount + " photos."
                 )
             }
-
             // Close popup if mode leaves Saving
             else if (activeVehicle.geoSessionStatus !== 3) {
                 savingPopupVisible = false
@@ -51,17 +49,13 @@ Item {
         }
     }
 
-
-
     Row {
         id: indicatorRow
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         spacing: ScreenTools.defaultFontPixelWidth / 2
 
-        //
         // ICON
-        //
         QGCColoredImage {
             id: icon
             width: height
@@ -69,31 +63,27 @@ Item {
             anchors.bottom: parent.bottom
             source: "/qmlimages/CameraIcon.svg"
             fillMode: Image.PreserveAspectFit
-
             color: {
-                if (!activeVehicle) return qgcPal.buttonText
-
+                if ((!activeVehicle) && (activeVehicle.payloadType !== 1)) return qgcPal.buttonText
                 switch (activeVehicle.geoSessionStatus) {
-                case 0:  return "lightgray"   // idle
-                case 1:  return "green"       // init
-                case 2:  return "green"       // running
-                case 3:  return "yellow"      // saving
-                case 100:return "red"         // error
-                default: return qgcPal.buttonText
+                    case 0:  return "lightgray"   // idle
+                    case 1:  return "green"       // init
+                    case 2:  return "green"       // running
+                    case 3:  return "yellow"      // saving
+                    case 100:return "red"         // error
+                    default: return qgcPal.buttonText
                 }
             }
         }
 
-        //
         // LABEL: ON / OFF / IDLE
-        //
         QGCLabel {
             id: statusLabel
             anchors.verticalCenter: parent.verticalCenter
-
+            visible: activeVehicle && activeVehicle.payloadType === 1
             color: icon.color
             text: activeVehicle
-                  ? activeVehicle.geoStatusText + " (" + activeVehicle.geoPhotoCount + ")"
+                  ? activeVehicle.geoStatusText + " (" + activeVehicle.imageCount + ")"
                   : "--"
         }
     }

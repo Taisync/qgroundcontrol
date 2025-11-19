@@ -308,6 +308,8 @@ void Vehicle::_commonInit()
             this, &Vehicle::_gotProgressUpdate);
     connect(_parameterManager, &ParameterManager::loadProgressChanged, this, &Vehicle::_gotProgressUpdate);
 
+    //connect(_parameterManager, &ParameterManager::parameterUpdated, this, &Vehicle::_checkPayloadTypeUpdate);
+
     _objectAvoidance = new VehicleObjectAvoidance(this, this);
 
     _autotune = _firmwarePlugin->createAutotune(this);
@@ -692,6 +694,21 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
         }
         break;
     }
+    case MAVLINK_MSG_ID_CAMERA_CAPTURE_STATUS:
+    {
+        if (message.compid == 105) {
+            mavlink_camera_capture_status_t cap{};
+            mavlink_msg_camera_capture_status_decode(&message, &cap);
+
+                    // Store count from CAMERA_CAPTURE_STATUS
+            _cameraCaptureImageCount = static_cast<int>(cap.image_count);
+
+            _updateUnifiedImageCount();
+        }
+        break;
+    }
+
+    break;
     }
 
 
@@ -1196,35 +1213,155 @@ void Vehicle::handleEntireData16(const QByteArray& data)
         changed = true;
     }
 
-            // Progress
+            // Progress (0–100, but may not reach 100 in real world)
     int progress = (uint8_t)data[3];
     if (_geoProgressPercent != progress) {
         _geoProgressPercent = progress;
         changed = true;
     }
 
-            // Photo count
+            // Photo count (little-endian)
     int count = ((uint8_t)data[5] << 8) | (uint8_t)data[4];
     if (_geoPhotoCount != count) {
         _geoPhotoCount = count;
         changed = true;
     }
 
+    _cameraData16ImageCount = _geoPhotoCount;
+    _updateUnifiedImageCount();
+
     if (changed) {
         emit geoStatusChanged();
 
-                // Detect completion: Saving → Idle OR progress hits 100%
-        bool completed =
-            ((_prevGeoSessionStatus == 3 && _geoSessionStatus == 0) ||
-             (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100));
+                // ---------------------------------------------------------------------
+                // COMPLETION LOGIC (AirPixel-correct)
+                // ---------------------------------------------------------------------
+
+        bool wasSaving     = (_prevGeoSessionStatus == 3);
+        bool nowIdle       = (_geoSessionStatus == 0);
+        bool nowError      = (_geoSessionStatus == 100);
+        bool hadProgress   = (_prevGeoProgressPercent > 0 || _geoProgressPercent > 0);
+
+        bool completed = false;
+
+                // Case A: Normal telemetry completion (progress hit 100)
+        if (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100) {
+            completed = true;
+        }
+
+                // Case B: Saving → Idle (or Error) without 100% message,
+                // but only if we saw SOME progress (AirPixel feedback)
+        if (wasSaving && nowIdle && hadProgress) {
+            // Force progress to 100 so UI shows correct completion
+            if (_geoProgressPercent != 100) {
+                _geoProgressPercent = 100;
+                emit geoStatusChanged();  // update QML again
+            }
+            completed = true;
+        }
 
         if (completed) {
-            emit geoCompletedTriggered();   // <── Instead of calling qgcApp()->showMessage
+            emit geoCompletedTriggered();
         }
     }
 }
 
 
+// void Vehicle::handleEntireData16(const QByteArray& data)
+// {
+//     if (data.size() < 8) return;
+
+//     bool changed = false;
+
+//     _prevGeoSessionStatus = _geoSessionStatus;
+//     _prevGeoProgressPercent = _geoProgressPercent;
+
+//             // Logging status
+//     int loggingStatus = (uint8_t)data[2];
+//     if (_geoLoggingStatus != loggingStatus) {
+//         _geoLoggingStatus = loggingStatus;
+//         changed = true;
+//     }
+
+//             // Progress
+//     int progress = (uint8_t)data[3];
+//     if (_geoProgressPercent != progress) {
+//         _geoProgressPercent = progress;
+//         changed = true;
+//     }
+
+//             // Photo count
+//     int count = ((uint8_t)data[5] << 8) | (uint8_t)data[4];
+//     if (_geoPhotoCount != count) {
+//         _geoPhotoCount = count;
+//         changed = true;
+//     }
+
+//     _cameraData16ImageCount = _geoPhotoCount;
+//     _updateUnifiedImageCount();
+
+//     if (changed) {
+//         emit geoStatusChanged();
+
+//                 // Detect completion: Saving → Idle OR progress hits 100%
+//         bool completed =
+//             ((_prevGeoSessionStatus == 3 && _geoSessionStatus == 0) ||
+//              (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100));
+
+//         if (completed) {
+//             emit geoCompletedTriggered();   // <── Instead of calling qgcApp()->showMessage
+//         }
+//     }
+// }
+
+
+void Vehicle::_updateUnifiedImageCount()
+{
+    int newCount = std::max(_cameraData16ImageCount,
+                            _cameraCaptureImageCount);
+
+    if (newCount != _unifiedImageCount) {
+        _unifiedImageCount = newCount;
+        emit imageCountChanged();
+    }
+}
+
+void Vehicle::_updatePayloadType()
+{
+    if (!_parameterManager) {
+        return;
+    }
+
+    auto* camTypeFact = parameterManager()->getParameter(_compID, "CAM1_TYPE");
+    auto* serialBaudFact = parameterManager()->getParameter(_compID, "SERIAL2_BAUD");
+
+    qDebug() << "param assign";// << static_cast<int>(data.len);
+
+    if (!camTypeFact || !serialBaudFact) {
+        qDebug() << "fact not avail";
+        return;
+    }
+
+    int camType = camTypeFact->rawValue().toInt();
+    int baud = serialBaudFact->rawValue().toInt();
+    qDebug() << "cam:" << static_cast<int>(camType) << " baud:" << static_cast<int>(baud);
+
+    PayloadType newType = PayloadUnknown;
+
+            // ---- Adjust these rules to your real payload configs ----
+    if (camType == 6 && baud == 115) {
+        newType = PayloadVIO;
+    } else if (camType == 5 && baud == 230) {
+        newType = PayloadILX;
+    }
+    // ---------------------------------------------------------
+
+    if (newType != _payloadType) {
+        _payloadType = newType;
+        qDebug() << "param assign" << static_cast<int>(_payloadType);
+        emit payloadTypeChanged(_payloadType);
+    }
+}
 
 
 
@@ -1974,6 +2111,8 @@ void Vehicle::_parametersReady(bool parametersReady)
 
     _multirotor_speed_limits_available = _firmwarePlugin->mulirotorSpeedLimitsAvailable(this);
     _fixed_wing_airspeed_limits_available = _firmwarePlugin->fixedWingAirSpeedLimitsAvailable(this);
+
+    _updatePayloadType();
 
     emit haveMRSpeedLimChanged();
     emit haveFWSpeedLimChanged();
