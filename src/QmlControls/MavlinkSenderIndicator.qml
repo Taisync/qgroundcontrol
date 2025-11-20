@@ -35,7 +35,7 @@ Item {
                 savingPopupVisible = true
                 mainWindow.showMessageDialog(
                     "Geotagging in Progress",
-                    "Geotagging started for " + activeVehicle.geoPhotoCount + " photos."
+                    "Geotagging started for " + activeVehicle.imageCount + " photos."
                 )
             }
 
@@ -59,7 +59,7 @@ Item {
             mainWindow.showMessageDialog(
                 "Geotagging Complete",
                 "Geotagging finished successfully.\n" +
-                activeVehicle.geoPhotoCount + " photos processed."
+                activeVehicle.geoFinalImageCount + " photos processed."
             )
         }
     }

@@ -704,7 +704,7 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
                     // Store count from CAMERA_CAPTURE_STATUS
             _cameraCaptureImageCount = static_cast<int>(cap.image_count);
 
-            _updateUnifiedImageCount();
+            //_updateUnifiedImageCount();
         }
         break;
     }
@@ -1188,6 +1188,7 @@ void Vehicle::handleEntireData64(const QByteArray& data)
 
                 // ---- ARM COMPLETION when entering SAVING ----
         if (newSessionStatus == 3) {
+            _geoFinalImageCount = _cameraData16ImageCount;
             _geoCompletionArmed = true;   // allow future completion event
         }
     }
@@ -1273,6 +1274,9 @@ void Vehicle::_checkGeoCompletion()
 
     if (completed) {
         // ---- DISARM one-shot until next SAVING start ----
+
+        emit geoStatusChanged();  // ensure QML sees it
+
         _geoCompletionArmed = false;
 
         emit geoCompletedTriggered();
@@ -1332,8 +1336,9 @@ void Vehicle::_checkGeoCompletion()
 
 void Vehicle::_updateUnifiedImageCount()
 {
-    int newCount = std::max(_cameraData16ImageCount,
-                            _cameraCaptureImageCount);
+    int newCount = _cameraData16ImageCount;
+        // std::max(_cameraData16ImageCount,
+        //                     _cameraCaptureImageCount);
 
     if (newCount != _unifiedImageCount) {
         _unifiedImageCount = newCount;

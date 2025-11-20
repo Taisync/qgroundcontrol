@@ -316,6 +316,7 @@ public:
     Q_PROPERTY(bool geoCompleted READ geoCompleted NOTIFY geoStatusChanged)
 
     Q_PROPERTY(int imageCount READ imageCount NOTIFY imageCountChanged)
+    Q_PROPERTY(int geoFinalImageCount READ geoFinalImageCount NOTIFY geoStatusChanged)
 
     Q_PROPERTY(PayloadType payloadType READ payloadType NOTIFY payloadTypeChanged)
 
@@ -648,6 +649,7 @@ public:
     }
 
     int imageCount() const { return _unifiedImageCount;}
+    int geoFinalImageCount(void) const { return _geoFinalImageCount;}
 
     PayloadType payloadType() const { return _payloadType; }
 
@@ -1313,6 +1315,7 @@ private:
     int _cameraData16ImageCount = 0;
     int _cameraCaptureImageCount = 0;
     int _unifiedImageCount = 0;
+    int _geoFinalImageCount = 0;
 
     bool _geoCompletionArmed = false;
 
