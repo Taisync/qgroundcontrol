@@ -17,14 +17,20 @@ Item {
     property bool showIndicator: true
     property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
     property bool savingPopupVisible: false
+    property bool savingShown: false
+    property bool completionShown: false
+
 
     Connections {
         target: activeVehicle
 
+        // -----------------------------
+        // STATUS CHANGED (Saving popup)
+        // -----------------------------
         onGeoStatusChanged: {
             if (!activeVehicle) return
 
-            // Trigger popup when geotagging enters Saving mode
+            // Entered Saving mode
             if (activeVehicle.geoSessionStatus === 3 && !savingPopupVisible) {
                 savingPopupVisible = true
                 mainWindow.showMessageDialog(
@@ -32,20 +38,29 @@ Item {
                     "Geotagging started for " + activeVehicle.geoPhotoCount + " photos."
                 )
             }
-            // Close popup if mode leaves Saving
-            else if (activeVehicle.geoSessionStatus !== 3) {
+
+            // Left Saving mode → auto-close the dialog
+            else if (activeVehicle.geoSessionStatus !== 3 && savingPopupVisible) {
                 savingPopupVisible = false
+                //mainWindow.closeMessageDialog()      // auto-close saving dialog
             }
         }
 
-        // Completion popup if needed
+        // -----------------------------
+        // COMPLETION POPUP
+        // -----------------------------
         onGeoCompletedTriggered: {
+            // Ensure saving popup is closed before showing completion dialog
+            if (savingPopupVisible) {
+                savingPopupVisible = false
+                //mainWindow.closeMessageDialog()
+            }
+
             mainWindow.showMessageDialog(
                 "Geotagging Complete",
                 "Geotagging finished successfully.\n" +
                 activeVehicle.geoPhotoCount + " photos processed."
             )
-            savingPopupVisible = false
         }
     }
 

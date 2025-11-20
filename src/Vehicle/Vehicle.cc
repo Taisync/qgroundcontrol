@@ -86,6 +86,7 @@ const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode no
 int _prevGeoSessionStatus = 0;
 int _prevGeoProgressPercent = 0;
 
+
 // Standard connected vehicle
 Vehicle::Vehicle(LinkInterface*             link,
                  int                        vehicleId,
@@ -1181,8 +1182,14 @@ void Vehicle::handleEntireData64(const QByteArray& data)
             // Byte5 — session status (0,1,2,3,100)
     int newSessionStatus = (uint8_t)data[5];
     if (_geoSessionStatus != newSessionStatus) {
+        _prevGeoSessionStatus = _geoSessionStatus;   // store last state
         _geoSessionStatus = newSessionStatus;
         changed = true;
+
+                // ---- ARM COMPLETION when entering SAVING ----
+        if (newSessionStatus == 3) {
+            _geoCompletionArmed = true;   // allow future completion event
+        }
     }
 
             // Byte6 — auto trigger mode
@@ -1194,8 +1201,10 @@ void Vehicle::handleEntireData64(const QByteArray& data)
 
     if (changed) {
         emit geoStatusChanged();
+        _checkGeoCompletion();      // protected by the one-shot guard
     }
 }
+
 
 void Vehicle::handleEntireData16(const QByteArray& data)
 {
@@ -1203,25 +1212,22 @@ void Vehicle::handleEntireData16(const QByteArray& data)
 
     bool changed = false;
 
-    _prevGeoSessionStatus = _geoSessionStatus;
-    _prevGeoProgressPercent = _geoProgressPercent;
-
-            // Logging status
     int loggingStatus = (uint8_t)data[2];
+    int progress = (uint8_t)data[3];
+    int count = ((uint8_t)data[5] << 8) | (uint8_t)data[4];
+
     if (_geoLoggingStatus != loggingStatus) {
         _geoLoggingStatus = loggingStatus;
         changed = true;
     }
 
-            // Progress (0–100, but may not reach 100 in real world)
-    int progress = (uint8_t)data[3];
     if (_geoProgressPercent != progress) {
+        // store BEFORE updating
+        _prevGeoProgressPercent = _geoProgressPercent;
         _geoProgressPercent = progress;
         changed = true;
     }
 
-            // Photo count (little-endian)
-    int count = ((uint8_t)data[5] << 8) | (uint8_t)data[4];
     if (_geoPhotoCount != count) {
         _geoPhotoCount = count;
         changed = true;
@@ -1232,39 +1238,47 @@ void Vehicle::handleEntireData16(const QByteArray& data)
 
     if (changed) {
         emit geoStatusChanged();
-
-                // ---------------------------------------------------------------------
-                // COMPLETION LOGIC (AirPixel-correct)
-                // ---------------------------------------------------------------------
-
-        bool wasSaving     = (_prevGeoSessionStatus == 3);
-        bool nowIdle       = (_geoSessionStatus == 0);
-        bool nowError      = (_geoSessionStatus == 100);
-        bool hadProgress   = (_prevGeoProgressPercent > 0 || _geoProgressPercent > 0);
-
-        bool completed = false;
-
-                // Case A: Normal telemetry completion (progress hit 100)
-        if (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100) {
-            completed = true;
-        }
-
-                // Case B: Saving → Idle (or Error) without 100% message,
-                // but only if we saw SOME progress (AirPixel feedback)
-        if (wasSaving && nowIdle && hadProgress) {
-            // Force progress to 100 so UI shows correct completion
-            if (_geoProgressPercent != 100) {
-                _geoProgressPercent = 100;
-                emit geoStatusChanged();  // update QML again
-            }
-            completed = true;
-        }
-
-        if (completed) {
-            emit geoCompletedTriggered();
-        }
+        _checkGeoCompletion();     // protected by the one-shot guard
     }
 }
+
+
+void Vehicle::_checkGeoCompletion()
+{
+    // ---------- ONE-SHOT COMPLETION GUARD ----------
+    if (!_geoCompletionArmed) {
+        return;     // do nothing unless armed
+    }
+
+    bool wasSaving   = (_prevGeoSessionStatus == 3);
+    bool nowIdle     = (_geoSessionStatus == 0);
+    bool nowError    = (_geoSessionStatus == 100);
+    bool hadProgress = (_geoProgressPercent > 0 || _prevGeoProgressPercent > 0);
+
+    bool completed = false;
+
+            // Case 1 — exact 100% progress reached
+    if (_prevGeoProgressPercent < 100 && _geoProgressPercent == 100) {
+        completed = true;
+    }
+
+            // Case 2 — Saving → Idle/Error
+    if (wasSaving && (nowIdle || nowError) && hadProgress) {
+        if (_geoProgressPercent != 100) {
+            _geoProgressPercent = 100;
+            emit geoStatusChanged();   // unify
+        }
+        completed = true;
+    }
+
+    if (completed) {
+        // ---- DISARM one-shot until next SAVING start ----
+        _geoCompletionArmed = false;
+
+        emit geoCompletedTriggered();
+    }
+}
+
 
 
 // void Vehicle::handleEntireData16(const QByteArray& data)
@@ -1313,6 +1327,7 @@ void Vehicle::handleEntireData16(const QByteArray& data)
 //         }
 //     }
 // }
+
 
 
 void Vehicle::_updateUnifiedImageCount()

@@ -1019,6 +1019,7 @@ private slots:
     void _altitudeAboveTerrainReceived      (bool sucess, QList<double> heights);
     void handleEntireData64(const QByteArray& data);
     void handleEntireData16(const QByteArray& data);
+    void _checkGeoCompletion();
     void _updateUnifiedImageCount();
 
 
@@ -1312,6 +1313,8 @@ private:
     int _cameraData16ImageCount = 0;
     int _cameraCaptureImageCount = 0;
     int _unifiedImageCount = 0;
+
+    bool _geoCompletionArmed = false;
 
     PayloadType _payloadType = PayloadUnknown;
     void _updatePayloadType();   // declared
