@@ -130,8 +130,8 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
         }
 
         _updateVersion(link, mavlinkChannel);
-
-        if (!linkPtr->linkConfiguration()->isForwarding()) {
+        if (!linkPtr->linkConfiguration()->isForwarding()
+            && linkPtr->linkConfiguration()->name() != "FCControl") { // FCControl force send to FC
             _forward(message);
             _forwardSupport(message);
             _updateCounters(mavlinkChannel, message);
