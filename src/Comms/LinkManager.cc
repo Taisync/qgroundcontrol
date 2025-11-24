@@ -497,12 +497,11 @@ void LinkManager::_addZeroConfAutoConnectLink()
     };
 
     (void) connect(browser.get(), &QMdnsEngine::Browser::serviceAdded, this, [checkIfConnectionLinkExist, this](const QMdnsEngine::Service &service) {
-        qCDebug(LinkManagerLog) << "Found Zero-Conf:" << service.type() << service.name() << service.hostname() << service.port() << service.attributes();
-
         if (!service.type().startsWith("_mavlink")) {
-            qCWarning(LinkManagerLog) << "Invalid ZeroConf SericeType" << service.type();
+            // qCWarning(LinkManagerLog) << "Invalid ZeroConf SericeType" << service.type();
             return;
         }
+        qCDebug(LinkManagerLog) << "Found Zero-Conf:" << service.type() << service.name() << service.hostname() << service.port() << service.attributes();
 
         // Windows doesnt accept trailling dots in mdns
         // http://www.dns-sd.org/trailingdotsindomainnames.html
@@ -523,9 +522,8 @@ void LinkManager::_addZeroConfAutoConnectLink()
                 return;
             }
 #endif
-
             const auto addUDPLink = [this](QString address, quint16 port) {
-                qCDebug(LinkManagerVerboseLog) << "add ZeroConf connection:" << address << port;
+                qCDebug(LinkManagerLog) << "add ZeroConf connection:" << address << port;
                 auto link = new UDPConfiguration(udpName);
                 link->addHost(address, port);
                 link->setAutoConnect(true);
@@ -538,7 +536,7 @@ void LinkManager::_addZeroConfAutoConnectLink()
 
             QString address = UDPConfiguration::getIpAddress(hostname);
             if (!address.isEmpty()) {
-                qCDebug(LinkManagerVerboseLog) << "Get ZeroConf ip1:" << address;
+                qCDebug(LinkManagerLog) << "Get ZeroConf ip1:" << address;
                 addUDPLink(address, service.port());
                 return;
             }
@@ -555,12 +553,12 @@ void LinkManager::_addZeroConfAutoConnectLink()
                         resolver, &QMdnsEngine::Resolver::resolved, this,
                         [key, port, checkIfConnectionLinkExist, addUDPLink, this](const QHostAddress &address) {
                             if (checkIfConnectionLinkExist(LinkConfiguration::TypeUdp, udpName)) {
-                                qCDebug(LinkManagerVerboseLog) << "Connection already exist";
+                                qCDebug(LinkManagerLog) << "Connection already exist";
                                 return;
                             }
 
                             if (UDPConfiguration::isIp(address.toString())) {
-                                qCDebug(LinkManagerVerboseLog) << "Get ZeroConf ip2:" << address;
+                                qCDebug(LinkManagerLog) << "Get ZeroConf ip2:" << address;
 
                                 QMdnsEngine::Resolver *resolver = resolvers[key];
                                 if (resolver) {
