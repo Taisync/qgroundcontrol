@@ -991,7 +991,7 @@ GstElement *GstVideoReceiver::_makeDecoder(GstCaps *caps, GstElement *videoSink)
 
     const char *name = "decodebin3";
     if (_isH265 == 0) { // H264
-        name = "avdec_h264";
+        name = "decodebin3";
     } else if (_isH265 == 1) { // H265
         // name = "decodebin3";
     } else { // UNKNOWN
