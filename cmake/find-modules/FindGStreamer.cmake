@@ -118,6 +118,14 @@ elseif(ANDROID)
         endif()
     endif()
 
+    # adjust 1.20.xx to 1.18.6
+    configure_file(${CMAKE_SOURCE_DIR}/src/Taisync/fix/gstelement.h
+                   ${GStreamer_ROOT_DIR}/include/gstreamer-1.0/gst/gstelement.h
+                   COPYONLY)
+   configure_file(${CMAKE_SOURCE_DIR}/src/Taisync/fix/gstreamer-gl-prototypes-1.0.pc
+                  ${GStreamer_ROOT_DIR}/lib/pkgconfig/gstreamer-gl-prototypes-1.0.pc
+                  COPYONLY)
+
     cmake_path(CONVERT "${GStreamer_ROOT_DIR}" TO_CMAKE_PATH_LIST GStreamer_ROOT_DIR NORMALIZE)
     if(NOT EXISTS "${GStreamer_ROOT_DIR}")
         message(FATAL_ERROR "Could not locate GStreamer - check installation or set environment/cmake variables")

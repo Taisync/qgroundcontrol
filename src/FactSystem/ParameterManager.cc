@@ -575,7 +575,7 @@ Fact *ParameterManager::getParameter(int componentId, const QString &paramName)
 
     const QString mappedParamName = _remapParamNameToVersion(paramName);
     if (!_mapCompId2FactMap.contains(componentId) || !_mapCompId2FactMap[componentId].contains(mappedParamName)) {
-        qgcApp()->reportMissingParameter(componentId, mappedParamName);
+        // qgcApp()->reportMissingParameter(componentId, mappedParamName);
         return &_defaultFact;
     }
 
@@ -1127,19 +1127,29 @@ void ParameterManager::_checkInitialLoadComplete()
         }
     }
 
-    _missingParameters = false;
-    if (initialLoadFailures) {
-        _missingParameters = true;
-        const QString errorMsg = tr("%1 was unable to retrieve the full set of parameters from vehicle %2. "
-                                    "This will cause %1 to be unable to display its full user interface. "
-                                    "If you are using modified firmware, you may need to resolve any vehicle startup errors to resolve the issue. "
-                                    "If you are using standard firmware, you may need to upgrade to a newer version to resolve the issue.").arg(QCoreApplication::applicationName()).arg(_vehicle->id());
-        qCDebug(ParameterManagerLog) << errorMsg;
-        qgcApp()->showAppMessage(errorMsg);
-        if (!qgcApp()->runningUnitTests()) {
-            qCWarning(ParameterManagerLog) << _logVehiclePrefix(-1) << "The following parameter indices could not be loaded after the maximum number of retries:" << indexList;
+    if (initialLoadFailures)
+    {
+        _initialLoadComplete = false;
+        if (_retryFailedParameters())
+        {
+            _waitingParamTimeoutTimer.start();
         }
+        return;
     }
+
+    _missingParameters = false;
+    // if (initialLoadFailures) {
+    //     _missingParameters = true;
+    //     const QString errorMsg = tr("%1 was unable to retrieve the full set of parameters from vehicle %2. "
+    //                                 "This will cause %1 to be unable to display its full user interface. "
+    //                                 "If you are using modified firmware, you may need to resolve any vehicle startup errors to resolve the issue. "
+    //                                 "If you are using standard firmware, you may need to upgrade to a newer version to resolve the issue.").arg(QCoreApplication::applicationName()).arg(_vehicle->id());
+    //     qCDebug(ParameterManagerLog) << errorMsg;
+    //     qgcApp()->showAppMessage(errorMsg);
+    //     if (!qgcApp()->runningUnitTests()) {
+    //         qCWarning(ParameterManagerLog) << _logVehiclePrefix(-1) << "The following parameter indices could not be loaded after the maximum number of retries:" << indexList;
+    //     }
+    // }
 
     // Signal load complete
     _parametersReady = true;
@@ -1150,15 +1160,15 @@ void ParameterManager::_checkInitialLoadComplete()
 
 void ParameterManager::_initialRequestTimeout()
 {
-    if (!_disableAllRetries && (++_initialRequestRetryCount <= _maxInitialRequestListRetry)) {
+    if (!_disableAllRetries && (!_vehicle->genericFirmware() || ++_initialRequestRetryCount <= _maxInitialRequestListRetry)) {
         qCDebug(ParameterManagerLog) << _logVehiclePrefix(-1) << "Retrying initial parameter request list";
         refreshAllParameters();
         _initialRequestTimeoutTimer.start();
     } else if (!_vehicle->genericFirmware()) {
-        const QString errorMsg = tr("Vehicle %1 did not respond to request for parameters. "
-                                    "This will cause %2 to be unable to display its full user interface.").arg(_vehicle->id()).arg(QCoreApplication::applicationName());
-        qCDebug(ParameterManagerLog) << errorMsg;
-        qgcApp()->showAppMessage(errorMsg);
+        // const QString errorMsg = tr("Vehicle %1 did not respond to request for parameters. "
+        //                             "This will cause %2 to be unable to display its full user interface.").arg(_vehicle->id()).arg(QCoreApplication::applicationName());
+        // qCDebug(ParameterManagerLog) << errorMsg;
+        // qgcApp()->showAppMessage(errorMsg);
     }
 }
 
@@ -1524,4 +1534,23 @@ Success:
 Error:
     file.close();
     return false;
+}
+
+bool ParameterManager::_retryFailedParameters()
+{
+    bool paramsRequested = false;
+
+    for (int componentId: _failedReadParamIndexMap.keys()) {
+        for (int paramIndex: _failedReadParamIndexMap[componentId]) {
+            _failedReadParamIndexMap[componentId].removeOne(paramIndex);
+            _waitingReadParamIndexMap[componentId][paramIndex] = 0;
+            _readParameterRaw(componentId, "", paramIndex);
+            paramsRequested = true;
+            qCDebug(ParameterManagerLog) << _logVehiclePrefix(componentId)
+                                         << "Retrying failed parameter (paramIndex:"
+                                         << paramIndex << ")";
+        }
+    }
+
+    return paramsRequested;
 }
