@@ -73,8 +73,8 @@ public:
     QList<SharedLinkInterfacePtr> links() { return _rgLinks; }
     QStringList linkTypeStrings() const;
     bool mavlinkSupportForwardingEnabled() const { return _mavlinkSupportForwardingEnabled; }
-    bool mavlinkReceiveEnabled(void) { return _mavlinkReceiveEnabled; }
-    void setMavlinkReceiveEnabled(bool enable) { _mavlinkReceiveEnabled = enable; emit mavlinkReceiveEnabledChanged(); }
+    bool mavlinkReceiveEnabled(void);
+    void setMavlinkReceiveEnabled(bool enable);
 
     void loadLinkConfigurationList();
     void saveLinkConfigurationList();
@@ -206,5 +206,15 @@ private:
     QString _nmeaDeviceName;
     uint32_t _nmeaBaud = 0;
     QSerialPort *_nmeaPort = nullptr;
+
+private:
+    bool _isInBackgroundTimeout = false;
+    bool _checkIsInBackgroundTimeout(void);
+    void _resetBackgroundTimestamp(void);
+
+    quint64 _inBackgroundTimestamp = 0;
+    // mavlink data could received about 30 seconds in background
+    const quint64 _inBackgroundTimeout = 30000;
+
 #endif // QGC_NO_SERIAL_LINK
 };
