@@ -86,15 +86,20 @@ Item {
             anchors.bottom: parent.bottom
 
             function getBatteryColor() {
+                // In voltage-only mode, show solid white (text color)
+                if (control._showVoltage && !control._showBoth) {
+                    return qgcPal.text
+                }
+
                 switch (battery.chargeState.rawValue) {
                     case MAVLink.MAV_BATTERY_CHARGE_STATE_OK:
                         if (!isNaN(battery.percentRemaining.rawValue)) {
                             if (battery.percentRemaining.rawValue > threshold1) {
-                                return qgcPal.colorGreen 
+                                return qgcPal.colorGreen
                             } else if (battery.percentRemaining.rawValue > threshold2) {
-                                return qgcPal.colorYellowGreen 
+                                return qgcPal.colorYellowGreen
                             } else {
-                                return qgcPal.colorYellow 
+                                return qgcPal.colorYellow
                             }
                         } else {
                             return qgcPal.text
@@ -112,6 +117,11 @@ Item {
             }    
 
             function getBatterySvgSource() {
+                // In voltage-only mode, use default battery icon
+                if (control._showVoltage && !control._showBoth) {
+                    return "/qmlimages/Battery.svg"
+                }
+
                 switch (battery.chargeState.rawValue) {
                     case MAVLink.MAV_BATTERY_CHARGE_STATE_OK:
                         if (!isNaN(battery.percentRemaining.rawValue)) {

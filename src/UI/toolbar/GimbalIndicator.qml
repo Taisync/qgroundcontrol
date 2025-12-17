@@ -48,8 +48,8 @@ Item {
             contentComponent: GridLayout {
                 // Label indicating the purpose of the panel and active gimbal instance
                 QGCLabel {
-                    text:                   qsTr("Gimbal ") + 
-                                                (multiGimbalSetup ? activeGimbal.deviceId.rawValue : "") + 
+                    text:                   qsTr("Gimbal ") +
+                                                (multiGimbalSetup && activeGimbal ? activeGimbal.deviceId.rawValue : "") +
                                                     qsTr("<br> Controls")
 
                     font.pointSize:         ScreenTools.smallFontPointSize
@@ -61,15 +61,15 @@ Item {
                 Repeater {
                     id: simpleGimbalButtonsRepeater
                     property var hasControl:              gimbalController && gimbalController.activeGimbal && gimbalController.activeGimbal.gimbalHaveControl
-                    property var acqControlButtonEnabled: QGroundControl.settingsManager.gimbalControllerSettings.toolbarIndicatorShowAcquireReleaseControl.rawValue
+                    property var acqControlButtonEnabled: QGroundControl.settingsManager.gimbalControllerSettings.toolbarIndicatorShowAcquireReleaseControl.rawValue || forceShow
                     property bool hasActiveGimbal:        activeGimbal !== null
 
                     model: [
-                        {id: "yawLock",   text: (activeGimbal && activeGimbal.yawLock) ? qsTr("Yaw <br> Follow") : qsTr("Yaw <br> Lock"), visible: true                    },
+                        // {id: "yawLock",   text: (activeGimbal && activeGimbal.yawLock) ? qsTr("Yaw <br> Follow") : qsTr("Yaw <br> Lock"), visible: true                    },
                         {id: "center",    text: qsTr("Center")                                                          , visible: true                    },
                         {id: "tilt90",    text: qsTr("Tilt 90")                                                         , visible: true                    },
-                        {id: "pointHome", text: qsTr("Point <br> Home")                                                 , visible: true                    },
-                        {id: "retract",   text: qsTr("Retract")                                                         , visible: true                    },
+                        // {id: "pointHome", text: qsTr("Point <br> Home")                                                 , visible: true                    },
+                        // {id: "retract",   text: qsTr("Retract")                                                         , visible: true                    },
                         {id: "acqControl",text: hasControl ? qsTr("Release <br> Control") : qsTr("Acquire <br> Control"), visible: acqControlButtonEnabled }
                     ]
 
@@ -97,9 +97,20 @@ Item {
                            {"pointHome":    function(){ if (activeVehicle) activeVehicle.guidedModeROI(activeVehicle.homePosition) }          },
                            {"retract":      function(){ if (gimbalController) gimbalController.toggleGimbalRetracted(true) }                  },
                            // This button changes its action depending on gimbal being under control or not
-                           {"acqControl":   function(){ if (gimbalController) { simpleGimbalButtonsRepeater.hasControl ?
-                                                            gimbalController.releaseGimbalControl() :
-                                                                gimbalController.acquireGimbalControl() } }              }
+                           {"acqControl":   function(){
+                               if (gimbalController) {
+                                   if (activeGimbal) {
+                                       simpleGimbalButtonsRepeater.hasControl ?
+                                           gimbalController.releaseGimbalControl() :
+                                           gimbalController.acquireGimbalControl()
+                                   } else {
+                                       // No active gimbal - use direct functions with default IDs
+                                       simpleGimbalButtonsRepeater.hasControl ?
+                                           gimbalController.releaseGimbalControlDirect() :
+                                           gimbalController.acquireGimbalControlDirect()
+                                   }
+                               }
+                           }}
                         ]
 
                         Layout.preferredWidth: Layout.preferredHeight
@@ -134,7 +145,7 @@ Item {
 
                 // Active gimbal selector section
                 QGCLabel {
-                    text:                   qsTr("Active <br> Gimbal: ") + activeGimbal.deviceId.rawValue
+                    text:                   qsTr("Active <br> Gimbal: ") + (activeGimbal ? activeGimbal.deviceId.rawValue : "")
                     font.pointSize:         ScreenTools.smallFontPointSize
                     Layout.preferredWidth:  buttonHeight * 1.1
                     Layout.leftMargin:      margins
@@ -215,45 +226,43 @@ Item {
                     }
                 }
 
-                // Separator
-                Rectangle {
-                    Layout.leftMargin:      margins
-                    Layout.preferredWidth:  2
-                    Layout.preferredHeight: separatorHeight
-                    color:                  qgcPal.windowShade
-                }
+                // Separator before settings (hidden)
+                // Rectangle {
+                //     Layout.leftMargin:      margins
+                //     Layout.preferredWidth:  2
+                //     Layout.preferredHeight: separatorHeight
+                //     color:                  qgcPal.windowShade
+                // }
 
-                // Show settings button. It is thought for persisting popup close actions, hence the visibility
-                // based on a control.settingsPanelVisible It is interesting as users calibrating onscreen controls 
-                // will be testing and adjusting these frequently, so this way it is handier for them
-                QGCButton {
-                    id:                     extendedOptionsButton
-                    Layout.leftMargin:      margins
-                    Layout.preferredWidth:  Layout.preferredHeight
-                    Layout.preferredHeight: buttonHeight
-                    Layout.alignment:       Qt.AlignHCenter | Qt.AlignBottom
-                    text:                   qsTr("Settings")
-                    fontWeight:             Font.DemiBold
-                    pointSize:              ScreenTools.smallFontPointSize
-                    backRadius:             panelRadius * 0.5
-                    checkable:              true
-                    checked:                control.settingsPanelVisible
-                    leftPadding:            squareButtonPadding
-                    rightPadding:           squareButtonPadding
-                    onCheckedChanged: {
-                        if (checked !== control.settingsPanelVisible) {
-                            control.settingsPanelVisible = checked
-                        }
-                    }
-                }
+                // Show settings button (hidden for now)
+                // QGCButton {
+                //     id:                     extendedOptionsButton
+                //     Layout.leftMargin:      margins
+                //     Layout.preferredWidth:  Layout.preferredHeight
+                //     Layout.preferredHeight: buttonHeight
+                //     Layout.alignment:       Qt.AlignHCenter | Qt.AlignBottom
+                //     text:                   qsTr("Settings")
+                //     fontWeight:             Font.DemiBold
+                //     pointSize:              ScreenTools.smallFontPointSize
+                //     backRadius:             panelRadius * 0.5
+                //     checkable:              true
+                //     checked:                control.settingsPanelVisible
+                //     leftPadding:            squareButtonPadding
+                //     rightPadding:           squareButtonPadding
+                //     onCheckedChanged: {
+                //         if (checked !== control.settingsPanelVisible) {
+                //             control.settingsPanelVisible = checked
+                //         }
+                //     }
+                // }
 
-                // Settings panel
+                // Settings panel (hidden for now)
                 GridLayout {
                     Layout.row:         2
                     Layout.columnSpan:  8
                     Layout.fillWidth:   true
                     height:             buttonHeight * 1.5
-                    visible:            settingsPanelVisible
+                    visible:            false // settingsPanelVisible
                     columns:            2
                     rowSpacing:         margins
 

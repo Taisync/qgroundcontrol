@@ -568,6 +568,50 @@ void GimbalController::sendPitchBodyYawDirect(float pitch, float yaw)
         deviceId);
 }
 
+void GimbalController::acquireGimbalControlDirect()
+{
+    // Acquire gimbal control using default IDs from settings
+    GimbalControllerSettings* settings = SettingsManager::instance()->gimbalControllerSettings();
+    const uint32_t compId = settings->defaultGimbalComponentId()->rawValue().toUInt();
+    const uint32_t deviceId = settings->defaultGimbalDeviceId()->rawValue().toUInt();
+
+    qCDebug(GimbalControllerLog) << "acquireGimbalControlDirect: compId=" << compId << " deviceId=" << deviceId;
+
+    _vehicle->sendMavCommand(
+        compId,
+        MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE,
+        true,
+        MAVLinkProtocol::instance()->getSystemId(), // Set us in primary control
+        MAVLinkProtocol::getComponentId(),          // Set us in primary control
+        -1.f, // Leave secondary unchanged
+        -1.f, // Leave secondary unchanged
+        NAN,  // Reserved
+        NAN,  // Reserved
+        deviceId);
+}
+
+void GimbalController::releaseGimbalControlDirect()
+{
+    // Release gimbal control using default IDs from settings
+    GimbalControllerSettings* settings = SettingsManager::instance()->gimbalControllerSettings();
+    const uint32_t compId = settings->defaultGimbalComponentId()->rawValue().toUInt();
+    const uint32_t deviceId = settings->defaultGimbalDeviceId()->rawValue().toUInt();
+
+    qCDebug(GimbalControllerLog) << "releaseGimbalControlDirect: compId=" << compId << " deviceId=" << deviceId;
+
+    _vehicle->sendMavCommand(
+        compId,
+        MAV_CMD_DO_GIMBAL_MANAGER_CONFIGURE,
+        true,
+        -3.f, // Release primary control if we have control
+        -3.f, // Release primary control if we have control
+        -1.f, // Leave secondary control unchanged
+        -1.f, // Leave secondary control unchanged
+        NAN,  // Reserved
+        NAN,  // Reserved
+        deviceId);
+}
+
 void GimbalController::toggleGimbalRetracted(bool set)
 {
     if (!_tryGetGimbalControl()) {

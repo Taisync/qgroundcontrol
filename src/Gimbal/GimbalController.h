@@ -41,6 +41,8 @@ public:
     Q_INVOKABLE void sendPitchBodyYaw(float pitch, float yaw, bool showError = true);
     Q_INVOKABLE void sendPitchAbsoluteYaw(float pitch, float yaw, bool showError = true);
     Q_INVOKABLE void sendPitchBodyYawDirect(float pitch, float yaw);  // Uses default component/device ID from settings
+    Q_INVOKABLE void acquireGimbalControlDirect();  // Acquire control using default IDs
+    Q_INVOKABLE void releaseGimbalControlDirect();  // Release control using default IDs
     Q_INVOKABLE void toggleGimbalRetracted(bool set = false);
     Q_INVOKABLE void toggleGimbalYawLock(bool set = false);
     Q_INVOKABLE void acquireGimbalControl();
