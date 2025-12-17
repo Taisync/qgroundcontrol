@@ -70,6 +70,20 @@
     "longDesc":          "Force the gimbal toolbar indicator to appear even when no gimbal is detected via MAVLink. Useful for gimbals that don't send standard gimbal manager messages.",
     "type":              "bool",
     "default":           false
+},
+{
+    "name":              "defaultGimbalComponentId",
+    "shortDesc":         "Default gimbal component ID",
+    "longDesc":          "MAVLink component ID to use for gimbal commands when no gimbal is auto-detected. Default 154 is MAV_COMP_ID_GIMBAL.",
+    "type":              "uint32",
+    "default":           154
+},
+{
+    "name":              "defaultGimbalDeviceId",
+    "shortDesc":         "Default gimbal device ID",
+    "longDesc":          "MAVLink device ID to use for gimbal commands when no gimbal is auto-detected. Usually 1 for single gimbal setups.",
+    "type":              "uint32",
+    "default":           1
 }
 ]
 }

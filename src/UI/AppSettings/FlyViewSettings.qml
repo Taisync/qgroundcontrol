@@ -361,5 +361,19 @@ SettingsPage {
             text:               qsTr("Always show gimbal control")
             fact:               QGroundControl.settingsManager.gimbalControllerSettings.forceShowGimbalIndicator
         }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Default Gimbal Component ID")
+            fact:               QGroundControl.settingsManager.gimbalControllerSettings.defaultGimbalComponentId
+            visible:            QGroundControl.settingsManager.gimbalControllerSettings.forceShowGimbalIndicator.rawValue
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Default Gimbal Device ID")
+            fact:               QGroundControl.settingsManager.gimbalControllerSettings.defaultGimbalDeviceId
+            visible:            QGroundControl.settingsManager.gimbalControllerSettings.forceShowGimbalIndicator.rawValue
+        }
     }
 }

@@ -540,6 +540,34 @@ void GimbalController::sendPitchAbsoluteYaw(float pitch, float yaw, bool showErr
         _activeGimbal->deviceId()->rawValue().toUInt());
 }
 
+void GimbalController::sendPitchBodyYawDirect(float pitch, float yaw)
+{
+    // This function sends gimbal commands directly using default component/device IDs from settings
+    // Useful when gimbal is not auto-detected but user knows the IDs
+    GimbalControllerSettings* settings = SettingsManager::instance()->gimbalControllerSettings();
+    const uint32_t compId = settings->defaultGimbalComponentId()->rawValue().toUInt();
+    const uint32_t deviceId = settings->defaultGimbalDeviceId()->rawValue().toUInt();
+
+    qCDebug(GimbalControllerLog) << "sendPitchBodyYawDirect: pitch=" << pitch << " yaw=" << yaw
+                                  << " compId=" << compId << " deviceId=" << deviceId;
+
+    const unsigned flags = GIMBAL_MANAGER_FLAGS_ROLL_LOCK
+                         | GIMBAL_MANAGER_FLAGS_PITCH_LOCK
+                         | GIMBAL_MANAGER_FLAGS_YAW_IN_VEHICLE_FRAME;
+
+    _vehicle->sendMavCommand(
+        compId,
+        MAV_CMD_DO_GIMBAL_MANAGER_PITCHYAW,
+        true,  // showError
+        pitch,
+        yaw,
+        NAN,
+        NAN,
+        flags,
+        0,
+        deviceId);
+}
+
 void GimbalController::toggleGimbalRetracted(bool set)
 {
     if (!_tryGetGimbalControl()) {

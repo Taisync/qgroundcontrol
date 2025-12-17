@@ -230,6 +230,9 @@ public class QGCUsbSerialManager {
      * @return True if valid, false otherwise.
      */
     public static boolean isDeviceNameValid(final String name) {
+        if (usbManager == null) {
+            return false;
+        }
         return drivers.stream().anyMatch(driver -> driver.getDevice().getDeviceName().equals(name));
     }
 
@@ -240,6 +243,9 @@ public class QGCUsbSerialManager {
      * @return True if open, false otherwise.
      */
     public static boolean isDeviceNameOpen(final String name) {
+        if (usbManager == null) {
+            return false;
+        }
         int deviceId = getDeviceId(name);
         UsbSerialPort port = findPortByDeviceId(deviceId);
         return (port != null && port.isOpen());
@@ -252,6 +258,9 @@ public class QGCUsbSerialManager {
      * @return The device ID, or BAD_DEVICE_ID if not found.
      */
     public static int getDeviceId(final String deviceName) {
+        if (usbManager == null) {
+            return BAD_DEVICE_ID;
+        }
         UsbSerialDriver driver = findDriverByDeviceName(deviceName);
         if (driver == null) {
             QGCLogger.w(TAG, "Attempt to get ID of unknown device " + deviceName);
@@ -411,6 +420,11 @@ public class QGCUsbSerialManager {
      * @return An array of device information strings or null if no devices are available.
      */
     public static String[] availableDevicesInfo() {
+        // Return null if USB manager not initialized (USB scanning disabled)
+        if (usbManager == null) {
+            return null;
+        }
+
         // updateCurrentDrivers();
 
         if (usbManager.getDeviceList().size() < 1) {
@@ -459,6 +473,10 @@ public class QGCUsbSerialManager {
      * @return The device ID if successful, or BAD_DEVICE_ID if failed.
      */
     public static int open(final String deviceName, final long classPtr) {
+        if (usbManager == null) {
+            QGCLogger.w(TAG, "USB manager not initialized, cannot open device");
+            return BAD_DEVICE_ID;
+        }
         UsbSerialDriver driver = findDriverByDeviceName(deviceName);
         if (driver == null) {
             QGCLogger.w(TAG, "Attempt to open unknown device " + deviceName);

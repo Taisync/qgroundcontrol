@@ -55,8 +55,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorLandscape"
             android:exported="true"
-            android:windowOptOutEdgeToEdgeEnforcement="true"
-            tools:targetApi="35">
+            android:theme="@style/AppTheme">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

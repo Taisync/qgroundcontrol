@@ -62,9 +62,10 @@ Item {
                     id: simpleGimbalButtonsRepeater
                     property var hasControl:              gimbalController && gimbalController.activeGimbal && gimbalController.activeGimbal.gimbalHaveControl
                     property var acqControlButtonEnabled: QGroundControl.settingsManager.gimbalControllerSettings.toolbarIndicatorShowAcquireReleaseControl.rawValue
+                    property bool hasActiveGimbal:        activeGimbal !== null
 
                     model: [
-                        {id: "yawLock",   text: activeGimbal.yawLock ? qsTr("Yaw <br> Follow") : qsTr("Yaw <br> Lock")  , visible: true                    },
+                        {id: "yawLock",   text: (activeGimbal && activeGimbal.yawLock) ? qsTr("Yaw <br> Follow") : qsTr("Yaw <br> Lock"), visible: true                    },
                         {id: "center",    text: qsTr("Center")                                                          , visible: true                    },
                         {id: "tilt90",    text: qsTr("Tilt 90")                                                         , visible: true                    },
                         {id: "pointHome", text: qsTr("Point <br> Home")                                                 , visible: true                    },
@@ -74,15 +75,31 @@ Item {
 
                     QGCButton {
                         property var callbackList: [
-                           {"yawLock":      function(){ gimbalController.toggleGimbalYawLock(!activeGimbal.yawLock) }   },
-                           {"center":       function(){ gimbalController.centerGimbal() }                               },
-                           {"tilt90":       function(){ gimbalController.sendPitchBodyYaw(-90, 0) }                     },
-                           {"pointHome":    function(){ activeVehicle.guidedModeROI(activeVehicle.homePosition) }       },
-                           {"retract":      function(){ gimbalController.toggleGimbalRetracted(true) }                  },
+                           {"yawLock":      function(){ if (gimbalController) gimbalController.toggleGimbalYawLock(activeGimbal ? !activeGimbal.yawLock : true) }},
+                           {"center":       function(){
+                               if (gimbalController) {
+                                   if (activeGimbal) {
+                                       gimbalController.centerGimbal()
+                                   } else {
+                                       gimbalController.sendPitchBodyYawDirect(0, 0)
+                                   }
+                               }
+                           }},
+                           {"tilt90":       function(){
+                               if (gimbalController) {
+                                   if (activeGimbal) {
+                                       gimbalController.sendPitchBodyYaw(-90, 0)
+                                   } else {
+                                       gimbalController.sendPitchBodyYawDirect(-90, 0)
+                                   }
+                               }
+                           }},
+                           {"pointHome":    function(){ if (activeVehicle) activeVehicle.guidedModeROI(activeVehicle.homePosition) }          },
+                           {"retract":      function(){ if (gimbalController) gimbalController.toggleGimbalRetracted(true) }                  },
                            // This button changes its action depending on gimbal being under control or not
-                           {"acqControl":   function(){ simpleGimbalButtonsRepeater.hasControl ? 
-                                                            gimbalController.releaseGimbalControl() : 
-                                                                gimbalController.acquireGimbalControl() }               }
+                           {"acqControl":   function(){ if (gimbalController) { simpleGimbalButtonsRepeater.hasControl ?
+                                                            gimbalController.releaseGimbalControl() :
+                                                                gimbalController.acquireGimbalControl() } }              }
                         ]
 
                         Layout.preferredWidth: Layout.preferredHeight

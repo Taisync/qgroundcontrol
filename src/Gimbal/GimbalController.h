@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE void gimbalOnScreenControl(float panpct, float tiltpct, bool clickAndPoint, bool clickAndDrag, bool rateControl, bool retract = false, bool neutral = false, bool yawlock = false);
     Q_INVOKABLE void sendPitchBodyYaw(float pitch, float yaw, bool showError = true);
     Q_INVOKABLE void sendPitchAbsoluteYaw(float pitch, float yaw, bool showError = true);
+    Q_INVOKABLE void sendPitchBodyYawDirect(float pitch, float yaw);  // Uses default component/device ID from settings
     Q_INVOKABLE void toggleGimbalRetracted(bool set = false);
     Q_INVOKABLE void toggleGimbalYawLock(bool set = false);
     Q_INVOKABLE void acquireGimbalControl();
