@@ -48,7 +48,7 @@ public class QGCActivity extends QtActivity {
         keepScreenOn();
         setupMulticastLock();
 
-        QGCUsbSerialManager.initialize(this);
+        // QGCUsbSerialManager.initialize(this);  // Disabled - USB device scanning causes conflicts
     }
 
     @Override
@@ -56,7 +56,7 @@ public class QGCActivity extends QtActivity {
         try {
             releaseMulticastLock();
             releaseWakeLock();
-            QGCUsbSerialManager.cleanup(this);
+            // QGCUsbSerialManager.cleanup(this);  // Disabled - USB device scanning causes conflicts
         } catch (final Exception e) {
             Log.e(TAG, "Exception onDestroy()", e);
         }

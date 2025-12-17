@@ -63,6 +63,13 @@
     "type":              "uint32",
     "default":           20,
     "units":             "deg/s"
+},
+{
+    "name":              "forceShowGimbalIndicator",
+    "shortDesc":         "Always show gimbal indicator",
+    "longDesc":          "Force the gimbal toolbar indicator to appear even when no gimbal is detected via MAVLink. Useful for gimbals that don't send standard gimbal manager messages.",
+    "type":              "bool",
+    "default":           false
 }
 ]
 }

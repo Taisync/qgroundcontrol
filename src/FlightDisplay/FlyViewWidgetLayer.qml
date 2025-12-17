@@ -126,36 +126,36 @@ Item {
         utmspSliderTrigger:         utmspActTrigger
     }
 
-    Button {
-        text: "Stream\n#"
-        onClicked: QGroundControl.videoManager.switchRTSPStream()
-        width: 70
-        height: 70
-        //anchors.left: parent.left
-        anchors.right: parent.right
-        //anchors.leftMargin: 20
-        anchors.rightMargin: 20
+    // Button {
+    //     text: "Stream\n#"
+    //     onClicked: QGroundControl.videoManager.switchRTSPStream()
+    //     width: 70
+    //     height: 70
+    //     //anchors.left: parent.left
+    //     anchors.right: parent.right
+    //     //anchors.leftMargin: 20
+    //     anchors.rightMargin: 20
 
-        // Position roughly 75% up the left side
-        //y: parent.height * 0.25 - height / 2
-        y: parent.height * 0.6 - height / 2
+    //     // Position roughly 75% up the left side
+    //     //y: parent.height * 0.25 - height / 2
+    //     y: parent.height * 0.6 - height / 2
 
-        //visible: QGroundControl.videoManager.videoSource === QGroundControl.settingsManager.videoSettings.videoSourceRTSP
+    //     //visible: QGroundControl.videoManager.videoSource === QGroundControl.settingsManager.videoSettings.videoSourceRTSP
 
-        background: Rectangle {
-            color: "#444"
-            radius: 15
-            opacity: 0.6
-        }
-        contentItem: Text {
-            text: "Stream\n" + QGroundControl.videoManager.currentStream
-            color: "white"
-            font.bold: true
-            font.pixelSize: 15
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-    }
+    //     background: Rectangle {
+    //         color: "#444"
+    //         radius: 15
+    //         opacity: 0.6
+    //     }
+    //     contentItem: Text {
+    //         text: "Stream\n" + QGroundControl.videoManager.currentStream
+    //         color: "white"
+    //         font.bold: true
+    //         font.pixelSize: 15
+    //         horizontalAlignment: Text.AlignHCenter
+    //         verticalAlignment: Text.AlignVCenter
+    //     }
+    // }
 
 
     TaisyncInfo {

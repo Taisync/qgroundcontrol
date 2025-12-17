@@ -351,4 +351,15 @@ SettingsPage {
     //         visible:            _viewer3DAltitudeBias.visible
     //     }
     // }
+
+    SettingsGroupLayout {
+        Layout.fillWidth:   true
+        heading:            qsTr("Gimbal")
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Always show gimbal control")
+            fact:               QGroundControl.settingsManager.gimbalControllerSettings.forceShowGimbalIndicator
+        }
+    }
 }
