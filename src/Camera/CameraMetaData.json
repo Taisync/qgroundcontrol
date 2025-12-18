@@ -17,6 +17,34 @@
             "fixedOrientation": false,
             "minTriggerInterval": 0.5,
             "deprecatedTranslatedName": "Sony ILX-LR1 35mm"
+        },
+        {
+            "canonicalName": "Phase One P3-120",
+            "brand": "Phase One",
+            "model": "P3-IXM120",
+            "sensorWidth": 43.9,
+            "sensorHeight": 32.9,
+            "imageWidth": 12768,
+            "imageHeight": 9564,
+            "focalLength": 63.0,
+            "landscape": true,
+            "fixedOrientation": false,
+            "minTriggerInterval": 0.7,
+            "deprecatedTranslatedName": "Phase One P3 IXM120"
+        },
+        {
+            "canonicalName": "Phase One P3-100",
+            "brand": "Phase One",
+            "model": "P3-IXM100",
+            "sensorWidth": 43.9,
+            "sensorHeight": 32.9,
+            "imageWidth": 11664,
+            "imageHeight": 8750,
+            "focalLength": 63.0,
+            "landscape": true,
+            "fixedOrientation": false,
+            "minTriggerInterval": 0.7,
+            "deprecatedTranslatedName": "Phase One P3 IXM100"
         }
     ]
 }
