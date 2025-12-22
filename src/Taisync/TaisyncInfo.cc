@@ -119,7 +119,6 @@ void TaisyncInfo::deleteOldLogs()
 
 void TaisyncInfo::receiveParse(QByteArray b)
 {
-    QString logData;
     QJsonParseError errJson;
     QJsonDocument jsonData = QJsonDocument::fromJson(b, &errJson);
 
@@ -131,106 +130,144 @@ void TaisyncInfo::receiveParse(QByteArray b)
     {
         QJsonObject _dataObj = jsonData.object();
 
-        if (_dataObj.contains("pass_a"))
-        {
-            _airLDPCPass = _dataObj.value("pass_a").toString().toInt();
-            emit airLDPCPassChanged();
-        }
+        if (SettingsManager::instance()->appSettings()->taisyncFlyViewShow()->rawValue().toBool()) {
+            if (_dataObj.contains("pass_a"))
+            {
+                _airLDPCPass = _dataObj.value("pass_a").toString().toInt();
+                emit airLDPCPassChanged();
+            }
 
-        if (_dataObj.contains("failed_a"))
-        {
-            _airLDPCFailed = _dataObj.value("failed_a").toString().toInt();
-            emit airLDPCFailedChanged();
-        }
+            if (_dataObj.contains("failed_a"))
+            {
+                _airLDPCFailed = _dataObj.value("failed_a").toString().toInt();
+                emit airLDPCFailedChanged();
+            }
 
-        if (_dataObj.contains("snr_a"))
-        {
-            _airSNR = _dataObj.value("snr_a").toString().toInt();
-            emit airSNRChanged();
-        }
+            if (_dataObj.contains("snr_a"))
+            {
+                _airSNR = _dataObj.value("snr_a").toString().toInt();
+                emit airSNRChanged();
+            }
 
-        if (_dataObj.contains("rssi1_a"))
-        {
-            _airRSSI0 = _dataObj.value("rssi1_a").toString().toInt();
-            emit airRSSI0Changed();
-        }
+            if (_dataObj.contains("rssi1_a"))
+            {
+                _airRSSI0 = _dataObj.value("rssi1_a").toString().toInt();
+                emit airRSSI0Changed();
+            }
 
-        if (_dataObj.contains("rssi2_a"))
-        {
-            _airRSSI1 = _dataObj.value("rssi2_a").toString().toInt();
-            emit airRSSI1Changed();
-        }
+            if (_dataObj.contains("rssi2_a"))
+            {
+                _airRSSI1 = _dataObj.value("rssi2_a").toString().toInt();
+                emit airRSSI1Changed();
+            }
 
-        if (_dataObj.contains("pass_g"))
-        {
-            _gndLDPCPass = _dataObj.value("pass_g").toString().toInt();
-            emit gndLDPCPassChanged();
-        }
+            if (_dataObj.contains("pass_g"))
+            {
+                _gndLDPCPass = _dataObj.value("pass_g").toString().toInt();
+                emit gndLDPCPassChanged();
+            }
 
-        if (_dataObj.contains("failed_g"))
-        {
-            _gndLDPCFailed = _dataObj.value("failed_g").toString().toInt();
-            emit gndLDPCFailedChanged();
-        }
+            if (_dataObj.contains("failed_g"))
+            {
+                _gndLDPCFailed = _dataObj.value("failed_g").toString().toInt();
+                emit gndLDPCFailedChanged();
+            }
 
-        if (_dataObj.contains("snr_g"))
-        {
-            _gndSNR = _dataObj.value("snr_g").toString().toInt();
-            emit gndSNRChanged();
-        }
+            if (_dataObj.contains("snr_g"))
+            {
+                _gndSNR = _dataObj.value("snr_g").toString().toInt();
+                emit gndSNRChanged();
+            }
 
-        if (_dataObj.contains("rssi1_g"))
-        {
-            _gndRSSI0 = _dataObj.value("rssi1_g").toString().toInt();
-            emit gndRSSI0Changed();
-        }
+            if (_dataObj.contains("rssi1_g"))
+            {
+                _gndRSSI0 = _dataObj.value("rssi1_g").toString().toInt();
+                emit gndRSSI0Changed();
+            }
 
-        if (_dataObj.contains("rssi2_g"))
-        {
-            _gndRSSI1 = _dataObj.value("rssi2_g").toString().toInt();
-            emit gndRSSI1Changed();
-        }
+            if (_dataObj.contains("rssi2_g"))
+            {
+                _gndRSSI1 = _dataObj.value("rssi2_g").toString().toInt();
+                emit gndRSSI1Changed();
+            }
 
-        if (_dataObj.contains("distance"))
-        {
-            _range = _dataObj.value("distance").toString().toInt();
-            emit rangeChanged();
-        }
+            if (_dataObj.contains("distance"))
+            {
+                _range = _dataObj.value("distance").toString().toInt();
+                emit rangeChanged();
+            }
 
-        if (_dataObj.contains("ethTx"))
-        {
-            _dataRate = _dataObj.value("ethTx").toString().toInt();
-            emit dataRateChanged();
-        }
+            if (_dataObj.contains("ethTx"))
+            {
+                _dataRate = _dataObj.value("ethTx").toString().toInt();
+                emit dataRateChanged();
+            }
 
-        if (_dataObj.contains("lockCnt"))
-        {
-            _lockCnt = _dataObj.value("lockCnt").toString().toInt();
-            emit lockCntChanged();
-        }
+            if (_dataObj.contains("lockCnt"))
+            {
+                _lockCnt = _dataObj.value("lockCnt").toString().toInt();
+                emit lockCntChanged();
+            }
 
-        if (_dataObj.contains("freq_rx"))
-        {
-            _currFreq = _dataObj.value("freq_rx").toString();
-            emit currFreqChanged();
-        }
+            if (_dataObj.contains("freq_rx"))
+            {
+                _currFreq = _dataObj.value("freq_rx").toString();
+                emit currFreqChanged();
+            }
 
-        if (_dataObj.contains("ant_a"))
-        {
-            _ant = _dataObj.value("ant_a").toString();
-            emit antChanged();
-        }
+            if (_dataObj.contains("ant_a"))
+            {
+                _ant = _dataObj.value("ant_a").toString();
+                emit antChanged();
+            }
 
-        if (_dataObj.contains("ant_g"))
-        {
-            _antGnd = _dataObj.value("ant_g").toString();
-            emit antGndChanged();
-        }
+            if (_dataObj.contains("ant_g"))
+            {
+                _antGnd = _dataObj.value("ant_g").toString();
+                emit antGndChanged();
+            }
 
-        if (_dataObj.contains("mcs"))
-        {
-            _mcs = _dataObj.value("mcs").toString();
-            emit mcsChanged();
+            if (_dataObj.contains("mcs"))
+            {
+                _mcs = _dataObj.value("mcs").toString();
+                emit mcsChanged();
+            }
+
+            // Parse data only showExtra
+            if (SettingsManager::instance()->appSettings()->showExtra()) {
+                QStringList noiseTitles, noiseValuesA, noiseValuesG;
+                if (_dataObj.contains("noiseFloor_a")) {
+                    QString s = _dataObj.value("noiseFloor_a").toString().trimmed();
+                    if (!s.isEmpty()) {
+                        noiseValuesA = s.split(",");
+                    }
+                }
+                if (_dataObj.contains("noiseFloor_g")) {
+                    QString s = _dataObj.value("noiseFloor_g").toString().trimmed();
+                    if (!s.isEmpty()) {
+                        noiseValuesG = s.split(",");
+                    }
+                }
+                if (_dataObj.contains("freq_list")) {
+                    QString s = _dataObj.value("freq_list").toString().trimmed();
+                    if (!s.isEmpty()) {
+                        noiseTitles = s.split(",");
+                    }
+                }
+                _noiseTitles.clear();
+                _noiseValuesA.clear();
+                _noiseValuesG.clear();
+                for (const auto& v: noiseTitles) {
+                    _noiseTitles << v;
+                }
+                for (const auto& v: noiseValuesA) {
+                    _noiseValuesA << v;
+                }
+                for (const auto& v: noiseValuesG) {
+                    _noiseValuesG << v;
+                }
+                emit noiseChanged();
+            }
         }
 
         if (_dataObj.contains("role"))
@@ -242,7 +279,6 @@ void TaisyncInfo::receiveParse(QByteArray b)
         }
 
         savelogInfo(b);
-        logData.clear();
     }
 }
 
@@ -308,6 +344,8 @@ void TaisyncInfo::stopLogSave()
 
 void TaisyncInfo::savelogInfo(const QByteArray& log)
 {
+    if (!SettingsManager::instance()->appSettings()->taisyncFlyDataSave()->rawValue().toBool()) return;
+
     if (!_logName.isNull())
     {
         QFile file(_logName);

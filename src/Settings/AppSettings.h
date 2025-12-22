@@ -80,6 +80,7 @@ public:
     Q_PROPERTY(QString tilesetFileExtension     MEMBER tilesetFileExtension     CONSTANT)
 
     Q_PROPERTY(bool isPilot READ isPilot WRITE setIsPilot NOTIFY isPilotChanged)
+    Q_PROPERTY(bool showExtra READ showExtra WRITE setShowExtra NOTIFY showExtraChanged)
 
     QString missionSavePath       ();
     QString parameterSavePath     ();
@@ -90,9 +91,12 @@ public:
     QString crashSavePath         ();
     QString mavlinkActionsSavePath ();
     QString linkLogSavePath       ();
+
     bool isPilot() { return _isPilot; }
+    bool showExtra() { return _showExtra; }
 
     void setIsPilot(bool s);
+    void setShowExtra(bool s);
 
     // Helper methods for working with firstRunPromptIds QVariant settings string list
     static QList<int> firstRunPromptsIdsVariantToList   (const QVariant& firstRunPromptIds);
@@ -126,6 +130,7 @@ public:
 signals:
     void savePathsChanged();
     void isPilotChanged();
+    void showExtraChanged();
 
 private slots:
     void _indoorPaletteChanged();
@@ -145,6 +150,7 @@ private:
     static LanguageInfo_t _rgLanguageInfo[];
 
     bool _isPilot = true;
+    bool _showExtra = false;
 
     friend class QGCApplication;
 };

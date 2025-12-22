@@ -163,17 +163,33 @@ Item {
         }
         MouseArea
         {
+            property real preClickedTime: 0
+            property real activeTimes: 0
             anchors.fill: parent
             drag.target: paramBox
             onPressed: {
                 // When press, we think the box will drag
                 // then paramBox's center will not automic fix to the centre
                 paramBox._draged = true
+
+                let now = (new Date()).getTime();
+                let delta = now - preClickedTime
+                if (delta <= 500) {
+                    activeTimes++
+                } else {
+                    activeTimes = 1
+                }
+                preClickedTime = now
+                // Within a limited time, a certain number of clicks must be made before the corresponding function can be activated.
+                if (activeTimes >= 8) {
+                    QGroundControl.settingsManager.appSettings.showExtra = !QGroundControl.settingsManager.appSettings.showExtra
+                    activeTimes = 0
+                }
             }
         }
 
         GridLayout {
-            property var _paramModel: [
+            property var _linkDatas: [
                 {"key": "airRSSI1",     "value": "-"+taisyncPro.airRSSI0 +"dBm"},
                 {"key": "gndRSSI1",     "value": "-"+taisyncPro.gndRSSI0+"dBm"},
                 {"key": "airRSSI2",     "value": "-"+taisyncPro.airRSSI1+"dBm"},
@@ -191,6 +207,22 @@ Item {
                 {"key": "range",        "value": taisyncPro.range + "m"},
                 {"key": "rate",         "value": taisyncPro.dataRate+"kbps"},
             ]
+
+
+            function convertToArray(titles, valuesA, valuesG) {
+                var array = [];
+                let maxCount = Math.max(valuesA.length, valuesG.length)
+                for (var i = 0; i < maxCount; i++) {
+                    let t = i < titles.length ? titles[i] : `${i+1}`
+                    if (i < valuesA.length) array.push({"key": `[A] ${t}`, "value":valuesA[i]})
+                    if (i < valuesG.length) array.push({"key": `[G] ${t}`, "value":valuesG[i]})
+                }
+                return array
+            }
+
+            property var _noises: QGroundControl.settingsManager.appSettings.showExtra ? convertToArray(taisyncPro.noiseTitles, taisyncPro.noiseValuesA, taisyncPro.noiseValuesG) : []
+            property var _paramModel: _linkDatas
+                                       .concat(_noises)
 
             id: gridLayout
             columns: 4

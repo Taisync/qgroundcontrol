@@ -155,9 +155,6 @@ void UDPConfiguration::addHost(const QString &host)
         const quint16 port = hostInfo.constLast().toUInt();
 
         addHost(address, port);
-        if (_localPort == 0) { // use the same port as target
-            setLocalPort(port);
-        }
     } else {
         addHost(host, _localPort);
     }
