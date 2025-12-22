@@ -1160,7 +1160,13 @@ void ParameterManager::_checkInitialLoadComplete()
 
 void ParameterManager::_initialRequestTimeout()
 {
-    if (!_disableAllRetries && (!_vehicle->genericFirmware() || ++_initialRequestRetryCount <= _maxInitialRequestListRetry)) {
+    if (!_disableAllRetries) {
+        if (_initialRequestRetryCount > _maxInitialRequestListRetry) {
+            _initialRequestRetryCount = 0;
+            _tryftp = true;
+        } else {
+            ++_initialRequestRetryCount;
+        }
         qCDebug(ParameterManagerLog) << _logVehiclePrefix(-1) << "Retrying initial parameter request list";
         refreshAllParameters();
         _initialRequestTimeoutTimer.start();
