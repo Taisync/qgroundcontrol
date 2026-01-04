@@ -482,11 +482,6 @@ bool VideoManager::_updateVideoUri(VideoReceiver *receiver, const QString &uri)
     }
 
     if ((uri == receiver->uri()) && !receiver->uri().isNull()) {
-        // if uri is empty, it must has other changed, like videoSource
-        // or it may not call here
-        // so we think update uri success
-        // otherwise, "RTSP URL/UDP URL/..." may not be able show in Video settings
-        if (uri.isEmpty()) return true;
         return false;
     }
 
