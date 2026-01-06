@@ -360,13 +360,13 @@ QGCCameraManager::_handleParamValue(const mavlink_message_t& message)
 void
 QGCCameraManager::_handleVideoStreamInfo(const mavlink_message_t& message)
 {
-    auto pCamera = _findCamera(message.compid);
-    if(pCamera) {
-        mavlink_video_stream_information_t streamInfo;
-        mavlink_msg_video_stream_information_decode(&message, &streamInfo);
-        pCamera->handleVideoInfo(&streamInfo);
-        emit streamChanged();
-    }
+    // auto pCamera = _findCamera(message.compid);
+    // if(pCamera) {
+    //     mavlink_video_stream_information_t streamInfo;
+    //     mavlink_msg_video_stream_information_decode(&message, &streamInfo);
+    //     pCamera->handleVideoInfo(&streamInfo);
+    //     emit streamChanged();
+    // }
 }
 
 //-----------------------------------------------------------------------------
