@@ -11,6 +11,9 @@
 
 #include "FactGroup.h"
 
+#include <QtCore/QTimer>
+#include <QtCore/QElapsedTimer>
+
 class VehicleDistanceSensorFactGroup : public FactGroup
 {
     Q_OBJECT
@@ -46,7 +49,12 @@ public:
     // Overrides from FactGroup
     void handleMessage(Vehicle *vehicle, const mavlink_message_t &message) final;
 
+private slots:
+    void _checkForStaleValues();
+
 private:
+    static constexpr int _stalenessTimeoutMs = 2000;  // 2 seconds timeout
+
     Fact _rotationNoneFact = Fact(0, QStringLiteral("rotationNone"), FactMetaData::valueTypeDouble);
     Fact _rotationYaw45Fact = Fact(0, QStringLiteral("rotationYaw45"), FactMetaData::valueTypeDouble);
     Fact _rotationYaw90Fact = Fact(0, QStringLiteral("rotationYaw90"), FactMetaData::valueTypeDouble);
@@ -59,4 +67,18 @@ private:
     Fact _rotationPitch270Fact = Fact(0, QStringLiteral("rotationPitch270"), FactMetaData::valueTypeDouble);
     Fact _minDistanceFact = Fact(0, QStringLiteral("minDistance"), FactMetaData::valueTypeDouble);
     Fact _maxDistanceFact = Fact(0, QStringLiteral("maxDistance"), FactMetaData::valueTypeDouble);
+
+    // Track last update time for each orientation sensor
+    QElapsedTimer _rotationNoneLastUpdate;
+    QElapsedTimer _rotationYaw45LastUpdate;
+    QElapsedTimer _rotationYaw90LastUpdate;
+    QElapsedTimer _rotationYaw135LastUpdate;
+    QElapsedTimer _rotationYaw180LastUpdate;
+    QElapsedTimer _rotationYaw225LastUpdate;
+    QElapsedTimer _rotationYaw270LastUpdate;
+    QElapsedTimer _rotationYaw315LastUpdate;
+    QElapsedTimer _rotationPitch90LastUpdate;
+    QElapsedTimer _rotationPitch270LastUpdate;
+
+    QTimer _stalenessCheckTimer;
 };

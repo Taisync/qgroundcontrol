@@ -165,6 +165,7 @@ private:
 
     void _sendHeartBeat();
     void _sendHighLatency2();
+    void _sendDistanceSensor();
     void _sendHomePosition();
     void _sendGpsRawInt();
     void _sendGlobalPositionInt();

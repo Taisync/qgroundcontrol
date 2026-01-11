@@ -147,6 +147,7 @@ void MockLink::run1HzTasks()
 
     _sendVibration();
     _sendBatteryStatus();
+    _sendDistanceSensor();
     _sendSysStatus();
     _sendADSBVehicles();
     _sendRemoteIDArmStatus();
@@ -480,6 +481,51 @@ void MockLink::_sendBatteryStatus()
         rgVoltagesExtNone,
         0, // MAV_BATTERY_MODE
         0  // MAV_BATTERY_FAULT
+    );
+    respondWithMavlinkMessage(msg);
+}
+
+void MockLink::_sendDistanceSensor()
+{
+    mavlink_message_t msg{};
+
+    // Simulate a downward-facing rangefinder (PITCH_270 = downward)
+    // Distance varies between 0.5m and 10m based on time
+    static float simulatedDistance = 2.0f;  // Start at 2 meters
+    static bool increasing = true;
+
+    // Oscillate distance between 0.5 and 10 meters
+    if (increasing) {
+        simulatedDistance += 0.1f;
+        if (simulatedDistance > 10.0f) {
+            simulatedDistance = 10.0f;
+            increasing = false;
+        }
+    } else {
+        simulatedDistance -= 0.1f;
+        if (simulatedDistance < 0.5f) {
+            simulatedDistance = 0.5f;
+            increasing = true;
+        }
+    }
+
+    (void) mavlink_msg_distance_sensor_pack_chan(
+        _vehicleSystemId,
+        _vehicleComponentId,
+        static_cast<uint8_t>(mavlinkChannel()),
+        &msg,
+        static_cast<uint32_t>(_runningTime.elapsed()),  // time_boot_ms
+        10,                                              // min_distance (cm)
+        1200,                                            // max_distance (cm) - 12 meters
+        static_cast<uint16_t>(simulatedDistance * 100),  // current_distance (cm)
+        MAV_DISTANCE_SENSOR_LASER,                       // type
+        0,                                               // id
+        MAV_SENSOR_ROTATION_PITCH_270,                   // orientation - downward facing
+        0,                                               // covariance
+        0,                                               // horizontal_fov
+        0,                                               // vertical_fov
+        nullptr,                                         // quaternion
+        0                                                // signal_quality (0 = unknown)
     );
     respondWithMavlinkMessage(msg);
 }
