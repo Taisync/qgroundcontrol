@@ -121,6 +121,8 @@ public:
 
     static constexpr uint8_t invalidMavlinkChannel() { return std::numeric_limits<uint8_t>::max(); }
 
+    static const QString fcControlLinkName() { return _fcControlLinkName; }
+
 signals:
     void mavlinkSupportForwardingEnabledChanged();
     void mavlinkReceiveEnabledChanged();
@@ -165,6 +167,7 @@ private:
     static constexpr const char *_defaultUDPLinkName = "UDP Link (AutoConnect)";
     static constexpr const char *_mavlinkForwardingLinkName = "MAVLink Forwarding Link";
     static constexpr const char *_mavlinkForwardingSupportLinkName = "MAVLink Support Forwarding Link";
+    static constexpr const char *_fcControlLinkName = "FCControl";
 
     static constexpr int _autoconnectUpdateTimerMSecs = 1000;
 #ifdef Q_OS_WIN
