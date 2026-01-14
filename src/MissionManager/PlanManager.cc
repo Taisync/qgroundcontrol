@@ -482,6 +482,115 @@ void PlanManager::_handleMissionItem(const mavlink_message_t& message)
     }
 }
 
+void PlanManager::_handleLegacyMissionItem(const mavlink_message_t& message)
+{
+    // Handle legacy MISSION_ITEM message for compatibility with older ArduPilot versions
+    // that may respond with MISSION_ITEM instead of MISSION_ITEM_INT
+    MAV_CMD          command;
+    MAV_FRAME        frame;
+    MAV_MISSION_TYPE missionType;
+    double           param1;
+    double           param2;
+    double           param3;
+    double           param4;
+    double           param5;
+    double           param6;
+    double           param7;
+    bool             autoContinue;
+    bool             isCurrentItem;
+    int              seq;
+
+    mavlink_mission_item_t missionItem;
+    mavlink_msg_mission_item_decode(&message, &missionItem);
+
+    command =       (MAV_CMD)missionItem.command;
+    frame =         (MAV_FRAME)missionItem.frame;
+    missionType =   (MAV_MISSION_TYPE)missionItem.mission_type;
+    param1 =        missionItem.param1;
+    param2 =        missionItem.param2;
+    param3 =        missionItem.param3;
+    param4 =        missionItem.param4;
+    // Legacy MISSION_ITEM uses float for lat/lon directly (not scaled integers)
+    param5 =        (double)missionItem.x;
+    param6 =        (double)missionItem.y;
+    param7 =        (double)missionItem.z;
+    autoContinue =  missionItem.autocontinue;
+    isCurrentItem = missionItem.current;
+    seq =           missionItem.seq;
+
+    qCDebug(PlanManagerLog) << QStringLiteral("_handleLegacyMissionItem %1 received legacy MISSION_ITEM seq:command").arg(_planTypeString()) << seq << command;
+
+    // Check the mission_type field
+    if (missionType != _planType) {
+       qCDebug(PlanManagerLog) << QStringLiteral("_handleLegacyMissionItem %1 dropping spurious item seq:command:missionType").arg(_planTypeString()) << seq << command << missionType;
+       return;
+    }
+
+    // We don't support editing ALT_INT frames so change on the way in.
+    if (frame == MAV_FRAME_GLOBAL_INT) {
+        frame = MAV_FRAME_GLOBAL;
+    } else if (frame == MAV_FRAME_GLOBAL_RELATIVE_ALT_INT) {
+        frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
+    }
+
+    bool ardupilotHomePositionUpdate = false;
+    if (!_checkForExpectedAck(AckMissionItem)) {
+        if (_vehicle->apmFirmware() && seq == 0 && _planType == MAV_MISSION_TYPE_MISSION) {
+            ardupilotHomePositionUpdate = true;
+        } else {
+            qCDebug(PlanManagerLog) << QStringLiteral("_handleLegacyMissionItem %1 dropping spurious item seq:command:current").arg(_planTypeString()) << seq << command << isCurrentItem;
+            return;
+        }
+    }
+
+    qCDebug(PlanManagerLog) << QStringLiteral("_handleLegacyMissionItem %1 seq:command:current:ardupilotHomePositionUpdate").arg(_planTypeString()) << seq << command << isCurrentItem << ardupilotHomePositionUpdate;
+
+    if (ardupilotHomePositionUpdate) {
+        QGeoCoordinate newHomePosition(param5, param6, param7);
+        _vehicle->_setHomePosition(newHomePosition);
+        return;
+    }
+
+    if (_itemIndicesToRead.contains(seq)) {
+        _itemIndicesToRead.removeOne(seq);
+
+        MissionItem* item = new MissionItem(seq,
+                                            command,
+                                            frame,
+                                            param1,
+                                            param2,
+                                            param3,
+                                            param4,
+                                            param5,
+                                            param6,
+                                            param7,
+                                            autoContinue,
+                                            isCurrentItem,
+                                            this);
+
+        if (item->command() == MAV_CMD_DO_JUMP && !_vehicle->firmwarePlugin()->sendHomePositionToVehicle()) {
+            // Home is in position 0
+            item->setParam1((int)item->param1() + 1);
+        }
+
+        _missionItems.append(item);
+    } else {
+        qCDebug(PlanManagerLog) << QStringLiteral("_handleLegacyMissionItem %1 mission item received item index which was not requested, disregrarding:").arg(_planTypeString()) << seq;
+        // We have to put the ack timeout back since it was removed above
+        _startAckTimeout(AckMissionItem);
+        return;
+    }
+
+    emit progressPctChanged((double)seq / (double)_missionItemCountToRead);
+
+    _retryCount = 0;
+    if (_itemIndicesToRead.count() == 0) {
+        _readTransactionComplete();
+    } else {
+        _requestNextMissionItem();
+    }
+}
+
 void PlanManager::_clearMissionItems(void)
 {
     _itemIndicesToRead.clear();
@@ -654,6 +763,11 @@ void PlanManager::_mavlinkMessageReceived(const mavlink_message_t& message)
 
     case MAVLINK_MSG_ID_MISSION_ITEM_INT:
         _handleMissionItem(message);
+        break;
+
+    case MAVLINK_MSG_ID_MISSION_ITEM:
+        // Handle legacy MISSION_ITEM for compatibility with older ArduPilot versions
+        _handleLegacyMissionItem(message);
         break;
 
     case MAVLINK_MSG_ID_MISSION_REQUEST:

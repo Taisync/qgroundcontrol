@@ -267,7 +267,7 @@
     "shortDesc": "Enable fly data auto save",
     "longDesc":  "Enable fly data auto save",
     "type":             "bool",
-    "default":     true
+    "default":     false
 }
 ]
 }

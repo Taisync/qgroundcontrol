@@ -135,7 +135,7 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
             _forward(message);
             _forwardSupport(message);
             _updateCounters(mavlinkChannel, message);
-        } else { // Data is from GCS, try forward to Autopilot
+        } else {
             _forwardToAutopilot(message);
         }
         _logData(link, message);
@@ -245,11 +245,6 @@ void MAVLinkProtocol::_forwardToAutopilot(const mavlink_message_t &message)
     if (message.msgid == MAVLINK_MSG_ID_SETUP_SIGNING) {
         return;
     }
-
-    // no need to recheck forwarding enable
-    // if (!LinkManager::instance()->mavlinkSupportForwardingEnabled()) {
-    //     return;
-    // }
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN]{};
     const uint16_t len = mavlink_msg_to_send_buffer(buf, &message);

@@ -29,7 +29,7 @@
     "name":                 "ntripUsername",
     "shortDesc":     "Username",
     "type":                 "string",
-    "default":         "justinlsquire-at-gmail-d-com",
+    "default":         "",
     "qgcRebootRequired":    false
 },
 {

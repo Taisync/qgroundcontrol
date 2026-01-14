@@ -91,6 +91,11 @@ void MultiVehicleManager::init()
 
 void MultiVehicleManager::_vehicleHeartbeatInfo(LinkInterface* link, int vehicleId, int componentId, int vehicleFirmwareType, int vehicleType)
 {
+    // Don't create vehicles from forwarding links - these are for forwarding telemetry to external systems
+    if (link->linkConfiguration()->isForwarding()) {
+        return;
+    }
+
     if (componentId != MAV_COMP_ID_AUTOPILOT1) {
         // Don't create vehicles for components other than the autopilot
         qCDebug(MultiVehicleManagerLog) << "Ignoring heartbeat from unknown component port:vehicleId:componentId:fwType:vehicleType"

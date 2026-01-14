@@ -188,6 +188,11 @@ void VehicleLinkManager::_addLink(LinkInterface *link)
         return;
     }
 
+    // Don't add forwarding links to vehicles - they are for forwarding telemetry to external systems
+    if (link->linkConfiguration()->isForwarding()) {
+        return;
+    }
+
     SharedLinkInterfacePtr sharedLink = LinkManager::instance()->sharedLinkInterfacePointerForLink(link);
     if (!sharedLink) {
         qCDebug(VehicleLinkManagerLog) << "_addLink stale link" << (void*)link;

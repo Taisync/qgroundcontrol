@@ -220,6 +220,7 @@ Rectangle {
                         id:                         photoVideoControlLoader
                         anchors.horizontalCenter:   parent.horizontalCenter
                         sourceComponent:            globals.activeVehicle ? photoVideoControlComponent : undefined
+                        visible:                    QGroundControl.videoManager.hasVideo
 
                         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 

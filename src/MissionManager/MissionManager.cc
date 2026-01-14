@@ -64,8 +64,8 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
 
     SharedLinkInterfacePtr sharedLink = _vehicle->vehicleLinkManager()->primaryLink().lock();
     if (sharedLink) {
-        mavlink_message_t       messageOut;
-        mavlink_mission_item_t  missionItem;
+        mavlink_message_t           messageOut;
+        mavlink_mission_item_int_t  missionItem;
 
         memset(&missionItem, 0, sizeof(missionItem));
         missionItem.target_system =     _vehicle->id();
@@ -76,18 +76,18 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
         missionItem.param2 =            0;
         missionItem.param3 =            0;
         missionItem.param4 =            0;
-        missionItem.x =                 gotoCoord.latitude();
-        missionItem.y =                 gotoCoord.longitude();
+        missionItem.x =                 gotoCoord.latitude() * 1e7;
+        missionItem.y =                 gotoCoord.longitude() * 1e7;
         missionItem.z =                 gotoCoord.altitude();
         missionItem.frame =             MAV_FRAME_GLOBAL_RELATIVE_ALT;
         missionItem.current =           altChangeOnly ? 3 : 2;
         missionItem.autocontinue =      true;
 
-        mavlink_msg_mission_item_encode_chan(MAVLinkProtocol::instance()->getSystemId(),
-                                             MAVLinkProtocol::getComponentId(),
-                                             sharedLink->mavlinkChannel(),
-                                             &messageOut,
-                                             &missionItem);
+        mavlink_msg_mission_item_int_encode_chan(MAVLinkProtocol::instance()->getSystemId(),
+                                                 MAVLinkProtocol::getComponentId(),
+                                                 sharedLink->mavlinkChannel(),
+                                                 &messageOut,
+                                                 &missionItem);
 
         _vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), messageOut);
     }

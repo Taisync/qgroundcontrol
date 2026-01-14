@@ -197,13 +197,23 @@ void InitialConnectStateMachine::_stateRequestProtocolVersion(StateMachine* stat
 
     if (!sharedLink) {
         qCDebug(InitialConnectStateMachineLog) << "Skipping REQUEST_MESSAGE:PROTOCOL_VERSION request due to no primary link";
+        // Still need to mark as complete and try to set version from capability bits
+        vehicle->_mavlinkProtocolRequestComplete = true;
+        vehicle->_setMaxProtoVersionFromBothSources();
         connectMachine->advance();
     } else {
         if (sharedLink->linkConfiguration()->isHighLatency() || sharedLink->isLogReplay()) {
             qCDebug(InitialConnectStateMachineLog) << "Skipping REQUEST_MESSAGE:PROTOCOL_VERSION request due to link type";
+            // Still need to mark as complete and try to set version from capability bits
+            vehicle->_mavlinkProtocolRequestComplete = true;
+            vehicle->_setMaxProtoVersionFromBothSources();
             connectMachine->advance();
         } else if (vehicle->apmFirmware()) {
             qCDebug(InitialConnectStateMachineLog) << "Skipping REQUEST_MESSAGE:PROTOCOL_VERSION request due to Ardupilot firmware";
+            // ArduPilot doesn't support PROTOCOL_VERSION request, so we need to set the flag manually
+            // and determine protocol version from the link's current state or capability bits
+            vehicle->_mavlinkProtocolRequestComplete = true;
+            vehicle->_setMaxProtoVersionFromBothSources();
             connectMachine->advance();
         } else {
             qCDebug(InitialConnectStateMachineLog) << "Sending REQUEST_MESSAGE:PROTOCOL_VERSION";
