@@ -38,6 +38,16 @@ public:
     DEFINE_SETTINGFACT(forwardVideo)
     DEFINE_SETTINGFACT(forwardVideoHostName)
 
+    DEFINE_SETTINGFACT(autoMultiVideos)
+    DEFINE_SETTINGFACT(rtspUrl1)
+    DEFINE_SETTINGFACT(rtspUrl2)
+    DEFINE_SETTINGFACT(rtspUrl3)
+    DEFINE_SETTINGFACT(rtspUrl4)
+    DEFINE_SETTINGFACT(udpUrl1)
+    DEFINE_SETTINGFACT(udpUrl2)
+    DEFINE_SETTINGFACT(udpUrl3)
+    DEFINE_SETTINGFACT(udpUrl4)
+
     Q_PROPERTY(bool     streamConfigured        READ streamConfigured       NOTIFY streamConfiguredChanged)
     Q_PROPERTY(QString  rtspVideoSource         READ rtspVideoSource        CONSTANT)
     Q_PROPERTY(QString  udp264VideoSource       READ udp264VideoSource      CONSTANT)
