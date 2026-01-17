@@ -206,17 +206,12 @@ Map {
 
         sourceItem: Image {
             id:             mapItemImage
-            source:         isNaN(gcsHeading) ? "/res/QGCLogoFull.svg" : "/res/QGCLogoArrow.svg"
+            source:         "/res/QGCLogoFull.svg"
             mipmap:         true
             antialiasing:   true
             fillMode:       Image.PreserveAspectFit
-            height:         ScreenTools.defaultFontPixelHeight * (isNaN(gcsHeading) ? 1.75 : 2.5 )
+            height:         ScreenTools.defaultFontPixelHeight * 1.75
             sourceSize.height: height
-            transform: Rotation {
-                origin.x:       mapItemImage.width  / 2
-                origin.y:       mapItemImage.height / 2
-                angle:          isNaN(gcsHeading) ? 0 : gcsHeading
-            }
         }
     }
 } // Map
