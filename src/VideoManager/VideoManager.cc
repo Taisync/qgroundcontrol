@@ -94,7 +94,10 @@ void VideoManager::init(QQuickWindow *window)
     _forwardVideo = _videoSettings->forwardVideo()->rawValue().toBool();
 
     // TODO: VideoSettings _configChanged/streamConfiguredChanged
-    (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
+    (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, [this](){
+        _videoSourceChanged();
+        _multiVideoSourceChanged();
+    });
     (void) connect(_videoSettings->udpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->rtspUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->tcpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
@@ -103,6 +106,16 @@ void VideoManager::init(QQuickWindow *window)
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &VideoManager::_setActiveVehicle);
 
     (void) connect(this, &VideoManager::autoStreamConfiguredChanged, this, &VideoManager::_videoSourceChanged);
+
+    (void) connect(_videoSettings->autoMultiVideos(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl1(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl2(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl3(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl4(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl1(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl2(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl3(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl4(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
 
     static const QStringList videoStreamList = {
         "videoContent",
@@ -565,6 +578,8 @@ void VideoManager::_setActiveVehicle(Vehicle *vehicle)
 
     _activeVehicle = vehicle;
     if (_activeVehicle) {
+        qDebug() << __FUNCTION__ << "sys id:" << _activeVehicle->id() << _activeVehicle->compId();
+
         (void) connect(_activeVehicle->vehicleLinkManager(), &VehicleLinkManager::communicationLostChanged, this, &VideoManager::_communicationLostChanged);
         (void) connect(_activeVehicle->cameraManager(), &QGCCameraManager::streamChanged, this, &VideoManager::_videoSourceChanged);
         MavlinkCameraControl *pCamera = _activeVehicle->cameraManager()->currentCameraInstance();
@@ -580,6 +595,8 @@ void VideoManager::_setActiveVehicle(Vehicle *vehicle)
             }
             // connect(receiver->videoStreamInfo(), &QGCVideoStreamInfo::infoChanged, ))
         }
+
+        _multiVideoSourceChanged();
     } else {
         setfullScreen(false);
     }
@@ -820,4 +837,57 @@ FinishVideoInitialization::~FinishVideoInitialization()
 void FinishVideoInitialization::run()
 {
     VideoManager::instance()->startVideo();
+}
+
+/*===========================================================================*/
+void VideoManager::_multiVideoSourceChanged()
+{
+    if (!_videoSettings->autoMultiVideos()->rawValue().toBool()) return;
+    if (!_activeVehicle) return;
+    int sysId = _activeVehicle->id();
+    if (sysId <= 0) return;
+
+    // if using vehicle's autpStream, skip update
+    QGCCameraManager* camMgr = _activeVehicle->cameraManager();
+    if (camMgr->currentStreamInstance()) return;
+
+    const QString source = _videoSettings->videoSource()->rawValue().toString();
+    if (source == VideoSettings::videoSourceUDPH264
+        || source == VideoSettings::videoSourceUDPH265) {
+        switch (sysId) {
+        case 1:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl1()->rawValue());
+            break;
+        case 2:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl2()->rawValue());
+            break;
+        case 3:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl3()->rawValue());
+            break;
+        case 4:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl4()->rawValue());
+            break;
+        default:
+            return;
+        }
+    } else if (source == VideoSettings::videoSourceRTSP) {
+        switch (sysId) {
+        case 1:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl1()->rawValue());
+            break;
+        case 2:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl2()->rawValue());
+            break;
+        case 3:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl3()->rawValue());
+            break;
+        case 4:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl4()->rawValue());
+            break;
+        default:
+            return;
+        }
+    } else {
+        return;
+    }
 }

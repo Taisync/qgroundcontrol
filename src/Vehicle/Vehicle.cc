@@ -4406,3 +4406,49 @@ MAVLinkLogManager *Vehicle::mavlinkLogManager() const
 }
 
 /*---------------------------------------------------------------------------*/
+/*===========================================================================*/
+/*                         FCControl Forward                                 */
+/*===========================================================================*/
+void Vehicle::forwardFCControlMessage(const mavlink_message_t &msg)
+{
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
+    if (!sharedLink) {
+        qCDebug(VehicleLog) << "forward FCControl: primary link gone!";
+        return;
+    }
+    if (msg.msgid == MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE) {
+        // replace vehicle's sysid/comid
+        mavlink_rc_channels_override_t rc_channels{};
+        mavlink_msg_rc_channels_override_decode(&msg, &rc_channels);
+        mavlink_message_t repack_msg;
+        mavlink_msg_rc_channels_override_pack_chan(static_cast<uint8_t>(MAVLinkProtocol::instance()->getSystemId()),
+                                                   static_cast<uint8_t>(MAVLinkProtocol::getComponentId()),
+                                                   sharedLink->mavlinkChannel(),
+                                                   &repack_msg,
+                                                   id(), compId(),
+                                                   rc_channels.chan1_raw,
+                                                   rc_channels.chan2_raw,
+                                                   rc_channels.chan3_raw,
+                                                   rc_channels.chan4_raw,
+                                                   rc_channels.chan5_raw,
+                                                   rc_channels.chan6_raw,
+                                                   rc_channels.chan7_raw,
+                                                   rc_channels.chan8_raw,
+                                                   rc_channels.chan9_raw,
+                                                   rc_channels.chan10_raw,
+                                                   rc_channels.chan11_raw,
+                                                   rc_channels.chan12_raw,
+                                                   rc_channels.chan13_raw,
+                                                   rc_channels.chan14_raw,
+                                                   rc_channels.chan15_raw,
+                                                   rc_channels.chan16_raw,
+                                                   rc_channels.chan17_raw,
+                                                   rc_channels.chan18_raw
+                                                   );
+        sendMessageOnLinkThreadSafe(sharedLink.get(), repack_msg);
+    } else { // other, just forward directlly, for example: #65, etc...
+        sendMessageOnLinkThreadSafe(sharedLink.get(), msg);
+    }
+}
+
+/*---------------------------------------------------------------------------*/

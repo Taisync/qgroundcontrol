@@ -108,6 +108,7 @@ private slots:
     void _communicationLostChanged(bool communicationLost);
     void _setActiveVehicle(Vehicle *vehicle);
     void _videoSourceChanged();
+    void _multiVideoSourceChanged();
 
 private:
     void _initVideoReceiver(VideoReceiver *receiver, QQuickWindow *window);

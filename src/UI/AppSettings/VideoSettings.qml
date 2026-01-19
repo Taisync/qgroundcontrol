@@ -34,6 +34,7 @@ SettingsPage {
     property bool   _videoSourceDisabled:       _videoSource === _videoSettings.disabledVideoSource
     property real   _urlFieldWidth:             ScreenTools.defaultFontPixelWidth * 40
     property bool   _requiresUDPUrl:            _isUDP264 || _isUDP265 || _isMPEGTS
+    property bool   _autoMultiVideo:            _isRTSP || _isUDP264 || _isUDP265
 
     SettingsGroupLayout {
         Layout.fillWidth:   true
@@ -55,12 +56,52 @@ SettingsPage {
         heading:            qsTr("Connection")
         visible:            !_videoSourceDisabled && !_videoAutoStreamConfig && (_isTCP || _isRTSP | _requiresUDPUrl)
 
+        FactCheckBoxSlider {
+            id:                 autoMultiVideosCheckBox
+            Layout.fillWidth:   true
+            text:               qsTr("Multi Video")
+            fact:               _videoSettings.autoMultiVideos
+            visible:            fact.visible && _autoMultiVideo
+        }
         LabelledFactTextField {
             Layout.fillWidth:           true
             textFieldPreferredWidth:    _urlFieldWidth
             label:                      qsTr("RTSP URL")
             fact:                       _videoSettings.rtspUrl
             visible:                    _isRTSP && _videoSettings.rtspUrl.visible
+                                        && (!autoMultiVideosCheckBox.checked || !autoMultiVideosCheckBox.visible)
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("RTSP URL 1")
+            fact:                       _videoSettings.rtspUrl1
+            visible:                    _isRTSP && _videoSettings.rtspUrl1.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("RTSP URL 2")
+            fact:                       _videoSettings.rtspUrl2
+            visible:                    _isRTSP && _videoSettings.rtspUrl2.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("RTSP URL 3")
+            fact:                       _videoSettings.rtspUrl3
+            visible:                    _isRTSP && _videoSettings.rtspUrl3.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("RTSP URL 4")
+            fact:                       _videoSettings.rtspUrl4
+            visible:                    _isRTSP && _videoSettings.rtspUrl4.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
         }
 
         LabelledFactTextField {
@@ -77,6 +118,40 @@ SettingsPage {
             label:                      qsTr("UDP URL")
             fact:                       _videoSettings.udpUrl
             visible:                    _requiresUDPUrl && _videoSettings.udpUrl.visible
+                                        && (!autoMultiVideosCheckBox.checked || !autoMultiVideosCheckBox.visible)
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("UDP URL 1")
+            fact:                       _videoSettings.udpUrl1
+            visible:                    _requiresUDPUrl && _videoSettings.udpUrl1.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("UDP URL 2")
+            fact:                       _videoSettings.udpUrl2
+            visible:                    _requiresUDPUrl && _videoSettings.udpUrl2.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("UDP URL 3")
+            fact:                       _videoSettings.udpUrl3
+            visible:                    _requiresUDPUrl && _videoSettings.udpUrl3.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:           true
+            textFieldPreferredWidth:    _urlFieldWidth
+            label:                      qsTr("UDP URL 4")
+            fact:                       _videoSettings.udpUrl4
+            visible:                    _requiresUDPUrl && _videoSettings.udpUrl4.visible
+                                        && autoMultiVideosCheckBox.checked && autoMultiVideosCheckBox.visible
         }
     }
 
