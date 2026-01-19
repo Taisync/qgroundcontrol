@@ -59,7 +59,7 @@ SettingsPage {
         FactCheckBoxSlider {
             id:                 autoMultiVideosCheckBox
             Layout.fillWidth:   true
-            text:               qsTr("Multi Video Enable")
+            text:               qsTr("Multi Video")
             fact:               _videoSettings.autoMultiVideos
             visible:            fact.visible && _autoMultiVideo
         }

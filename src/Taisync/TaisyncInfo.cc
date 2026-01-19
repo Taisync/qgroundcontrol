@@ -218,7 +218,7 @@ void TaisyncInfo::receiveParse(QByteArray b)
 
             if (_dataObj.contains("ethTx"))
             {
-                _dataRate = stringToInt(slaveObj.value("ethTx"));
+                _dataRate = stringToInt(_dataObj.value("ethTx"));
                 emit dataRateChanged();
             }
 
