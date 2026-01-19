@@ -14,6 +14,9 @@
 #include <QtCore/QDateTime>
 #include <QtNetwork/QNetworkDiskCache>
 
+#include "SettingsManager.h"
+#include "AppSettings.h"
+
 QGC_LOGGING_CATEGORY(QGCCachedFileDownloadLog, "qgc.utilities.qgccachedfiledownload");
 
 QGCCachedFileDownload::QGCCachedFileDownload(const QString &cacheDirectory, QObject *parent)
@@ -55,10 +58,20 @@ bool QGCCachedFileDownload::download(const QString &url, int maxCacheAgeSec)
             return _fileDownload->download(url, attributes);
         }
 
+        // do not try download
+        if (SettingsManager::instance()->appSettings()->offlineMetaData()->rawValue().toBool()) {
+            qCDebug(QGCCachedFileDownloadLog) << "Offline Medata Mode, force ignore download:" << url;
+            return false;
+        }
         const auto attributes = QList<QPair<QNetworkRequest::Attribute, QVariant>>{qMakePair(QNetworkRequest::CacheLoadControlAttribute, QVariant{QNetworkRequest::PreferCache})};
         return _fileDownload->download(url, attributes);
     }
 
+    // do not try download
+    if (SettingsManager::instance()->appSettings()->offlineMetaData()->rawValue().toBool()) {
+        qCDebug(QGCCachedFileDownloadLog) << "Offline Medata Mode, force ignore download:" << url;
+        return false;
+    }
     return _fileDownload->download(url);
 }
 
