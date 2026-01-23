@@ -293,7 +293,7 @@ Item {
             console.log("showStartMission", showStartMission)
         }
         _outputState()
-        if (showStartMission) {
+        if (showStartMission && !QGroundControl.settingsManager.appSettings.disableStartMissionSlider.rawValue) {
             confirmAction(actionStartMission)
         }
     }

@@ -30,14 +30,10 @@ Item {
     property var    remoteIDManager:    activeVehicle ? activeVehicle.remoteIDManager : null
 
     property bool   gpsFlag:            activeVehicle && remoteIDManager ? remoteIDManager.gcsGPSGood         : false
-    property bool   basicIDFlag:        activeVehicle && remoteIDManager ? remoteIDManager.basicIDGood        : false
     property bool   armFlag:            activeVehicle && remoteIDManager ? remoteIDManager.armStatusGood      : false
     property bool   commsFlag:          activeVehicle && remoteIDManager ? remoteIDManager.commsGood          : false
     property bool   emergencyDeclared:  activeVehicle && remoteIDManager ? remoteIDManager.emergencyDeclared  : false
-    property bool   operatorIDFlag:     activeVehicle && remoteIDManager ? remoteIDManager.operatorIDGood     : false
     property int    remoteIDState:      getRemoteIDState()
-    
-    property int    regionOperation:    QGroundControl.settingsManager.remoteIDSettings.region.value
 
     enum RIDState {
         HEALTHY,
@@ -78,13 +74,8 @@ Item {
         if (!commsFlag || !armFlag || emergencyDeclared) {
             return RemoteIDIndicator.RIDState.ERROR
         }
-        if (!gpsFlag || !basicIDFlag) {
+        if (!gpsFlag) {
             return RemoteIDIndicator.RIDState.WARNING
-        }
-        if (regionOperation == RemoteIDIndicator.RegionOperation.EU || QGroundControl.settingsManager.remoteIDSettings.sendOperatorID.value) {
-            if (!operatorIDFlag) {
-                return RemoteIDIndicator.RIDState.WARNING
-            }
         }
         return RemoteIDIndicator.RIDState.HEALTHY
     }

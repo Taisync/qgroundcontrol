@@ -295,35 +295,25 @@ void RemoteIDManager::_sendSystem()
         gcsPosition = QGCPositionManager::instance()->gcsPosition();
         geoPositionInfo = QGCPositionManager::instance()->geoPositionInfo();
 
-        // GPS position needs to be valid before checking other stuff
-        if (geoPositionInfo.isValid()) {
-            // If we dont have altitude for FAA then the GPS data is no good
-            if ((_settings->region()->rawValue().toInt() == Region::FAA) && !(gcsPosition.altitude() >= 0) && _gcsGPSGood) {
-                _gcsGPSGood = false;
-                emit gcsGPSGoodChanged();
-                qCDebug(RemoteIDManagerLog) << "GCS GPS data error (no altitude): Altitude data is mandatory for GCS GPS data in FAA regions.";
-                return;
-            }
+        // Determine if GPS data meets all requirements
+        bool gpsDataGood = false;
 
-            // If the GPS data is older than ALLOWED_GPS_DELAY we cannot use this data
-            if (_lastGeoPositionTimeStamp.msecsTo(QDateTime::currentDateTime().currentDateTimeUtc()) > ALLOWED_GPS_DELAY) {
-                if (_gcsGPSGood) {
-                    _gcsGPSGood = false;
-                    emit gcsGPSGoodChanged();
-                    qCDebug(RemoteIDManagerLog) << "GCS GPS data is older than 5 seconds";
-                }
-            } else {
-                if (!_gcsGPSGood) {
-                    _gcsGPSGood = true;
-                    emit gcsGPSGoodChanged();
-                }
-            }
-        } else {
-            _gcsGPSGood = false;
-            emit gcsGPSGoodChanged();
+        if (!geoPositionInfo.isValid()) {
             qCDebug(RemoteIDManagerLog) << "GCS GPS data is not valid.";
+        } else if (_lastGeoPositionTimeStamp.msecsTo(QDateTime::currentDateTime().currentDateTimeUtc()) > ALLOWED_GPS_DELAY) {
+            qCDebug(RemoteIDManagerLog) << "GCS GPS data is older than 5 seconds";
+        } else if ((_settings->region()->rawValue().toInt() == Region::FAA) && !(gcsPosition.altitude() >= 0)) {
+            qCDebug(RemoteIDManagerLog) << "GCS GPS data error (no altitude): Altitude data is mandatory for GCS GPS data in FAA regions.";
+        } else {
+            // All checks passed
+            gpsDataGood = true;
         }
 
+        // Update flag only if state changed
+        if (gpsDataGood != _gcsGPSGood) {
+            _gcsGPSGood = gpsDataGood;
+            emit gcsGPSGoodChanged();
+        }
     }
 
     WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();

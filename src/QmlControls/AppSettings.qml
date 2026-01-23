@@ -106,7 +106,7 @@ Rectangle {
                         if (_commingFromRIDSettings) {
                             checked = false
                             _commingFromRIDSettings = false
-                            if (modelData.url == "qrc:/qml/QGroundControl/AppSettings/RemoteIDSettings.qml") {
+                            if (url == "qrc:/qml/QGroundControl/AppSettings/RemoteIDSettings.qml") {
                                 checked = true
                             }
                         }

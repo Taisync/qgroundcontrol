@@ -32,6 +32,7 @@ ColumnLayout {
         id:                 photoVideoControlLoader
         Layout.alignment:   Qt.AlignTop | Qt.AlignRight
         sourceComponent:    globals.activeVehicle ? photoVideoControlComponent : undefined
+        visible:            QGroundControl.videoManager.hasVideo
 
         property real rightEdgeCenterInset: visible ? parent.width - x : 0
 

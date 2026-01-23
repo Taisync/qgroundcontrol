@@ -28,6 +28,7 @@
 #include "QtMultimediaReceiver.h"
 #endif
 #include "SettingsManager.h"
+#include "UnitsSettings.h"
 #include "VideoReceiver.h"
 
 #ifdef QGC_CUSTOM_BUILD
@@ -122,26 +123,40 @@ bool QGCCorePlugin::adjustSettingMetaData(const QString &settingsGroup, FactMeta
 {
     if (settingsGroup == AppSettings::settingsGroup) {
         if (metaData.name() == AppSettings::indoorPaletteName) {
-            QVariant outdoorPalette;
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-            outdoorPalette = 0;
-#else
-            outdoorPalette = 0;
-#endif
-            metaData.setRawDefaultValue(outdoorPalette);
+            // Default to Indoor (1) color scheme
+            metaData.setRawDefaultValue(1);
+            return true;
+        } else if (metaData.name() == AppSettings::offlineEditingFirmwareClassName) {
+            // Default to ArduPilot (3) instead of PX4 (12)
+            metaData.setRawDefaultValue(3);
             return true;
         }
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-        else if (metaData.name() == MavlinkSettings::telemetrySaveName) {
-            metaData.setRawDefaultValue(false);
-            return true;
-        }
-#endif
 #ifndef Q_OS_ANDROID
         else if (metaData.name() == AppSettings::androidSaveToSDCardName) {
             return false;
         }
 #endif
+    } else if (settingsGroup == UnitsSettings::settingsGroup) {
+        // Default to metric units regardless of system locale
+        if (metaData.name() == UnitsSettings::horizontalDistanceUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::HorizontalDistanceUnitsMeters);
+            return true;
+        } else if (metaData.name() == UnitsSettings::verticalDistanceUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::VerticalDistanceUnitsMeters);
+            return true;
+        } else if (metaData.name() == UnitsSettings::speedUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::SpeedUnitsMetersPerSecond);
+            return true;
+        } else if (metaData.name() == UnitsSettings::areaUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::AreaUnitsSquareMeters);
+            return true;
+        } else if (metaData.name() == UnitsSettings::temperatureUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::TemperatureUnitsCelsius);
+            return true;
+        } else if (metaData.name() == UnitsSettings::weightUnitsName) {
+            metaData.setRawDefaultValue(UnitsSettings::WeightUnitsKg);
+            return true;
+        }
     }
 
     return true;

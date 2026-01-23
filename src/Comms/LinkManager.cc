@@ -416,10 +416,30 @@ void LinkManager::loadLinkConfigurationList()
             }
         }
     }
-
+    // If no saved configurations exist, create a default TTYS link on Android
+#ifdef QGC_TTYS_LINK
+    if (_rgLinkConfigs.count() == 0) {
+        _addDefaultTTYSLink();
+    }
+#endif
     // Enable automatic Serial PX4/3DR Radio hunting
     _configurationsLoaded = true;
 }
+
+#ifdef QGC_TTYS_LINK
+void LinkManager::_addDefaultTTYSLink()
+{
+    qCDebug(LinkManagerLog) << "Creating default TTYS link";
+    TTYSConfiguration* const ttysConfig = new TTYSConfiguration(_defaultTTYSLinkName);
+    // Use actual device path, not display name (DataLink1 maps to /dev/ttyHS1)
+    ttysConfig->setDevFile("/dev/ttyHS1");
+    ttysConfig->setBaudRate("115200");
+    ttysConfig->setAutoConnect(true);
+    addConfiguration(ttysConfig);
+    saveLinkConfigurationList();
+}
+#endif
+
 
 void LinkManager::_addUDPAutoConnectLink()
 {

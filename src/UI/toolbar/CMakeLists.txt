@@ -17,6 +17,7 @@ qt_add_qml_module(ToolbarModule
         ModeIndicator.qml
         MultiVehicleSelector.qml
         RangefinderIndicator.qml
+        ForwardRangefinderIndicator.qml
         RCRSSIIndicator.qml
         RemoteIDIndicator.qml
         RTKGPSIndicator.qml

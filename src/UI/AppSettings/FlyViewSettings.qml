@@ -128,6 +128,14 @@ SettingsPage {
             visible:            _enableTaisyncFlyDataSave.visible
             property Fact _enableTaisyncFlyDataSave: QGroundControl.settingsManager.appSettings.taisyncFlyDataSave
         }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Disable Start Mission Confirmation Slider")
+            fact:               _disableStartMissionSlider
+            visible:            _disableStartMissionSlider.visible
+            property Fact _disableStartMissionSlider: QGroundControl.settingsManager.appSettings.disableStartMissionSlider
+        }
     }
 
     // SettingsGroupLayout {

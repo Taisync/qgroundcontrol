@@ -141,6 +141,8 @@ Item {
         y: parent.height * 0.6 - height / 2
 
         //visible: QGroundControl.videoManager.videoSource === QGroundControl.settingsManager.videoSettings.videoSourceRTSP
+        // Only show when video is enabled and configured
+        visible: QGroundControl.videoManager.hasVideo
 
         background: Rectangle {
             color: "#444"

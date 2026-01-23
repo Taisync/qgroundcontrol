@@ -17,7 +17,7 @@ import QGroundControl.ScreenTools
 import QGroundControl.Palette
 
 //-------------------------------------------------------------------------
-//-- Rangefinder (Downward Distance Sensor) Indicator
+//-- Forward Rangefinder (Forward Distance Sensor) Indicator
 Item {
     id:             control
     width:          contentRow.width * 1.1
@@ -28,10 +28,10 @@ Item {
 
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property var    _distanceSensors:   _activeVehicle ? _activeVehicle.distanceSensors : null
-    property real   _distance:          _distanceSensors ? _distanceSensors.rotationPitch270.rawValue : NaN
+    property real   _distance:          _distanceSensors ? _distanceSensors.rotationNone.rawValue : NaN
     property bool   _isActive:          !isNaN(_distance)
-    property string _distanceStr:       _distanceSensors ? _distanceSensors.rotationPitch270.valueString : "--.--"
-    property string _units:             _distanceSensors && _distanceSensors.rotationPitch270.units ? _distanceSensors.rotationPitch270.units : "m"
+    property string _distanceStr:       _distanceSensors ? _distanceSensors.rotationNone.valueString : "--.--"
+    property string _units:             _distanceSensors && _distanceSensors.rotationNone.units ? _distanceSensors.rotationNone.units : "m"
 
     // Determine status color based on distance and activity
     function getStatusColor() {
@@ -48,13 +48,13 @@ Item {
     }
 
     Component {
-        id: rangefinderInfoPage
+        id: forwardRangefinderInfoPage
 
         ToolIndicatorPage {
             showExpand: false
 
             contentComponent: SettingsGroupLayout {
-                heading: qsTr("Rangefinder Status")
+                heading: qsTr("Forward Rangefinder Status")
 
                 LabelledLabel {
                     label:      qsTr("Status")
@@ -75,14 +75,14 @@ Item {
         anchors.bottom: parent.bottom
         spacing:        ScreenTools.defaultFontPixelWidth * 0.5
 
-        // Rangefinder icon - using terrain icon to represent ground distance
+        // Rangefinder icon - using radar icon to represent forward obstacle detection
         QGCColoredImage {
             id:                     rangefinderIcon
             width:                  height
             anchors.top:            parent.top
             anchors.bottom:         parent.bottom
             sourceSize.height:      height
-            source:                 "/res/terrain.svg"
+            source:                 "/InstrumentValueIcons/radar.svg"
             fillMode:               Image.PreserveAspectFit
             color:                  getStatusColor()
             opacity:                _isActive ? 1.0 : 0.5
@@ -99,6 +99,6 @@ Item {
 
     MouseArea {
         anchors.fill:   parent
-        onClicked:      mainWindow.showIndicatorDrawer(rangefinderInfoPage, control)
+        onClicked:      mainWindow.showIndicatorDrawer(forwardRangefinderInfoPage, control)
     }
 }

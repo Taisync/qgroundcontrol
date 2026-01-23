@@ -146,7 +146,9 @@ private:
 #ifdef QGC_ZEROCONF_ENABLED
     void _addZeroConfAutoConnectLink();
 #endif
-
+#ifdef QGC_TTYS_LINK
+    void _addDefaultTTYSLink();
+#endif
     QTimer *_portListTimer = nullptr;
     QmlObjectListModel *_qmlConfigurations = nullptr;
     AutoConnectSettings *_autoConnectSettings = nullptr;
@@ -165,6 +167,9 @@ private:
     static constexpr const char *_defaultUDPLinkName = "UDP Link (AutoConnect)";
     static constexpr const char *_mavlinkForwardingLinkName = "MAVLink Forwarding Link";
     static constexpr const char *_mavlinkForwardingSupportLinkName = "MAVLink Support Forwarding Link";
+#ifdef QGC_TTYS_LINK
+    static constexpr const char *_defaultTTYSLinkName = "Default";
+#endif
 
     static constexpr int _autoconnectUpdateTimerMSecs = 1000;
 #ifdef Q_OS_WIN

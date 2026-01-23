@@ -267,7 +267,14 @@
     "shortDesc": "Enable fly data auto save",
     "longDesc":  "Enable fly data auto save",
     "type":             "bool",
-    "default":     true
+    "default":     false
+},
+{
+    "name":             "disableStartMissionSlider",
+    "shortDesc": "Disable start mission confirmation slider",
+    "longDesc":  "When enabled, the slide-to-confirm dialog will not automatically pop up when a mission is ready to start.",
+    "type":             "bool",
+    "default":     false
 }
 ]
 }

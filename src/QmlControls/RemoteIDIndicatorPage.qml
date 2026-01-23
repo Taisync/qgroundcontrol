@@ -24,13 +24,9 @@ ToolIndicatorPage {
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
 
     property bool   gpsFlag:            _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.gcsGPSGood         : false
-    property bool   basicIDFlag:        _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.basicIDGood        : false
     property bool   armFlag:            _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.armStatusGood      : false
     property bool   commsFlag:          _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.commsGood          : false
     property bool   emergencyDeclared:  _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.emergencyDeclared  : false
-    property bool   operatorIDFlag:     _activeVehicle && _activeVehicle.remoteIDManager ? _activeVehicle.remoteIDManager.operatorIDGood     : false
-    
-    property int    _regionOperation:   QGroundControl.settingsManager.remoteIDSettings.region.value
 
     // Flags visual properties
     property real   flagsWidth:         ScreenTools.defaultFontPixelWidth * 10
@@ -167,55 +163,7 @@ ToolIndicatorPage {
                         }
                     }
 
-                    Image {
-                        id:                 basicIDFlagIge
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             basicIDFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("BASIC ID")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
-
-                    Image {
-                        id:                 operatorIDFlagImage
-                        width:              flagsWidth
-                        height:             flagsHeight
-                        source:             operatorIDFlag ? "/qmlimages/RidFlagBackgroundGreen.svg" : "/qmlimages/RidFlagBackgroundRed.svg"
-                        fillMode:           Image.PreserveAspectFit
-                        sourceSize.height:  height
-                        visible:            commsFlag && _activeVehicle ? (QGroundControl.settingsManager.remoteIDSettings.sendOperatorID.value || _regionOperation == RemoteIDIndicatorPage.EU) : false
-
-                        QGCLabel {
-                            anchors.fill:           parent
-                            text:                   qsTr("OPERATOR ID")
-                            wrapMode:               Text.WordWrap
-                            horizontalAlignment:    Text.AlignHCenter
-                            verticalAlignment:      Text.AlignVCenter
-                            font.bold:              true
-                            font.pointSize:         ScreenTools.smallFontPointSize
-                        }
-
-                        QGCMouseArea {
-                            anchors.fill:   parent
-                            onClicked:      goToSettings()
-                        }
-                    }
+                    // BASIC ID and OPERATOR ID flags removed - not used in simplified UI
                 }
             }
 
