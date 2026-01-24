@@ -11,6 +11,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import QGroundControl
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
 import QGroundControl.Palette
@@ -20,6 +21,19 @@ import QGroundControl.ScreenTools
 SetupPage {
     id:             safetyPage
     pageComponent:  safetyPageComponent
+
+    // Unit conversion helpers for cm <-> user preferred vertical distance units
+    property var _unitsConversion: QGroundControl.unitsConversion
+
+    function cmToDisplayUnits(cm) {
+        var meters = cm / 100.0
+        return _unitsConversion.metersToAppSettingsVerticalDistanceUnits(meters)
+    }
+
+    function displayUnitsToCm(displayValue) {
+        var meters = _unitsConversion.appSettingsVerticalDistanceUnitsToMeters(displayValue)
+        return meters * 100.0
+    }
 
     Component {
         id: safetyPageComponent
@@ -524,6 +538,12 @@ SetupPage {
             }
 
             Loader {
+                width: flowLayout.width
+                sourceComponent: controller.vehicle.multiRotor ? copterRTL : undefined
+            }
+
+            Loader {
+                width: flowLayout.width
                 sourceComponent: controller.vehicle.multiRotor ? copterGeoFence : undefined
             }
 
@@ -546,8 +566,8 @@ SetupPage {
 
                     Rectangle {
                         id:     rtlSettings
-                        width:  landSpeedField.x + landSpeedField.width + _margins
-                        height: landSpeedField.y + landSpeedField.height + _margins
+                        width:  rltAltField.x + rltAltField.width + _margins
+                        height: Math.max(returnAltRadio.y + returnAltRadio.height, icon.height + icon.anchors.margins) + _margins
                         color:  ggcPal.windowShade
 
                         QGCColoredImage {
@@ -581,7 +601,7 @@ SetupPage {
                             anchors.topMargin:  _innerMargin
                             anchors.top:        returnAtCurrentRadio.bottom
                             anchors.left:       returnAtCurrentRadio.left
-                            text:               qsTr("Return at specified altitude (m):")
+                            text:               qsTr("Return at specified altitude (%1):").arg(_unitsConversion.appSettingsVerticalDistanceUnitsString)
                             checked:            _rtlAltFact.value != 0
 
                             onClicked: _rtlAltFact.value = 1500
@@ -592,107 +612,29 @@ SetupPage {
                             anchors.leftMargin: _margins
                             anchors.left: returnAltRadio.right
                             anchors.baseline: returnAltRadio.baseline
-                            text: _rtlAltFact ? (_rtlAltFact.value / 100).toFixed(1) : "--"
-                            //showUnits: true
+                            text: _rtlAltFact ? cmToDisplayUnits(_rtlAltFact.value).toFixed(1) : "--"
                             enabled: returnAltRadio.checked
-                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
 
                             onEditingFinished: {
                                 if (!_rtlAltFact) return
                                 var value = parseFloat(text)
                                 if (isNaN(value)) value = 0
-                                // Clamp in meters
-                                value = Math.max(0, Math.min(300, value))
+                                // Clamp in display units (equivalent to 0-300m)
+                                var maxInDisplayUnits = _unitsConversion.metersToAppSettingsVerticalDistanceUnits(300)
+                                value = Math.max(0, Math.min(maxInDisplayUnits, value))
                                 // Write back in cm
-                                _rtlAltFact.value = Math.round(value * 100)
+                                _rtlAltFact.value = Math.round(displayUnitsToCm(value))
                                 text = value.toFixed(1)
                             }
 
                             Connections {
                                 target: _rtlAltFact
-                                onValueChanged: {
-                                    var val = _rtlAltFact ? (_rtlAltFact.value / 100) : 0
-                                    rltAltField.text = val.toFixed(1)
-                                }
+                                onValueChanged: rltAltField.text = _rtlAltFact ? cmToDisplayUnits(_rtlAltFact.value).toFixed(1) : "--"
                             }
-                        }
-
-
-                        QGCCheckBox {
-                            id:                 homeLoiterCheckbox
-                            anchors.left:       returnAtCurrentRadio.left
-                            anchors.baseline:   landDelayField.baseline
-                            checked:            _rtlLoitTimeFact.value > 0
-                            text:               qsTr("Loiter above Home for:")
-
-                            onClicked: _rtlLoitTimeFact.value = (checked ? 60 : 0)
-                        }
-
-                        FactTextField {
-                            id:                 landDelayField
-                            anchors.topMargin:  _innerMargin
-                            anchors.left:       rltAltField.left
-                            anchors.top:        rltAltField.bottom
-                            fact:               _rtlLoitTimeFact
-                            showUnits:          true
-                            enabled:            homeLoiterCheckbox.checked === true
-                        }
-
-                        QGCLabel {
-                            anchors.left:       returnAtCurrentRadio.left
-                            anchors.baseline:   rltAltFinalField.baseline
-                            text:               qsTr("Final land stage altitude:")
-                        }
-
-                        QGCTextField {
-                            id: rltAltFinalField
-                            anchors.topMargin: _innerMargin
-                            anchors.left: rltAltField.left
-                            anchors.top: landDelayField.bottom
-                            text: _rtlAltFinalFact ? (_rtlAltFinalFact.value / 100).toFixed(1) : "--"
-                            //showUnits: true
-                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
-
-                            onEditingFinished: {
-                                if (!_rtlAltFinalFact) return
-                                var value = parseFloat(text)
-                                if (isNaN(value)) value = 0
-                                // Clamp in meters
-                                value = Math.max(0, Math.min(300, value))
-                                _rtlAltFinalFact.value = Math.round(value * 100)
-                                text = value.toFixed(1)
-                            }
-
-                            Connections {
-                                target: _rtlAltFinalFact
-                                onValueChanged: {
-                                    var val = _rtlAltFinalFact ? (_rtlAltFinalFact.value / 100) : 0
-                                    rltAltFinalField.text = val.toFixed(1)
-                                }
-                            }
-                        }
-
-
-                        QGCLabel {
-                            anchors.left:       returnAtCurrentRadio.left
-                            anchors.baseline:   landSpeedField.baseline
-                            text:               qsTr("Final land stage descent speed:")
-                        }
-
-                        FactTextField {
-                            id:                 landSpeedField
-                            anchors.topMargin: _innerMargin
-                            anchors.left:       rltAltField.left
-                            anchors.top:        rltAltFinalField.bottom
-                            fact:               _landSpeedFact
-                            showUnits:          true
                         }
                     } // Rectangle - RTL Settings
                 } // Column - RTL Settings
-            }
-
-            Loader {
-                sourceComponent: controller.vehicle.multiRotor ? copterRTL : undefined
             }
 
             Component {

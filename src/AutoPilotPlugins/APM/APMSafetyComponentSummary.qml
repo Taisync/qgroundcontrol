@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
+import QGroundControl
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
 import QGroundControl.Controls
@@ -10,6 +11,8 @@ Item {
     anchors.fill:   parent
 
     FactPanelController { id: controller; }
+
+    property var _unitsConversion: QGroundControl.unitsConversion
 
     property Fact _copterFenceAction:       controller.getParameterFact(-1, "FENCE_ACTION", false /* reportMissing */)
     property Fact _copterFenceEnable:       controller.getParameterFact(-1, "FENCE_ENABLE", false /* reportMissing */)
@@ -135,7 +138,7 @@ Item {
 
         VehicleSummaryRow {
             labelText:  qsTr("RTL min alt:")
-            valueText:  fact ? (fact.value == 0 ? qsTr("current") : (fact.value / 100).toFixed(1) + " m") : ""
+            valueText:  fact ? (fact.value == 0 ? qsTr("current") : _unitsConversion.metersToAppSettingsVerticalDistanceUnits(fact.value / 100).toFixed(1) + " " + _unitsConversion.appSettingsVerticalDistanceUnitsString) : ""
             visible:    controller.vehicle.multiRotor
 
             property Fact fact: controller.getParameterFact(-1, "RTL_ALT", false /* reportMissing */)

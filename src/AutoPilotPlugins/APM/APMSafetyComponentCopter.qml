@@ -12,6 +12,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import QGroundControl
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
 import QGroundControl.Palette
@@ -21,6 +22,19 @@ import QGroundControl.ScreenTools
 SetupPage {
     id:             safetyPage
     pageComponent:  safetyPageComponent
+
+    // Unit conversion helpers for cm <-> user preferred vertical distance units
+    property var _unitsConversion: QGroundControl.unitsConversion
+
+    function cmToDisplayUnits(cm) {
+        var meters = cm / 100.0
+        return _unitsConversion.metersToAppSettingsVerticalDistanceUnits(meters)
+    }
+
+    function displayUnitsToCm(displayValue) {
+        var meters = _unitsConversion.appSettingsVerticalDistanceUnitsToMeters(displayValue)
+        return meters * 100.0
+    }
 
     Component {
         id: safetyPageComponent
@@ -453,14 +467,34 @@ SetupPage {
                         onClicked: _rtlAltFact.value = 1500
                     }
 
-                    FactTextField {
-                        id:                 rltAltField
+                    RowLayout {
                         anchors.leftMargin: _margins
                         anchors.left:       returnAltRadio.right
                         anchors.baseline:   returnAltRadio.baseline
-                        fact:               _rtlAltFact
-                        showUnits:          true
-                        enabled:            returnAltRadio.checked
+                        spacing:            ScreenTools.defaultFontPixelWidth / 2
+
+                        QGCTextField {
+                            id:                 rltAltField
+                            text:               cmToDisplayUnits(_rtlAltFact.value).toFixed(1)
+                            enabled:            returnAltRadio.checked
+                            inputMethodHints:   Qt.ImhFormattedNumbersOnly
+                            Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 10
+
+                            onEditingFinished: {
+                                var value = parseFloat(text)
+                                if (isNaN(value)) value = 0
+                                _rtlAltFact.value = Math.round(displayUnitsToCm(value))
+                            }
+
+                            Connections {
+                                target: _rtlAltFact
+                                onValueChanged: rltAltField.text = cmToDisplayUnits(_rtlAltFact.value).toFixed(1)
+                            }
+                        }
+
+                        QGCLabel {
+                            text: _unitsConversion.appSettingsVerticalDistanceUnitsString
+                        }
                     }
 
                     QGCCheckBox {
@@ -514,14 +548,35 @@ SetupPage {
                         onClicked: _rtlAltFinalFact.value = _rtlAltFact.value
                     }
 
-                    FactTextField {
+                    RowLayout {
                         id:                 rltAltFinalField
                         anchors.topMargin:  _margins / 2
                         anchors.left:       rltAltField.left
                         anchors.top:        landSpeedField.bottom
-                        fact:               _rtlAltFinalFact
-                        enabled:            finalLoiterRadio.checked
-                        showUnits:          true
+                        spacing:            ScreenTools.defaultFontPixelWidth / 2
+
+                        QGCTextField {
+                            id:                 rltAltFinalTextField
+                            text:               cmToDisplayUnits(_rtlAltFinalFact.value).toFixed(1)
+                            enabled:            finalLoiterRadio.checked
+                            inputMethodHints:   Qt.ImhFormattedNumbersOnly
+                            Layout.preferredWidth: ScreenTools.defaultFontPixelWidth * 10
+
+                            onEditingFinished: {
+                                var value = parseFloat(text)
+                                if (isNaN(value)) value = 0
+                                _rtlAltFinalFact.value = Math.round(displayUnitsToCm(value))
+                            }
+
+                            Connections {
+                                target: _rtlAltFinalFact
+                                onValueChanged: rltAltFinalTextField.text = cmToDisplayUnits(_rtlAltFinalFact.value).toFixed(1)
+                            }
+                        }
+
+                        QGCLabel {
+                            text: _unitsConversion.appSettingsVerticalDistanceUnitsString
+                        }
                     }
                 } // Rectangle - RTL Settings
             } // Column - RTL Settings
