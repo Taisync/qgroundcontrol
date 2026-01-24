@@ -21,10 +21,22 @@ ToolIndicatorPage {
     showExpand: false
 
     property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+    property var _unitsConversion: QGroundControl.unitsConversion
     FactPanelController { id: controller }
 
     property Fact _wpnavSpeedFact: controller.getParameterFact(-1, "WPNAV_SPEED", false)
     property Fact _rtlAltFact:     controller.getParameterFact(-1, "RTL_ALT", false)
+
+    // Helper functions for unit conversion (cm <-> user preferred vertical distance units)
+    function cmToDisplayUnits(cm) {
+        var meters = cm / 100.0
+        return _unitsConversion.metersToAppSettingsVerticalDistanceUnits(meters)
+    }
+
+    function displayUnitsToCm(displayValue) {
+        var meters = _unitsConversion.appSettingsVerticalDistanceUnitsToMeters(displayValue)
+        return meters * 100.0
+    }
 
     contentComponent: Component {
         ColumnLayout {
@@ -72,18 +84,18 @@ ToolIndicatorPage {
                     }
                 }
 
-                // RTL Altitude (m)
+                // RTL Altitude (uses app settings for vertical distance units)
                 RowLayout {
                     Layout.fillWidth: true
 
                     QGCLabel {
                         Layout.fillWidth: true
-                        text: qsTr("RTL Altitude (m)")
+                        text: qsTr("RTL Altitude (%1)").arg(_unitsConversion.appSettingsVerticalDistanceUnitsString)
                     }
 
                     QGCTextField {
                         id: rtlAltField
-                        text: _rtlAltFact ? (_rtlAltFact.value / 100).toFixed(1) : "--"
+                        text: _rtlAltFact ? cmToDisplayUnits(_rtlAltFact.value).toFixed(1) : "--"
                         inputMethodHints: Qt.ImhFormattedNumbersOnly
                         Layout.minimumWidth: ScreenTools.defaultFontPixelWidth * 10
 
@@ -91,19 +103,19 @@ ToolIndicatorPage {
                             if (!_rtlAltFact) return
                             var value = parseFloat(text)
                             if (isNaN(value)) value = 0
-                            // Clamp value in meters
-                            value = Math.max(0, Math.min(300, value))
+                            // Clamp value in display units (0-300m or 0-984ft equivalent)
+                            var maxInDisplayUnits = _unitsConversion.metersToAppSettingsVerticalDistanceUnits(300)
+                            value = Math.max(0, Math.min(maxInDisplayUnits, value))
                             // Write back in internal units (cm)
-                            _rtlAltFact.value = Math.round(value * 100)
+                            _rtlAltFact.value = Math.round(displayUnitsToCm(value))
                             // Update text to clamped value
-                            rtlAltField.text = (value).toFixed(1)
+                            rtlAltField.text = value.toFixed(1)
                         }
 
                         Connections {
                             target: _rtlAltFact
                             onValueChanged: {
-                                var val = _rtlAltFact ? (_rtlAltFact.value / 100) : 0
-                                rtlAltField.text = val.toFixed(1)
+                                rtlAltField.text = _rtlAltFact ? cmToDisplayUnits(_rtlAltFact.value).toFixed(1) : "--"
                             }
                         }
                     }

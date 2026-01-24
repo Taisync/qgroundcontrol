@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
+import QGroundControl
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
 import QGroundControl.Controls
@@ -11,6 +12,8 @@ Item {
     color:          qgcPal.windowShadeDark
 
     FactPanelController { id: controller; }
+
+    property var _unitsConversion: QGroundControl.unitsConversion
 
     property Fact _failsafeThrEnable:       controller.getParameterFact(-1, "FS_THR_ENABLE")
 
@@ -92,7 +95,7 @@ Item {
             labelText: qsTr("RTL min alt:")
             valueText: _rtlAltFact.value == 0
                 ? qsTr("current")
-                : (_rtlAltFact.value / 100).toFixed(1) + " m"
+                : _unitsConversion.metersToAppSettingsVerticalDistanceUnits(_rtlAltFact.value / 100).toFixed(1) + " " + _unitsConversion.appSettingsVerticalDistanceUnitsString
         }
 
     }
