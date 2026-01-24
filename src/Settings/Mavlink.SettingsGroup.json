@@ -21,7 +21,7 @@
     "name":                 "apmStartMavlinkStreams",
     "shortDesc":     "Request start of MAVLink telemetry streams (ArduPilot only)",
     "type":                 "bool",
-    "default":         true,
+    "default":         false,
     "qgcRebootRequired":    true
 },
 {
@@ -29,7 +29,7 @@
     "shortDesc": "Save CSV Telementry Logs",
     "longDesc":  "If this option is enabled, all Facts will be written to a CSV file with a 1 Hertz frequency.",
     "type":             "bool",
-    "default":     false
+    "default":     true
 },
 {
     "name":             "forwardMavlink",

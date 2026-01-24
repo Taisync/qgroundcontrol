@@ -78,13 +78,9 @@ Item {
         if (!commsFlag || !armFlag || emergencyDeclared) {
             return RemoteIDIndicator.RIDState.ERROR
         }
-        if (!gpsFlag || !basicIDFlag) {
+        // Only check GPS flag for warning state - Basic ID and Operator ID not used
+        if (!gpsFlag) {
             return RemoteIDIndicator.RIDState.WARNING
-        }
-        if (regionOperation == RemoteIDIndicator.RegionOperation.EU || QGroundControl.settingsManager.remoteIDSettings.sendOperatorID.value) {
-            if (!operatorIDFlag) {
-                return RemoteIDIndicator.RIDState.WARNING
-            }
         }
         return RemoteIDIndicator.RIDState.HEALTHY
     }

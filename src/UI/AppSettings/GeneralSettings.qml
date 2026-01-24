@@ -91,6 +91,14 @@ SettingsPage {
             }
         }
 
+        FactCheckBoxSlider {
+            Layout.fillWidth: true
+            text:       qsTr("Enable RID on vehicle connect")
+            fact:       _enableRIDOnConnect
+            visible:    _enableRIDOnConnect.visible
+            property Fact _enableRIDOnConnect: _appSettings.enableRIDOnConnect
+        }
+
         // UI Scaling
         RowLayout {
             Layout.fillWidth: true
