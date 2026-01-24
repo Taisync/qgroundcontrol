@@ -275,6 +275,13 @@
     "longDesc":  "When enabled, the slide-to-confirm dialog will not automatically pop up when a mission is ready to start.",
     "type":             "bool",
     "default":     false
+},
+{
+    "name":             "enableRIDOnConnect",
+    "shortDesc": "Enable RID on vehicle connect",
+    "longDesc":  "When enabled, Remote ID messages will be sent immediately on vehicle connection without waiting for the RID device to respond first.",
+    "type":             "bool",
+    "default":     false
 }
 ]
 }

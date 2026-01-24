@@ -58,6 +58,8 @@ public:
     DEFINE_SETTINGFACT(passAirLink)
     DEFINE_SETTINGFACT(taisyncFlyViewShow)
     DEFINE_SETTINGFACT(taisyncFlyDataSave)
+    DEFINE_SETTINGFACT(disableStartMissionSlider)
+    DEFINE_SETTINGFACT(enableRIDOnConnect)
 
     Q_PROPERTY(QString missionSavePath          READ missionSavePath            NOTIFY savePathsChanged)
     Q_PROPERTY(QString parameterSavePath        READ parameterSavePath          NOTIFY savePathsChanged)

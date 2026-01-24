@@ -24,9 +24,10 @@ Item {
     anchors.top:    parent.top
     anchors.bottom: parent.bottom
 
-    property bool showIndicator: _activeVehicle
+    property bool showIndicator: _activeVehicle && _showForwardRangefinder.rawValue
 
-    property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
+    property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
+    property var    _showForwardRangefinder: QGroundControl.settingsManager.flyViewSettings.showForwardRangefinder
     property var    _distanceSensors:   _activeVehicle ? _activeVehicle.distanceSensors : null
     property real   _distance:          _distanceSensors ? _distanceSensors.rotationNone.rawValue : NaN
     property bool   _isActive:          !isNaN(_distance)

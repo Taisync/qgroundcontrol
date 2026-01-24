@@ -138,6 +138,27 @@ SettingsPage {
         }
     }
 
+    SettingsGroupLayout {
+        Layout.fillWidth:   true
+        heading:            qsTr("Toolbar Indicators")
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Show Forward Rangefinder")
+            fact:               _showForwardRangefinder
+            visible:            _showForwardRangefinder.visible
+            property Fact _showForwardRangefinder: _flyViewSettings.showForwardRangefinder
+        }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Show Down Rangefinder")
+            fact:               _showDownRangefinder
+            visible:            _showDownRangefinder.visible
+            property Fact _showDownRangefinder: _flyViewSettings.showDownRangefinder
+        }
+    }
+
     // SettingsGroupLayout {
     //     Layout.fillWidth:   true
     //     heading:            qsTr("Guided Commands")

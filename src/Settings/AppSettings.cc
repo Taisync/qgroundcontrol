@@ -171,6 +171,8 @@ DECLARE_SETTINGSFACT(AppSettings, loginAirLink)
 DECLARE_SETTINGSFACT(AppSettings, passAirLink)
 DECLARE_SETTINGSFACT(AppSettings, taisyncFlyViewShow)
 DECLARE_SETTINGSFACT(AppSettings, taisyncFlyDataSave)
+DECLARE_SETTINGSFACT(AppSettings, disableStartMissionSlider)
+DECLARE_SETTINGSFACT(AppSettings, enableRIDOnConnect)
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {

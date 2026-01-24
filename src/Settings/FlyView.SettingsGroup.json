@@ -102,6 +102,20 @@
     "min":          3,
     "max":          60,
     "default":      10
+},
+{
+    "name":         "showForwardRangefinder",
+    "shortDesc":    "Show forward rangefinder in toolbar",
+    "longDesc":     "When enabled, the forward rangefinder indicator will be shown in the fly view toolbar.",
+    "type":         "bool",
+    "default":      true
+},
+{
+    "name":         "showDownRangefinder",
+    "shortDesc":    "Show down rangefinder in toolbar",
+    "longDesc":     "When enabled, the downward rangefinder indicator will be shown in the fly view toolbar.",
+    "type":         "bool",
+    "default":      true
 }
 ]
 }
