@@ -543,6 +543,7 @@ SetupPage {
             }
 
             Loader {
+                visible: false
                 width: flowLayout.width
                 sourceComponent: controller.vehicle.multiRotor ? copterGeoFence : undefined
             }

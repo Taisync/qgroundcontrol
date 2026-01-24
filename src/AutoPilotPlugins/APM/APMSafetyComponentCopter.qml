@@ -285,6 +285,7 @@ SetupPage {
 
             Column {
                 spacing: _margins / 2
+                visible: false // Hide it
 
                 QGCLabel {
                     id:             geoFenceLabel
