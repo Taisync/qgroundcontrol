@@ -14,6 +14,7 @@ qt_add_qml_module(ToolbarModule
         GimbalIndicator.qml
         JoystickIndicator.qml
         LinkIndicator.qml
+        MicROMIndicator.qml
         ModeIndicator.qml
         MultiVehicleSelector.qml
         RangefinderIndicator.qml

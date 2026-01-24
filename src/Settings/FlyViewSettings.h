@@ -34,4 +34,5 @@ public:
     DEFINE_SETTINGFACT(instrumentQmlFile2)
     DEFINE_SETTINGFACT(requestControlAllowTakeover)
     DEFINE_SETTINGFACT(requestControlTimeout)
+    DEFINE_SETTINGFACT(enableMicROM)
 };

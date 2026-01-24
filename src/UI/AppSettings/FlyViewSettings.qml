@@ -128,6 +128,14 @@ SettingsPage {
             visible:            _enableTaisyncFlyDataSave.visible
             property Fact _enableTaisyncFlyDataSave: QGroundControl.settingsManager.appSettings.taisyncFlyDataSave
         }
+
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Enable MicROM UV Camera (requires restart)")
+            fact:               _enableMicROM
+            visible:            _enableMicROM.visible
+            property Fact _enableMicROM: _flyViewSettings.enableMicROM
+        }
     }
 
     // SettingsGroupLayout {

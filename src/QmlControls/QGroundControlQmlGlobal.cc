@@ -9,6 +9,8 @@
 
 #include "QGroundControlQmlGlobal.h"
 
+#include "MicROMController.h"
+#include "FlyViewSettings.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
 #include "LinkManager.h"
@@ -160,6 +162,11 @@ QGroundControlQmlGlobal::QGroundControlQmlGlobal(QObject *parent)
             _flightMapPositionSettledTimer.start();
         }
     });
+
+    // Create MicROM controller for OFIL UV camera payload only if enabled in settings
+    if (_settingsManager->flyViewSettings()->enableMicROM()->rawValue().toBool()) {
+        _micromController = new MicROMController(this);
+    }
 }
 
 QGroundControlQmlGlobal::~QGroundControlQmlGlobal()

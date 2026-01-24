@@ -32,6 +32,7 @@ class SettingsManager;
 class VideoManager;
 class UTMSPManager;
 class AirLinkManager;
+class MicROMController;
 
 Q_MOC_INCLUDE("ADSBVehicleManager.h")
 Q_MOC_INCLUDE("NTRIP.h")
@@ -51,6 +52,7 @@ Q_MOC_INCLUDE("UTMSPManager.h")
 #ifndef QGC_AIRLINK_DISABLED
 Q_MOC_INCLUDE("AirLinkManager.h")
 #endif
+Q_MOC_INCLUDE("MicROMController.h")
 
 class QGroundControlQmlGlobal : public QObject
 {
@@ -123,6 +125,7 @@ public:
     Q_PROPERTY(QString  elevationProviderNotice         READ elevationProviderNotice            CONSTANT)
 
     Q_PROPERTY(bool              utmspSupported           READ    utmspSupported              CONSTANT)
+    Q_PROPERTY(MicROMController* micromController         READ    micromController            CONSTANT)
 
 #ifdef QGC_UTM_ADAPTER
     Q_PROPERTY(UTMSPManager*     utmspManager             READ    utmspManager                CONSTANT)
@@ -232,6 +235,8 @@ public:
     bool utmspSupported() { return false; }
 #endif
 
+    MicROMController* micromController() { return _micromController; }
+
 signals:
     void isMultiplexingEnabledChanged   (bool enabled);
     void mavlinkSystemIDChanged         (int id);
@@ -259,6 +264,7 @@ private:
 #ifdef QGC_UTM_ADAPTER
     UTMSPManager*           _utmspManager           = nullptr;
 #endif
+    MicROMController*       _micromController       = nullptr;
 
     double                  _flightMapInitialZoom   = 17.0;
     QmlUnitsConversion      _unitsConversion;
