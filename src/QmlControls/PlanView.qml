@@ -605,7 +605,7 @@ Item {
                         text:               _missionController.isROIActive ? qsTr("Cancel ROI") : qsTr("ROI")
                         iconSource:         "/qmlimages/MapAddMission.svg"
                         enabled:            !_missionController.onlyInsertTakeoffValid
-                        visible:            toolStrip._isMissionLayer && _planMasterController.controllerVehicle.roiModeSupported
+                        visible:            false // Hidden: toolStrip._isMissionLayer && _planMasterController.controllerVehicle.roiModeSupported
                         checkable:          !_missionController.isROIActive
                         onCheckedChanged:   _addROIOnClick = checked
                         onTriggered: {
@@ -933,7 +933,7 @@ Item {
             QGCLabel { text: qsTr("Create complex pattern:") }
 
             Repeater {
-                model: _missionController.complexMissionItemNames
+                model: _missionController.complexMissionItemNames.filter(function(name) { return name !== "Structure Scan"; })
 
                 QGCButton {
                     text:               modelData
@@ -997,8 +997,9 @@ Item {
 
                     Rectangle {
                         id:     button
-                        width:  ScreenTools.defaultFontPixelHeight * 7
-                        height: planCreatorNameLabel.y + planCreatorNameLabel.height
+                        width:  object.name === "Structure Scan" ? 0 : ScreenTools.defaultFontPixelHeight * 7
+                        height: object.name === "Structure Scan" ? 0 : planCreatorNameLabel.y + planCreatorNameLabel.height
+                        visible: object.name !== "Structure Scan"
                         color:  button.pressed || button.highlighted ? qgcPal.buttonHighlight : qgcPal.button
 
                         property bool highlighted: mouseArea.containsMouse
