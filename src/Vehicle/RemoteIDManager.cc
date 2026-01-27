@@ -74,7 +74,7 @@ RemoteIDManager::RemoteIDManager(Vehicle* vehicle)
         operatorIDGoodChanged();
     }
 
-    // Check if we should force-enable RID on vehicle connect
+    // Check if we should force-enable RID on connection without waiting for ARM_STATUS
     AppSettings* appSettings = SettingsManager::instance()->appSettings();
     if (appSettings->enableRIDOnConnect()->rawValue().toBool()) {
         _available = true;
@@ -83,7 +83,7 @@ RemoteIDManager::RemoteIDManager(Vehicle* vehicle)
         _sendMessagesTimer.start();
         emit availableChanged();
         emit commsGoodChanged();
-        qCDebug(RemoteIDManagerLog) << "RID force-enabled on vehicle connect";
+        qCDebug(RemoteIDManagerLog) << "RID force-enabled on vehicle connect (enableRIDOnConnect setting)";
     }
 }
 
@@ -150,15 +150,22 @@ void RemoteIDManager::_handleArmStatus(mavlink_message_t& message)
     mavlink_open_drone_id_arm_status_t armStatus;
     mavlink_msg_open_drone_id_arm_status_decode(&message, &armStatus);
 
-    if (armStatus.status == MAV_ODID_ARM_STATUS_GOOD_TO_ARM && !_armStatusGood) {
+    if (armStatus.status == MAV_ODID_ARM_STATUS_GOOD_TO_ARM) {
         // If good to arm, even if basic ID is not set on GCS, it was set by remoteID parameters, so GCS one would be optional in this case
         if (!_basicIDGood) {
             _basicIDGood = true;
             emit basicIDGoodChanged();
         }
-        _armStatusGood = true;
-        emit armStatusGoodChanged();
-        qCDebug(RemoteIDManagerLog) << "Arm status GOOD TO ARM.";
+        if (!_armStatusGood) {
+            _armStatusGood = true;
+            emit armStatusGoodChanged();
+            qCDebug(RemoteIDManagerLog) << "Arm status GOOD TO ARM.";
+        }
+        // Clear any previous error message
+        if (!_armStatusError.isEmpty()) {
+            _armStatusError.clear();
+            emit armStatusErrorChanged();
+        }
     }
 
     if (armStatus.status == MAV_ODID_ARM_STATUS_PRE_ARM_FAIL_GENERIC) {
@@ -318,14 +325,15 @@ void RemoteIDManager::_sendSystem()
         } else if ((_settings->region()->rawValue().toInt() == Region::FAA) && !(gcsPosition.altitude() >= 0)) {
             qCDebug(RemoteIDManagerLog) << "GCS GPS data error (no altitude): Altitude data is mandatory for GCS GPS data in FAA regions.";
         } else {
+            // All checks passed
             gpsDataGood = true;
         }
 
+        // Update flag only if state changed
         if (gpsDataGood != _gcsGPSGood) {
             _gcsGPSGood = gpsDataGood;
             emit gcsGPSGoodChanged();
         }
-
     }
 
     WeakLinkInterfacePtr weakLink = _vehicle->vehicleLinkManager()->primaryLink();

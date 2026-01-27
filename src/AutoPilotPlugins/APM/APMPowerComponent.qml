@@ -485,51 +485,51 @@ SetupPage {
                 //     visible:            _showAdvanced
                 // }
 
-                QGCLabel {
-                    text:       qsTr("Amps per volt:")
-                    visible:    _showAdvanced
-                }
+                //QGCLabel {
+                //    text:       qsTr("Amps per volt:")
+                //    visible:    _showAdvanced
+                //}
 
-                FactTextField {
-                    width:      _fieldWidth
-                    fact:       battAmpPerVolt
-                    visible:    _showAdvanced
-                }
+                //FactTextField {
+                //    width:      _fieldWidth
+                //    fact:       battAmpPerVolt
+                //   visible:    _showAdvanced
+                //}
 
-                QGCButton {
-                    text:       qsTr("Calculate")
-                    visible:    _showAdvanced
-                    onClicked:  calcAmpsPerVoltDlgComponent.createObject(mainWindow, { vehicleCurrentFact: vehicleCurrent, battAmpPerVoltFact: battAmpPerVolt }).open()
-                }
+                //QGCButton {
+                //    text:       qsTr("Calculate")
+                //   visible:    _showAdvanced
+                //    onClicked:  calcAmpsPerVoltDlgComponent.createObject(mainWindow, { vehicleCurrentFact: vehicleCurrent, battAmpPerVoltFact: battAmpPerVolt }).open()
+                //}
 
-                QGCLabel {
-                    Layout.columnSpan:  3
-                    Layout.fillWidth:   true
-                    font.pointSize:     ScreenTools.smallFontPointSize
-                    wrapMode:           Text.WordWrap
-                    text:               qsTr("If the current draw reported by the vehicle is largely different than the current read externally using a current meter you can adjust the amps per volt value to correct this. Click the Calculate button for help with calculating a new value.")
-                    visible:            _showAdvanced
-                }
+                //QGCLabel {
+                //    Layout.columnSpan:  3
+                //    Layout.fillWidth:   true
+                //    font.pointSize:     ScreenTools.smallFontPointSize
+                //    wrapMode:           Text.WordWrap
+                //    text:               qsTr("If the current draw reported by the vehicle is largely different than the current read externally using a current meter you can adjust the amps per volt value to correct this. Click the Calculate button for help with calculating a new value.")
+                //    visible:            _showAdvanced
+                //}
 
-                QGCLabel {
-                    text:       qsTr("Amps Offset:")
-                    visible:    _showAdvanced
-                }
+                //QGCLabel {
+                //    text:       qsTr("Amps Offset:")
+                //    visible:    _showAdvanced
+                //}
 
-                FactTextField {
-                    width:      _fieldWidth
-                    fact:       battAmpOffset
-                    visible:    _showAdvanced
-                }
+                //FactTextField {
+                //    width:      _fieldWidth
+                //    fact:       battAmpOffset
+                //    visible:    _showAdvanced
+                //}
 
-                QGCLabel {
-                    Layout.columnSpan:  3
-                    Layout.fillWidth:   true
-                    font.pointSize:     ScreenTools.smallFontPointSize
-                    wrapMode:           Text.WordWrap
-                    text:               qsTr("If the vehicle reports a high current read when there is little or no current going through it, adjust the Amps Offset. It should be equal to the voltage reported by the sensor when the current is zero.")
-                    visible:            _showAdvanced
-                }
+                //QGCLabel {
+                //    Layout.columnSpan:  3
+                //    Layout.fillWidth:   true
+                //    font.pointSize:     ScreenTools.smallFontPointSize
+                //    wrapMode:           Text.WordWrap
+                //    text:               qsTr("If the vehicle reports a high current read when there is little or no current going through it, adjust the Amps Offset. It should be equal to the voltage reported by the sensor when the current is zero.")
+                //    visible:            _showAdvanced
+                //}
 
             } // GridLayout
         } // Column

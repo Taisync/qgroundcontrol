@@ -55,12 +55,12 @@ SettingsPage {
             visible:    _appSettings.indoorPalette.visible
         }
 
-        LabelledFactComboBox {
-            label:       qsTr("Stream GCS Position")
-            fact:       _appSettings.followTarget
-            indexModel: false
-            visible:    _appSettings.followTarget.visible
-        }
+//        LabelledFactComboBox {
+//            label:       qsTr("Stream GCS Position")
+//            fact:       _appSettings.followTarget
+//            indexModel: false
+//           visible:    _appSettings.followTarget.visible
+//        }
 
         FactCheckBoxSlider {
             Layout.fillWidth: true
