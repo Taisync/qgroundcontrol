@@ -1136,7 +1136,7 @@ void Vehicle::_handleBatteryStatus(mavlink_message_t& message)
     if (!batteryMessage.isEmpty()) {
         QString batteryIdStr("%1");
         if (_batteryFactGroupListModel.count() > 1) {
-            batteryIdStr = batteryIdStr.arg(batteryStatus.id);
+            batteryIdStr = batteryIdStr.arg(batteryStatus.id + 1);
         } else {
             batteryIdStr = batteryIdStr.arg("");
         }
