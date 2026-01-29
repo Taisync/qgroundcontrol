@@ -1125,12 +1125,6 @@ void Vehicle::_handleBatteryStatus(mavlink_message_t& message)
             batteryMessage = tr("battery %1 failed");
         }
         break;
-    case MAV_BATTERY_CHARGE_STATE_UNHEALTHY:
-        if (batteryStatus.charge_state > _lowestBatteryChargeStateAnnouncedMap[batteryStatus.id]) {
-            _lowestBatteryChargeStateAnnouncedMap[batteryStatus.id] = batteryStatus.charge_state;
-            batteryMessage = tr("battery %1 unhealthy");
-        }
-        break;
     }
 
     if (!batteryMessage.isEmpty()) {

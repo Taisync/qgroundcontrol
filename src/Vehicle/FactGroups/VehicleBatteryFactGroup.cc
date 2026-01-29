@@ -88,6 +88,21 @@ void VehicleBatteryFactGroup::_handleBatteryStatus(Vehicle *vehicle, const mavli
 
     VehicleBatteryFactGroup *const group = _findOrAddBatteryGroupById(vehicle, batteryStatus.id);
 
+    // If charge state is undefined (battery offline/removed), reset all values to NaN
+    if (batteryStatus.charge_state == MAV_BATTERY_CHARGE_STATE_UNDEFINED) {
+        group->function()->setRawValue(MAV_BATTERY_FUNCTION_UNKNOWN);
+        group->type()->setRawValue(MAV_BATTERY_TYPE_UNKNOWN);
+        group->temperature()->setRawValue(qQNaN());
+        group->voltage()->setRawValue(qQNaN());
+        group->current()->setRawValue(qQNaN());
+        group->mahConsumed()->setRawValue(qQNaN());
+        group->percentRemaining()->setRawValue(qQNaN());
+        group->timeRemaining()->setRawValue(qQNaN());
+        group->chargeState()->setRawValue(MAV_BATTERY_CHARGE_STATE_UNDEFINED);
+        group->instantPower()->setRawValue(qQNaN());
+        return;
+    }
+
     double totalVoltage = qQNaN();
     for (int i = 0; i < 10; i++) {
         const double cellVoltage = ((batteryStatus.voltages[i] == UINT16_MAX)) ? qQNaN() : (static_cast<double>(batteryStatus.voltages[i]) / 1000.0);
