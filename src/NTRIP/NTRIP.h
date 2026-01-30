@@ -69,9 +69,11 @@ class NTRIPTCPLink : public QObject {
     bool _isVRSEnable = false;
     int _vrsSendRateMSecs = 3000;
 
-    int _retryCount = 0;
-    const int _maxRetries = 5;
+    int _rapidRetryCount = 0;
+    const int _maxRapidRetries = 10;           // Max consecutive rapid failures before timeout
     const int _reconnectDelayMS = 2000;
+    const int _stableConnectionThresholdMS = 5000;  // Connection must be stable this long to reset retry count
+    qint64 _lastConnectedTimestamp = 0;
 
     QTcpSocket* _socket = nullptr;
     RTCMParsing* _rtcm_parsing = nullptr;

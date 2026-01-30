@@ -202,6 +202,50 @@ Item {
         ColumnLayout {
             spacing: ScreenTools.defaultFontPixelHeight / 2
 
+            // Compute minimum flight time across all batteries
+            property string minFlightTime: {
+                if (!_activeVehicle || !_activeVehicle.batteries || _activeVehicle.batteries.count === 0)
+                    return ""
+
+                var minTime = Number.MAX_VALUE
+                var hasValidTime = false
+
+                for (var i = 0; i < _activeVehicle.batteries.count; i++) {
+                    var battery = _activeVehicle.batteries.get(i)
+                    if (battery && !isNaN(battery.timeRemaining.rawValue)) {
+                        hasValidTime = true
+                        if (battery.timeRemaining.rawValue < minTime) {
+                            minTime = battery.timeRemaining.rawValue
+                        }
+                    }
+                }
+
+                if (!hasValidTime)
+                    return ""
+
+                // Use the timeRemainingStr from the battery with minimum time
+                for (var j = 0; j < _activeVehicle.batteries.count; j++) {
+                    var batt = _activeVehicle.batteries.get(j)
+                    if (batt && batt.timeRemaining.rawValue === minTime) {
+                        return batt.timeRemainingStr.value
+                    }
+                }
+                return ""
+            }
+
+            // Flight Time section at top (independent of individual batteries)
+            SettingsGroupLayout {
+                heading:        qsTr("Flight Time")
+                contentSpacing: 0
+                showDividers:   false
+                visible:        minFlightTime !== ""
+
+                LabelledLabel {
+                    label:      qsTr("Remaining")
+                    labelText:  minFlightTime
+                }
+            }
+
             Component {
                 id: batteryValuesAvailableComponent
 
@@ -210,10 +254,7 @@ Item {
                     property bool showFunction:              functionAvailable && battery.function.rawValue != MAVLink.MAV_BATTERY_FUNCTION_ALL
                     property bool temperatureAvailable:      !isNaN(battery.temperature.rawValue)
                     property bool currentAvailable:          !isNaN(battery.current.rawValue)
-                    property bool mahConsumedAvailable:      !isNaN(battery.mahConsumed.rawValue)
-                    property bool timeRemainingAvailable:    !isNaN(battery.timeRemaining.rawValue)
                     property bool percentRemainingAvailable: !isNaN(battery.percentRemaining.rawValue)
-                    property bool chargeStateAvailable:      battery.chargeState.rawValue !== MAVLink.MAV_BATTERY_CHARGE_STATE_UNDEFINED
                 }
             }
 
@@ -235,18 +276,6 @@ Item {
                     }
 
                     LabelledLabel {
-                        label:  qsTr("Charge State")
-                        labelText:  object.chargeState.enumStringValue
-                        visible:    batteryValuesAvailable.chargeStateAvailable
-                    }
-
-                    LabelledLabel {
-                        label:      qsTr("Remaining")
-                        labelText:  object.timeRemainingStr.value
-                        visible:    batteryValuesAvailable.timeRemainingAvailable
-                    }
-
-                    LabelledLabel {
                         label:      qsTr("Remaining")
                         labelText:  object.percentRemaining.valueString + " " + object.percentRemaining.units
                         visible:    batteryValuesAvailable.percentRemainingAvailable
@@ -255,12 +284,6 @@ Item {
                     LabelledLabel {
                         label:      qsTr("Voltage")
                         labelText:  object.voltage.valueString + " " + object.voltage.units
-                    }
-
-                    LabelledLabel {
-                        label:      qsTr("Consumed")
-                        labelText:  object.mahConsumed.valueString + " " + object.mahConsumed.units
-                        visible:    batteryValuesAvailable.mahConsumedAvailable
                     }
 
                     LabelledLabel {

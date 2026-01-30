@@ -1,5 +1,6 @@
 #include "NTRIP.h"
 #include "NTRIPSettings.h"
+#include <QDateTime>
 #include "SettingsManager.h"
 #include "MultiVehicleManager.h"
 #include "QGCLoggingCategory.h"
@@ -146,7 +147,8 @@ void NTRIPTCPLink::setEnabled(bool en) {
     emit enabledChanged();
 
     if (_enabled) {
-        _retryCount = 0;
+        _rapidRetryCount = 0;
+        _lastConnectedTimestamp = 0;
         _initSocket();
     } else {
         if (_socket) {
@@ -218,6 +220,7 @@ void NTRIPTCPLink::_readBytes() {
 
             if (line.startsWith("HTTP/1.1 200")) {
                 _setConnectionStatus(NTRIPStatus::Connected);
+                _lastConnectedTimestamp = QDateTime::currentMSecsSinceEpoch();
                 if (_isVRSEnable && _vrsSendTimer) _vrsSendTimer->start();
             } else if (line.startsWith("HTTP/1.1 401")) {
                 emit error("NTRIP Unauthorized (401)");
@@ -256,8 +259,25 @@ void NTRIPTCPLink::_readBytes() {
 void NTRIPTCPLink::_retryConnection() {
     if (!_enabled) return;
 
-    if (_retryCount < _maxRetries) {
-        _retryCount++;
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+
+    if (_lastConnectedTimestamp > 0) {
+        qint64 connectionDuration = now - _lastConnectedTimestamp;
+        if (connectionDuration >= _stableConnectionThresholdMS) {
+            // Was connected for 5+ seconds - reset retry count
+            _rapidRetryCount = 0;
+        } else {
+            // Failed quickly after connecting - count toward timeout
+            _rapidRetryCount++;
+        }
+    } else {
+        // Never connected this attempt - count toward timeout
+        _rapidRetryCount++;
+    }
+
+    _lastConnectedTimestamp = 0;  // Reset for next connection attempt
+
+    if (_rapidRetryCount < _maxRapidRetries) {
         _initSocket();
     } else {
         _setConnectionStatus(NTRIPStatus::TimedOut);
