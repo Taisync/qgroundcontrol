@@ -157,6 +157,14 @@ SettingsPage {
             visible:            _showDownRangefinder.visible
             property Fact _showDownRangefinder: _flyViewSettings.showDownRangefinder
         }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Rangefinder RC Channel (0=disabled)")
+            fact:               _rangefinderRCChannel
+            visible:            _rangefinderRCChannel.visible
+            property Fact _rangefinderRCChannel: _flyViewSettings.rangefinderRCChannel
+        }
     }
 
     // SettingsGroupLayout {

@@ -1746,6 +1746,16 @@ void Vehicle::_handleRCChannels(mavlink_message_t& message)
 
     emit remoteControlRSSIChanged(channels.rssi);
     emit rcChannelsChanged(channels.chancount, pwmValues);
+
+    // Update QML-accessible RC channel values
+    QVariantList newValues;
+    for (int i = 0; i < QGCMAVLink::maxRcChannels; i++) {
+        newValues.append(pwmValues[i]);
+    }
+    if (_rcChannelValues != newValues) {
+        _rcChannelValues = newValues;
+        emit rcChannelValuesChanged();
+    }
 }
 
 bool Vehicle::sendMessageOnLinkThreadSafe(LinkInterface* link, mavlink_message_t message)

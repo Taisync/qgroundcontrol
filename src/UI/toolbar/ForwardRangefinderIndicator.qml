@@ -28,11 +28,15 @@ Item {
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _showForwardRangefinder: QGroundControl.settingsManager.flyViewSettings.showForwardRangefinder
-    property var    _distanceSensors:   _activeVehicle ? _activeVehicle.distanceSensors : null
-    property real   _distance:          _distanceSensors ? _distanceSensors.rotationNone.rawValue : NaN
-    property bool   _isActive:          !isNaN(_distance)
-    property string _distanceStr:       _distanceSensors ? _distanceSensors.rotationNone.valueString : "--.--"
-    property string _units:             _distanceSensors && _distanceSensors.rotationNone.units ? _distanceSensors.rotationNone.units : "m"
+    property var    _distanceSensors:       _activeVehicle ? _activeVehicle.distanceSensors : null
+    property real   _distance:              _distanceSensors ? _distanceSensors.rotationNone.rawValue : NaN
+    property bool   _isActive:              !isNaN(_distance)
+
+    // Unit conversion for system units
+    property var    _unitsConversion:       QGroundControl.unitsConversion
+    property real   _displayDistance:       _isActive ? _unitsConversion.metersToAppSettingsHorizontalDistanceUnits(_distance) : NaN
+    property string _displayDistanceStr:    _isActive ? _displayDistance.toFixed(1) : "--"
+    property string _units:                 _unitsConversion.appSettingsHorizontalDistanceUnitsString
 
     // Determine status color based on distance and activity
     function getStatusColor() {
@@ -63,8 +67,8 @@ Item {
                 }
 
                 LabelledLabel {
-                    label:      qsTr("Distance")
-                    labelText:  _isActive ? _distanceStr + " " + _units : qsTr("--")
+                    label:      qsTr("Distance (%1)").arg(_unitsConversion.appSettingsHorizontalDistanceUnitsString)
+                    labelText:  _isActive ? _displayDistanceStr : qsTr("--")
                 }
             }
         }
@@ -92,7 +96,7 @@ Item {
         // Distance value text
         QGCLabel {
             anchors.verticalCenter: parent.verticalCenter
-            text:                   _isActive ? _distanceStr : "--"
+            text:                   _isActive ? _displayDistanceStr : "--"
             color:                  getStatusColor()
             font.pointSize:         ScreenTools.mediumFontPointSize
         }

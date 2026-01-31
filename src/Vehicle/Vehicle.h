@@ -156,6 +156,7 @@ public:
     Q_PROPERTY(float                longitude                   READ longitude                                                      NOTIFY coordinateChanged)
     Q_PROPERTY(bool                 joystickEnabled             READ joystickEnabled            WRITE setJoystickEnabled            NOTIFY joystickEnabledChanged)
     Q_PROPERTY(int                  rcRSSI                      READ rcRSSI                                                         NOTIFY rcRSSIChanged)
+    Q_PROPERTY(QVariantList         rcChannelValues             READ rcChannelValues                                                NOTIFY rcChannelValuesChanged)
     Q_PROPERTY(bool                 px4Firmware                 READ px4Firmware                                                    NOTIFY firmwareTypeChanged)
     Q_PROPERTY(bool                 apmFirmware                 READ apmFirmware                                                    NOTIFY firmwareTypeChanged)
     Q_PROPERTY(bool                 soloFirmware                READ soloFirmware               WRITE setSoloFirmware               NOTIFY soloFirmwareChanged)
@@ -561,6 +562,7 @@ public:
     float           latitude                    () { return static_cast<float>(_coordinate.latitude()); }
     float           longitude                   () { return static_cast<float>(_coordinate.longitude()); }
     int             rcRSSI                      () const{ return _rcRSSI; }
+    QVariantList    rcChannelValues             () const { return _rcChannelValues; }
     bool            px4Firmware                 () const { return _firmwareType == MAV_AUTOPILOT_PX4; }
     bool            apmFirmware                 () const { return _firmwareType == MAV_AUTOPILOT_ARDUPILOTMEGA; }
     bool            genericFirmware             () const { return !px4Firmware() && !apmFirmware(); }
@@ -918,6 +920,7 @@ signals:
     void longitudeChanged               ();
     void currentConfigChanged           ();
     void rcRSSIChanged                  (int rcRSSI);
+    void rcChannelValuesChanged         ();
     void telemetryRRSSIChanged          (int value);
     void telemetryLRSSIChanged          (int value);
     void telemetryRXErrorsChanged       (unsigned int value);
@@ -1103,6 +1106,7 @@ private:
 
     int             _rcRSSI = 255;
     double          _rcRSSIstore = 255;
+    QVariantList    _rcChannelValues;
     bool            _flying = false;
     bool            _landing = false;
     bool            _vtolInFwdFlight = false;

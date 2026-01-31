@@ -36,4 +36,5 @@ public:
     DEFINE_SETTINGFACT(requestControlTimeout)
     DEFINE_SETTINGFACT(showForwardRangefinder)
     DEFINE_SETTINGFACT(showDownRangefinder)
+    DEFINE_SETTINGFACT(rangefinderRCChannel)
 };

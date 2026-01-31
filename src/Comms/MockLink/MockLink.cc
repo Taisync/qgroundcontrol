@@ -1655,6 +1655,14 @@ MockLink *MockLink::startAPMArduRoverMockLink(bool sendStatusText, MockConfigura
 
 void MockLink::_sendRCChannels()
 {
+    // Cycle RC channel 9 through 1100, 1500, 1900 every 10 seconds
+    _rcChannel9CycleCounter++;
+    if (_rcChannel9CycleCounter >= 10) {
+        _rcChannel9CycleCounter = 0;
+        _rcChannel9ValueIndex = (_rcChannel9ValueIndex + 1) % 3;
+    }
+    const uint16_t rcChannel9Value = _rcChannel9Values[_rcChannel9ValueIndex];
+
     mavlink_message_t msg{};
     (void) mavlink_msg_rc_channels_pack_chan(
         _vehicleSystemId,
@@ -1664,7 +1672,7 @@ void MockLink::_sendRCChannels()
         0,                     // time_boot_ms
         16,                    // chancount
         1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500,   // channel 1-8
-        1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500,   // channel 9-16
+        rcChannel9Value, 1500, 1500, 1500, 1500, 1500, 1500, 1500,   // channel 9-16
         UINT16_MAX, UINT16_MAX,
         0                      // rssi
     );

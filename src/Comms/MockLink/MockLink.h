@@ -242,6 +242,11 @@ private:
     int _sendHomePositionDelayCount = 10;               ///< No home position for 4 seconds
     int _sendGPSPositionDelayCount = 100;               ///< No gps lock for 5 seconds
 
+    // RC Channel 9 cycling for rangefinder enable/disable testing
+    int _rcChannel9CycleCounter = 0;                    ///< Counter for cycling RC channel 9
+    int _rcChannel9ValueIndex = 0;                      ///< Current index into _rcChannel9Values array
+    static constexpr uint16_t _rcChannel9Values[3] = {1100, 1500, 1900};  ///< Values to cycle through
+
     int _currentParamRequestListComponentIndex = -1;    ///< Current component index for param request list workflow, -1 for no request in progress
     int _currentParamRequestListParamIndex = -1;        ///< Current parameter index for param request list workflow
 

@@ -116,6 +116,15 @@
     "longDesc":     "When enabled, the downward rangefinder indicator will be shown in the fly view toolbar.",
     "type":         "bool",
     "default":      true
+},
+{
+    "name":         "rangefinderRCChannel",
+    "shortDesc":    "RC channel for rangefinder enable/disable",
+    "longDesc":     "RC channel used to control rangefinder enable/disable state. When the channel value is above 1500, rangefinder is shown as active. Set to 0 to disable RC channel monitoring.",
+    "type":         "uint32",
+    "min":          0,
+    "max":          18,
+    "default":      9
 }
 ]
 }

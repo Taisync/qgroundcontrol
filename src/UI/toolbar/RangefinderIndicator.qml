@@ -28,11 +28,24 @@ Item {
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _showDownRangefinder:   QGroundControl.settingsManager.flyViewSettings.showDownRangefinder
-    property var    _distanceSensors:   _activeVehicle ? _activeVehicle.distanceSensors : null
-    property real   _distance:          _distanceSensors ? _distanceSensors.rotationPitch270.rawValue : NaN
-    property bool   _isActive:          !isNaN(_distance)
-    property string _distanceStr:       _distanceSensors ? _distanceSensors.rotationPitch270.valueString : "--.--"
-    property string _units:             _distanceSensors && _distanceSensors.rotationPitch270.units ? _distanceSensors.rotationPitch270.units : "m"
+    property var    _distanceSensors:       _activeVehicle ? _activeVehicle.distanceSensors : null
+    property real   _distance:              _distanceSensors ? _distanceSensors.rotationPitch270.rawValue : NaN
+    property bool   _isActive:              !isNaN(_distance)
+
+    // RC Channel monitoring for rangefinder enable/disable state
+    property var    _rcChannelSetting:      QGroundControl.settingsManager.flyViewSettings.rangefinderRCChannel
+    property int    _rcChannelNumber:       _rcChannelSetting ? _rcChannelSetting.rawValue : 9  // 1-based channel number (0 = disabled)
+    property var    _rcChannelValues:       _activeVehicle ? _activeVehicle.rcChannelValues : []
+    property int    _rcChannelValue:        (_rcChannelNumber > 0 && _rcChannelValues.length >= _rcChannelNumber) ? _rcChannelValues[_rcChannelNumber - 1] : -1
+    property bool   _rcMonitoringEnabled:   _rcChannelNumber > 0  // RC monitoring is enabled
+    property bool   _rcDataValid:           _rcMonitoringEnabled && _rcChannelValue > 0  // Have valid RC data
+    property bool   _rcEnabled:             _rcChannelValue > 1500  // Above 1500 = enabled
+
+    // Unit conversion for system units
+    property var    _unitsConversion:       QGroundControl.unitsConversion
+    property real   _displayDistance:       _isActive ? _unitsConversion.metersToAppSettingsHorizontalDistanceUnits(_distance) : NaN
+    property string _displayDistanceStr:    _isActive ? _displayDistance.toFixed(1) : "--"
+    property string _units:                 _unitsConversion.appSettingsHorizontalDistanceUnitsString
 
     // Determine status color based on distance and activity
     function getStatusColor() {
@@ -48,6 +61,26 @@ Item {
         return qgcPal.colorGreen  // Normal operating range
     }
 
+    // Determine RC enable/disable indicator color
+    function getRCStatusColor() {
+        if (!_rcDataValid) {
+            return "transparent"      // No RC data available
+        }
+        return _rcEnabled ? qgcPal.colorGreen : qgcPal.colorGrey
+    }
+
+    // Determine combined status text
+    function getStatusText() {
+        if (!_isActive) {
+            return qsTr("No Data")
+        }
+        // TODO: Add "Error" status when rangefinder error detection is available
+        if (_rcDataValid && _rcEnabled) {
+            return qsTr("Active")
+        }
+        return qsTr("Inactive")
+    }
+
     Component {
         id: rangefinderInfoPage
 
@@ -59,12 +92,12 @@ Item {
 
                 LabelledLabel {
                     label:      qsTr("Status")
-                    labelText:  _isActive ? qsTr("Active") : qsTr("No Data")
+                    labelText:  getStatusText()
                 }
 
                 LabelledLabel {
-                    label:      qsTr("Distance")
-                    labelText:  _isActive ? _distanceStr + " " + _units : qsTr("--")
+                    label:      qsTr("Distance (%1)").arg(_unitsConversion.appSettingsHorizontalDistanceUnitsString)
+                    labelText:  _isActive ? _displayDistanceStr : qsTr("--")
                 }
             }
         }
@@ -76,24 +109,49 @@ Item {
         anchors.bottom: parent.bottom
         spacing:        ScreenTools.defaultFontPixelWidth * 0.5
 
-        // Rangefinder icon - using terrain icon to represent ground distance
-        QGCColoredImage {
-            id:                     rangefinderIcon
-            width:                  height
+        // Container for icon with RC status indicator
+        Item {
+            width:                  rangefinderIcon.width + (rcStatusDot.visible ? rcStatusDot.width * 0.5 : 0)
             anchors.top:            parent.top
             anchors.bottom:         parent.bottom
-            sourceSize.height:      height
-            source:                 "/res/terrain.svg"
-            fillMode:               Image.PreserveAspectFit
-            color:                  getStatusColor()
-            opacity:                _isActive ? 1.0 : 0.5
+
+            // Rangefinder icon - using terrain icon to represent ground distance
+            QGCColoredImage {
+                id:                     rangefinderIcon
+                width:                  height
+                anchors.top:            parent.top
+                anchors.bottom:         parent.bottom
+                sourceSize.height:      height
+                source:                 "/res/terrain.svg"
+                fillMode:               Image.PreserveAspectFit
+                color:                  (_rcDataValid && !_rcEnabled) ? qgcPal.colorGrey : getStatusColor()
+                opacity:                (_isActive && (!_rcDataValid || _rcEnabled)) ? 1.0 : 0.5
+            }
+
+            // RC status indicator dot (bottom-right corner of icon)
+            Rectangle {
+                id:                     rcStatusDot
+                width:                  ScreenTools.defaultFontPixelHeight * 0.6
+                height:                 width
+                radius:                 width / 2
+                color:                  getRCStatusColor()
+                visible:                _rcDataValid
+                anchors.bottom:         rangefinderIcon.bottom
+                anchors.right:          rangefinderIcon.right
+                anchors.bottomMargin:   -height * 0.1
+                anchors.rightMargin:    -width * 0.1
+
+                // Border for better visibility
+                border.width:           1
+                border.color:           "white"
+            }
         }
 
         // Distance value text
         QGCLabel {
             anchors.verticalCenter: parent.verticalCenter
-            text:                   _isActive ? _distanceStr : "--"
-            color:                  getStatusColor()
+            text:                   _isActive ? _displayDistanceStr : "--"
+            color:                  (_rcDataValid && !_rcEnabled) ? qgcPal.colorGrey : getStatusColor()
             font.pointSize:         ScreenTools.mediumFontPointSize
         }
     }
