@@ -160,10 +160,18 @@ SettingsPage {
 
         LabelledFactTextField {
             Layout.fillWidth:   true
-            label:              qsTr("Rangefinder RC Channel (0=disabled)")
+            label:              qsTr("Down Rangefinder RC Channel (0=off)")
             fact:               _rangefinderRCChannel
             visible:            _rangefinderRCChannel.visible
             property Fact _rangefinderRCChannel: _flyViewSettings.rangefinderRCChannel
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Forward Rangefinder RC Channel (0=off)")
+            fact:               _forwardRangefinderRCChannel
+            visible:            _forwardRangefinderRCChannel.visible
+            property Fact _forwardRangefinderRCChannel: _flyViewSettings.forwardRangefinderRCChannel
         }
     }
 
