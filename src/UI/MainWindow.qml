@@ -264,16 +264,18 @@ ApplicationWindow {
         color:          QGroundControl.globalPalette.window
     }
 
-    FlyView { 
+    FlyView {
         id:                     flyView
         anchors.fill:           parent
         utmspSendActTrigger:    _utmspSendActTrigger
+        enabled:                !toolDrawer.visible  // Disable FlyView when toolDrawer (Settings, etc.) is open
     }
 
     PlanView {
         id:             planView
         anchors.fill:   parent
         visible:        false
+        enabled:        !toolDrawer.visible  // Disable PlanView when toolDrawer (Settings, etc.) is open
     }
 
     footer: LogReplayStatusBar {
