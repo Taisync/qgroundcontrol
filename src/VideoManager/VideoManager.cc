@@ -167,6 +167,16 @@ void VideoManager::_cleanupOldVideos()
     }
 }
 
+QString VideoManager::_fixUdpUrl(const QString &udpUrl)
+{
+    bool ok;
+    int port = udpUrl.toInt(&ok);
+    if (ok) {
+        return QStringLiteral("0.0.0.0:%1").arg(udpUrl);
+    }
+    return udpUrl;
+}
+
 void VideoManager::startRecording(const QString &videoFile)
 {
     const VideoReceiver::FILE_FORMAT fileFormat = static_cast<VideoReceiver::FILE_FORMAT>(_videoSettings->recordingFormat()->rawValue().toInt());
@@ -516,9 +526,9 @@ bool VideoManager::_updateSettings(VideoReceiver *receiver)
 
     const QString source = _videoSettings->videoSource()->rawValue().toString();
     if (source == VideoSettings::videoSourceUDPH264) {
-        settingsChanged |= _updateVideoUri(receiver, QStringLiteral("udp://%1").arg(_videoSettings->udpUrl()->rawValue().toString()));
+        settingsChanged |= _updateVideoUri(receiver, QStringLiteral("udp://%1").arg(_fixUdpUrl(_videoSettings->udpUrl()->rawValue().toString())));
     } else if (source == VideoSettings::videoSourceUDPH265) {
-        settingsChanged |= _updateVideoUri(receiver, QStringLiteral("udp265://%1").arg(_videoSettings->udpUrl()->rawValue().toString()));
+        settingsChanged |= _updateVideoUri(receiver, QStringLiteral("udp265://%1").arg(_fixUdpUrl(_videoSettings->udpUrl()->rawValue().toString())));
     } else if (source == VideoSettings::videoSourceMPEGTS) {
         settingsChanged |= _updateVideoUri(receiver, QStringLiteral("mpegts://%1").arg(_videoSettings->udpUrl()->rawValue().toString()));
     } else if (source == VideoSettings::videoSourceRTSP) {
