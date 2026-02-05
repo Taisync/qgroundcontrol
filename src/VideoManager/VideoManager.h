@@ -121,6 +121,9 @@ private:
     void _startReceiver(VideoReceiver *receiver);
     void _stopReceiver(VideoReceiver *receiver);
     static void _cleanupOldVideos();
+    // fix udpUrl to full url if only has port
+    // eg: 8000 -> 0.0.0.0:8000
+    QString _fixUdpUrl(const QString& udpUrl);
 
     QList<VideoReceiver*> _videoReceivers;
 

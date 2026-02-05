@@ -64,28 +64,28 @@
     "shortDesc": "Video UDP Url",
     "longDesc":  "UDP url address and port to bind to for video stream. Example: 0.0.0.0:5600",
     "type":             "string",
-    "default":     ""
+    "default":     "0.0.0.0:5600"
 },
 {
     "name":             "udpUrl2",
     "shortDesc": "Video UDP Url",
     "longDesc":  "UDP url address and port to bind to for video stream. Example: 0.0.0.0:5601",
     "type":             "string",
-    "default":     ""
+    "default":     "0.0.0.0:5600"
 },
 {
     "name":             "udpUrl3",
     "shortDesc": "Video UDP Url",
     "longDesc":  "UDP url address and port to bind to for video stream. Example: 0.0.0.0:5602",
     "type":             "string",
-    "default":     ""
+    "default":     "0.0.0.0:5600"
 },
 {
     "name":             "udpUrl4",
     "shortDesc": "Video UDP Url",
     "longDesc":  "UDP url address and port to bind to for video stream. Example: 0.0.0.0:5603",
     "type":             "string",
-    "default":     ""
+    "default":     "0.0.0.0:5600"
 },
 {
     "name":             "tcpUrl",
