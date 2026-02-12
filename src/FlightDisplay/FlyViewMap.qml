@@ -756,7 +756,12 @@ FlightMap {
     }
 
     onMapClicked: (position) => {
-        if (!globals.guidedControllerFlyView.guidedUIVisible && 
+        // Only respond to clicks when the map is visible, enabled, and in full screen mode (not PIP)
+        if (!_root.visible || !_root.enabled || pipMode) {
+            return
+        }
+
+        if (!globals.guidedControllerFlyView.guidedUIVisible &&
             (globals.guidedControllerFlyView.showGotoLocation || globals.guidedControllerFlyView.showOrbit ||
              globals.guidedControllerFlyView.showROI || globals.guidedControllerFlyView.showSetHome ||
              globals.guidedControllerFlyView.showSetEstimatorOrigin)) {

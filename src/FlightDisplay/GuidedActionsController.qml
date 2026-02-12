@@ -137,6 +137,7 @@ Item {
     property var    _unitsConversion:           QGroundControl.unitsConversion
     property bool   _useChecklist:              QGroundControl.settingsManager.appSettings.useChecklist.rawValue && QGroundControl.corePlugin.options.preFlightChecklistUrl.toString().length
     property bool   _enforceChecklist:          _useChecklist && QGroundControl.settingsManager.appSettings.enforceChecklist.rawValue
+    property bool   _disableStartMissionSlider: QGroundControl.settingsManager.appSettings.disableStartMissionSlider.rawValue
     property bool   _checklistPassed:           _activeVehicle ? (_useChecklist ? (_enforceChecklist ? _activeVehicle.checkListState === Vehicle.CheckListPassed : true) : true) : true
     property bool   _canArm:                    _activeVehicle ? (_checklistPassed && (!_activeVehicle.healthAndArmingCheckReport.supported || _activeVehicle.healthAndArmingCheckReport.canArm)) : false
     property bool   _canTakeoff:                _activeVehicle ? (_checklistPassed && (!_activeVehicle.healthAndArmingCheckReport.supported || _activeVehicle.healthAndArmingCheckReport.canTakeoff)) : false
@@ -156,14 +157,14 @@ Item {
     property bool showChangeAlt:            _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive
     property bool showChangeLoiterRadius:   _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive && _vehicleInFwdFlight && fwdFlightGotoMapCircle.visible
     property bool showChangeSpeed:          _guidedActionsEnabled && _vehicleFlying && _activeVehicle.guidedModeSupported && _vehicleArmed && !_missionActive && _speedLimitsAvailable
-    property bool showOrbit:                _guidedActionsEnabled && _vehicleFlying && __orbitSupported && !_missionActive && _activeVehicle.homePosition.isValid && !isNaN(_activeVehicle.homePosition.altitude)
-    property bool showROI:                  _guidedActionsEnabled && _vehicleFlying && __roiSupported
+    property bool showOrbit:                false // Disabled: _guidedActionsEnabled && _vehicleFlying && __orbitSupported && !_missionActive && _activeVehicle.homePosition.isValid && !isNaN(_activeVehicle.homePosition.altitude)
+    property bool showROI:                  false // Disabled: _guidedActionsEnabled && _vehicleFlying && __roiSupported
     property bool showLandAbort:            _guidedActionsEnabled && _vehicleFlying && _fixedWingOnApproach
-    property bool showGotoLocation:         _guidedActionsEnabled && _vehicleFlying
+    property bool showGotoLocation:         false // Disabled: _guidedActionsEnabled && _vehicleFlying
     property bool showSetHome:              _guidedActionsEnabled
     property bool showGripper:              _initialConnectComplete ? _activeVehicle.hasGripper : false
-    property bool showSetEstimatorOrigin:   _activeVehicle && !(_activeVehicle.sensorsPresentBits & Vehicle.SysStatusSensorGPS)
-    property bool showChangeHeading:        _guidedActionsEnabled && _vehicleFlying
+    property bool showSetEstimatorOrigin:   false // Disabled: _activeVehicle && !(_activeVehicle.sensorsPresentBits & Vehicle.SysStatusSensorGPS)
+    property bool showChangeHeading:        false // Disabled: _guidedActionsEnabled && _vehicleFlying
 
     property string changeSpeedTitle:   _vehicleInFwdFlight ? changeAirspeedTitle : changeCruiseSpeedTitle
     property string changeSpeedMessage: _vehicleInFwdFlight ? changeAirspeedMessage : changeCruiseSpeedMessage
@@ -293,7 +294,7 @@ Item {
             console.log("showStartMission", showStartMission)
         }
         _outputState()
-        if (showStartMission) {
+        if (showStartMission && !_disableStartMissionSlider) {
             confirmAction(actionStartMission)
         }
     }
@@ -464,7 +465,7 @@ Item {
             showImmediate = false
             confirmDialog.title = startMissionTitle
             confirmDialog.message = startMissionMessage
-            confirmDialog.hideTrigger = Qt.binding(function() { return !showStartMission })
+            confirmDialog.hideTrigger = Qt.binding(function() { return !showStartMission || _disableStartMissionSlider })
             break;
         case actionMVStartMission:
             confirmDialog.title = mvStartMissionTitle

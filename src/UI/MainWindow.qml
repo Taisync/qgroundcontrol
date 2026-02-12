@@ -264,16 +264,18 @@ ApplicationWindow {
         color:          QGroundControl.globalPalette.window
     }
 
-    FlyView { 
+    FlyView {
         id:                     flyView
         anchors.fill:           parent
         utmspSendActTrigger:    _utmspSendActTrigger
+        enabled:                !toolDrawer.visible  // Disable FlyView when toolDrawer (Settings, etc.) is open
     }
 
     PlanView {
         id:             planView
         anchors.fill:   parent
         visible:        false
+        enabled:        !toolDrawer.visible  // Disable PlanView when toolDrawer (Settings, etc.) is open
     }
 
     footer: LogReplayStatusBar {
@@ -405,55 +407,6 @@ ApplicationWindow {
                             onClicked: {
                                 if (mainWindow.allowViewSwitch()) {
                                     mainWindow.finishCloseProcess()
-                                }
-                            }
-                        }
-
-                        ColumnLayout {
-                            width:                  innerLayout.width
-                            spacing:                0
-                            Layout.alignment:       Qt.AlignHCenter
-
-                            QGCLabel {
-                                id:                     versionLabel
-                                text:                   qsTr("%1 Version").arg(QGroundControl.appName)
-                                font.pointSize:         ScreenTools.smallFontPointSize
-                                wrapMode:               QGCLabel.WordWrap
-                                Layout.maximumWidth:    parent.width
-                                Layout.alignment:       Qt.AlignHCenter
-                            }
-
-                            QGCLabel {
-                                text:                   QGroundControl.qgcVersion
-                                font.pointSize:         ScreenTools.smallFontPointSize
-                                wrapMode:               QGCLabel.WrapAnywhere
-                                Layout.maximumWidth:    parent.width
-                                Layout.alignment:       Qt.AlignHCenter
-
-                                QGCMouseArea {
-                                    id:                 easterEggMouseArea
-                                    anchors.topMargin:  -versionLabel.height
-                                    anchors.fill:       parent
-
-                                    onClicked: (mouse) => {
-                                        if (mouse.modifiers & Qt.ControlModifier) {
-                                            QGroundControl.corePlugin.showTouchAreas = !QGroundControl.corePlugin.showTouchAreas
-                                            showTouchAreasNotification.open()
-                                        } else if (ScreenTools.isMobile || mouse.modifiers & Qt.ShiftModifier) {
-                                            mainWindow.closeIndicatorDrawer()
-                                            if(!QGroundControl.corePlugin.showAdvancedUI) {
-                                                advancedModeOnConfirmation.open()
-                                            } else {
-                                                advancedModeOffConfirmation.open()
-                                            }
-                                        }
-                                    }
-
-                                    // This allows you to change this on mobile
-                                    onPressAndHold: {
-                                        QGroundControl.corePlugin.showTouchAreas = !QGroundControl.corePlugin.showTouchAreas
-                                        showTouchAreasNotification.open()
-                                    }
                                 }
                             }
                         }
