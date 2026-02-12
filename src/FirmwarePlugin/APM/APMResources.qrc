@@ -7,7 +7,6 @@
         <file alias="APM-MavCmdInfoSub.json">APM-MavCmdInfoSub.json</file>
         <file alias="APM-MavCmdInfoVTOL.json">APM-MavCmdInfoVTOL.json</file>
         <file alias="APMFollowComponent.FactMetaData.json">../../AutoPilotPlugins/APM/APMFollowComponent.FactMetaData.json</file>
-        <file alias="ParameterWhitelist.json">ParameterWhitelist.json</file>
     </qresource>
     <qresource prefix="/FirmwarePlugin/APM">
         <file alias="APMParameterFactMetaData.Plane.3.8.xml">ArduPilot-Parameter-Repository/Plane-3.8/apm.pdef.xml</file>
