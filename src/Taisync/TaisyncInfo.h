@@ -11,6 +11,8 @@
 #include <QObject>
 #include <QUdpSocket>
 
+class Vehicle;
+
 class TaisyncInfo : public QObject
 {
     Q_OBJECT
@@ -35,6 +37,10 @@ public:
     Q_PROPERTY(QString antGnd       READ antGnd             NOTIFY antGndChanged)
     Q_PROPERTY(QString mcs          READ mcs                NOTIFY mcsChanged)
     Q_PROPERTY(int lockCnt          READ lockCnt            NOTIFY lockCntChanged)
+
+    Q_PROPERTY(QVariantList noiseTitles          READ noiseTitles            NOTIFY noiseChanged)
+    Q_PROPERTY(QVariantList noiseValuesA          READ noiseValuesA            NOTIFY noiseChanged)
+    Q_PROPERTY(QVariantList noiseValuesG          READ noiseValuesG            NOTIFY noiseChanged)
 
     TaisyncInfo();
     ~TaisyncInfo();
@@ -61,6 +67,11 @@ public:
     QString ant() {return _ant;}
     QString antGnd() {return _antGnd;}
     QString mcs() {return _mcs;}
+
+    QVariantList noiseTitles() {return _noiseTitles;}
+    QVariantList noiseValuesA() {return _noiseValuesA;}
+    QVariantList noiseValuesG() {return _noiseValuesG;}
+
     void savelogInfo(const QByteArray& log);
 
     Q_INVOKABLE void startLogSave();
@@ -91,6 +102,7 @@ signals:
     void antChanged();
     void antGndChanged();
     void mcsChanged();
+    void noiseChanged();
 
 private:
 
@@ -118,5 +130,15 @@ private:
     QString     _antGnd;
     QString     _mcs;
     QString     _logName;
+
+    QVariantList _noiseTitles;
+    QVariantList _noiseValuesA;
+    QVariantList _noiseValuesG;
+
+private slots:
+    void _setActiveVehicle(Vehicle *vehicle);
+private:
+    Vehicle *_vehicle = nullptr;
+
 };
 #endif

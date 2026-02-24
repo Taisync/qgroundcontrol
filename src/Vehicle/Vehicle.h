@@ -1452,5 +1452,12 @@ private:
     MAVLinkLogManager *_mavlinkLogManager = nullptr;
 
 /*---------------------------------------------------------------------------*/
+/*===========================================================================*/
+/*                         FCControl Forward                                 */
+/*===========================================================================*/
+public:
+    void forwardFCControlMessage(const mavlink_message_t &msg);
+
+/*---------------------------------------------------------------------------*/
 };
 Q_DECLARE_METATYPE(Vehicle::MavCmdResultFailureCode_t)

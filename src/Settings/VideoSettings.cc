@@ -274,3 +274,69 @@ void VideoSettings::_setForceVideoDecodeList()
     }
 #endif
 }
+
+DECLARE_SETTINGSFACT(VideoSettings, autoMultiVideos)
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl1)
+{
+    if (!_rtspUrl1Fact) {
+        _rtspUrl1Fact = _createSettingsFact(rtspUrl1Name);
+        connect(_rtspUrl1Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl1Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl2)
+{
+    if (!_rtspUrl2Fact) {
+        _rtspUrl2Fact = _createSettingsFact(rtspUrl2Name);
+        connect(_rtspUrl2Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl2Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl3)
+{
+    if (!_rtspUrl3Fact) {
+        _rtspUrl3Fact = _createSettingsFact(rtspUrl3Name);
+        connect(_rtspUrl3Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl3Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl4)
+{
+    if (!_rtspUrl4Fact) {
+        _rtspUrl4Fact = _createSettingsFact(rtspUrl4Name);
+        connect(_rtspUrl4Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl4Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl1)
+{
+    if (!_udpUrl1Fact) {
+        _udpUrl1Fact = _createSettingsFact(udpUrl1Name);
+        connect(_udpUrl1Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl1Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl2)
+{
+    if (!_udpUrl2Fact) {
+        _udpUrl2Fact = _createSettingsFact(udpUrl2Name);
+        connect(_udpUrl2Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl2Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl3)
+{
+    if (!_udpUrl3Fact) {
+        _udpUrl3Fact = _createSettingsFact(udpUrl3Name);
+        connect(_udpUrl3Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl3Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl4)
+{
+    if (!_udpUrl4Fact) {
+        _udpUrl4Fact = _createSettingsFact(udpUrl4Name);
+        connect(_udpUrl4Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl4Fact;
+}

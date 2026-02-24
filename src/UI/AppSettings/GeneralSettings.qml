@@ -157,6 +157,26 @@ SettingsPage {
                 }
             }
         }
+
+        ColumnLayout {
+            id: _offlineMetaData
+            Layout.fillWidth:   true
+            spacing:            0
+            visible:    _offlineMetaData.offlineMetaData.visible
+
+            FactCheckBoxSlider {
+                Layout.fillWidth: true
+                text:           qsTr("Offline MetaData Mode")
+                fact:       _offlineMetaData.offlineMetaData
+            }
+            QGCLabel {
+                Layout.preferredWidth:   parent.width
+                text:               _offlineMetaData.offlineMetaData.longDescription
+                font.pointSize: ScreenTools.smallFontPointSize
+                wrapMode: Text.WordWrap
+            }
+            property Fact offlineMetaData: _appSettings.offlineMetaData
+        }
     }
 
     SettingsGroupLayout {

@@ -171,6 +171,7 @@ DECLARE_SETTINGSFACT(AppSettings, loginAirLink)
 DECLARE_SETTINGSFACT(AppSettings, passAirLink)
 DECLARE_SETTINGSFACT(AppSettings, taisyncFlyViewShow)
 DECLARE_SETTINGSFACT(AppSettings, taisyncFlyDataSave)
+DECLARE_SETTINGSFACT(AppSettings, offlineMetaData)
 
 DECLARE_SETTINGSFACT_NO_FUNC(AppSettings, indoorPalette)
 {
@@ -341,6 +342,22 @@ QString AppSettings::linkLogSavePath(void)
         return dir.filePath(linkLogsDirectory);
     }
     return QString();
+}
+
+void AppSettings::setIsPilot(bool s)
+{
+    if (_isPilot != s) {
+        _isPilot = s;
+        emit isPilotChanged();
+    }
+}
+
+void AppSettings::setShowExtra(bool s)
+{
+    if (_showExtra != s) {
+        _showExtra = s;
+        emit showExtraChanged();
+    }
 }
 
 QList<int> AppSettings::firstRunPromptsIdsVariantToList(const QVariant& firstRunPromptIds)

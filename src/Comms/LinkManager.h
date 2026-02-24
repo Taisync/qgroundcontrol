@@ -73,8 +73,8 @@ public:
     QList<SharedLinkInterfacePtr> links() { return _rgLinks; }
     QStringList linkTypeStrings() const;
     bool mavlinkSupportForwardingEnabled() const { return _mavlinkSupportForwardingEnabled; }
-    bool mavlinkReceiveEnabled(void) { return _mavlinkReceiveEnabled; }
-    void setMavlinkReceiveEnabled(bool enable) { _mavlinkReceiveEnabled = enable; emit mavlinkReceiveEnabledChanged(); }
+    bool mavlinkReceiveEnabled(void);
+    void setMavlinkReceiveEnabled(bool enable);
 
     void loadLinkConfigurationList();
     void saveLinkConfigurationList();
@@ -121,6 +121,8 @@ public:
 
     static constexpr uint8_t invalidMavlinkChannel() { return std::numeric_limits<uint8_t>::max(); }
 
+    static const QString fcControlLinkName() { return _fcControlLinkName; }
+
 signals:
     void mavlinkSupportForwardingEnabledChanged();
     void mavlinkReceiveEnabledChanged();
@@ -165,6 +167,7 @@ private:
     static constexpr const char *_defaultUDPLinkName = "UDP Link (AutoConnect)";
     static constexpr const char *_mavlinkForwardingLinkName = "MAVLink Forwarding Link";
     static constexpr const char *_mavlinkForwardingSupportLinkName = "MAVLink Support Forwarding Link";
+    static constexpr const char *_fcControlLinkName = "FCControl";
 
     static constexpr int _autoconnectUpdateTimerMSecs = 1000;
 #ifdef Q_OS_WIN
@@ -206,5 +209,15 @@ private:
     QString _nmeaDeviceName;
     uint32_t _nmeaBaud = 0;
     QSerialPort *_nmeaPort = nullptr;
+
+private:
+    bool _isInBackgroundTimeout = false;
+    bool _checkIsInBackgroundTimeout(void);
+    void _resetBackgroundTimestamp(void);
+
+    quint64 _inBackgroundTimestamp = 0;
+    // mavlink data could received about 30 seconds in background
+    const quint64 _inBackgroundTimeout = 30000;
+
 #endif // QGC_NO_SERIAL_LINK
 };

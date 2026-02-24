@@ -21,6 +21,7 @@
 #include "AndroidInterface.h"
 #include "UDPLink.h"
 #endif
+#include "Vehicle.h"
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtCore/QDir>
@@ -120,12 +121,21 @@ void MAVLinkProtocol::receiveBytes(LinkInterface *link, const QByteArray &data)
         return;
     }
 
+    bool isFCControl = linkPtr->linkConfiguration()->name() == LinkManager::fcControlLinkName();
     for (const uint8_t &byte: data) {
         const uint8_t mavlinkChannel = link->mavlinkChannel();
         mavlink_message_t message{};
         mavlink_status_t status{};
 
         if (mavlink_parse_char(mavlinkChannel, byte, &message, &status) != MAVLINK_FRAMING_OK) {
+            continue;
+        }
+
+        if (isFCControl) {
+            Vehicle* activeVehicle = MultiVehicleManager::instance()->activeVehicle();
+            if (activeVehicle) {
+                activeVehicle->forwardFCControlMessage(message);
+            }
             continue;
         }
 
@@ -256,6 +266,9 @@ void MAVLinkProtocol::_forwardToAutopilot(const mavlink_message_t &message)
 
     for (const SharedLinkInterfacePtr& link: LinkManager::instance()->links()) {
         SharedLinkConfigurationPtr config = link->linkConfiguration();
+        if (config->name() == LinkManager::fcControlLinkName()) {
+            continue;
+        }
         if (!config->isForwarding()) {
             (void) link->writeBytesThreadSafe(reinterpret_cast<const char*>(buf), len);
         }
