@@ -17,6 +17,8 @@ target_sources(${CMAKE_PROJECT_NAME}
         satellite_info.h
         sensor_gnss_relative.h
         sensor_gps.h
+        NmeaMessage.cc
+        NmeaMessage.h
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core)
@@ -27,8 +29,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_
 
 CPMAddPackage(
     NAME px4-gpsdrivers
-    GITHUB_REPOSITORY PX4/PX4-GPSDrivers
-    GIT_TAG f31394a37e252e3017e64f729312bcce05ea3a90
+    GIT_REPOSITORY https://github.com/Taisync/PX4-GPSDrivers
+    GIT_TAG 47fdaa665a59d319791b6c3bf408611205ecc0ec
     SOURCE_SUBDIR src
 )
 

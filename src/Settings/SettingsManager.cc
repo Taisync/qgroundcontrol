@@ -34,6 +34,7 @@
 #ifdef QGC_VIEWER3D
 #include "Viewer3DSettings.h"
 #endif
+#include "NTRIPSettings.h"
 
 #include <QtCore/qapplicationstatic.h>
 #include <QtQml/qqml.h>
@@ -68,6 +69,7 @@ void SettingsManager::init()
     _unitsSettings = new UnitsSettings(this); // Must be first since AppSettings references it
 
     _adsbVehicleManagerSettings = new ADSBVehicleManagerSettings(this);
+    _ntripSettings = new NTRIPSettings(this);
 #ifndef QGC_NO_ARDUPILOT_DIALECT
     _apmMavlinkStreamRateSettings = new APMMavlinkStreamRateSettings(this);
 #endif
@@ -91,9 +93,11 @@ void SettingsManager::init()
 #ifdef QGC_VIEWER3D
     _viewer3DSettings = new Viewer3DSettings(this);
 #endif
+    _ntripSettings = new NTRIPSettings(this);
 }
 
 ADSBVehicleManagerSettings *SettingsManager::adsbVehicleManagerSettings() const { return _adsbVehicleManagerSettings; }
+NTRIPSettings *SettingsManager::ntripSettings() const { return _ntripSettings; }
 #ifndef QGC_NO_ARDUPILOT_DIALECT
 APMMavlinkStreamRateSettings *SettingsManager::apmMavlinkStreamRateSettings() const { return _apmMavlinkStreamRateSettings; }
 #endif
