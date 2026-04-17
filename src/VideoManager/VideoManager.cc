@@ -94,7 +94,10 @@ void VideoManager::init(QQuickWindow *window)
     _forwardVideo = _videoSettings->forwardVideo()->rawValue().toBool();
 
     // TODO: VideoSettings _configChanged/streamConfiguredChanged
-    (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
+    (void) connect(_videoSettings->videoSource(), &Fact::rawValueChanged, this, [this](){
+        _videoSourceChanged();
+        _multiVideoSourceChanged();
+    });
     (void) connect(_videoSettings->udpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->rtspUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
     (void) connect(_videoSettings->tcpUrl(), &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
@@ -103,6 +106,15 @@ void VideoManager::init(QQuickWindow *window)
     (void) connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &VideoManager::_setActiveVehicle);
 
     (void) connect(this, &VideoManager::autoStreamConfiguredChanged, this, &VideoManager::_videoSourceChanged);
+
+    (void) connect(_videoSettings->autoMultiVideos(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->multiVideoIndex(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl1(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->rtspUrl2(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl1(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+    (void) connect(_videoSettings->udpUrl2(), &Fact::rawValueChanged, this, &VideoManager::_multiVideoSourceChanged);
+
+    _multiVideoSourceChanged();
 
     static const QStringList videoStreamList = {
         "videoContent",
@@ -590,6 +602,8 @@ void VideoManager::_setActiveVehicle(Vehicle *vehicle)
             }
             // connect(receiver->videoStreamInfo(), &QGCVideoStreamInfo::infoChanged, ))
         }
+
+        _multiVideoSourceChanged();
     } else {
         setfullScreen(false);
     }
@@ -830,4 +844,46 @@ FinishVideoInitialization::~FinishVideoInitialization()
 void FinishVideoInitialization::run()
 {
     VideoManager::instance()->startVideo();
+}
+
+/*===========================================================================*/
+void VideoManager::_multiVideoSourceChanged()
+{
+    if (!_activeVehicle) return;
+    if (!_videoSettings->autoMultiVideos()->rawValue().toBool()) {
+        return;
+    }
+
+    // if using vehicle's autpStream, skip update
+    QGCCameraManager *camMgr = _activeVehicle->cameraManager();
+    if (camMgr->currentStreamInstance()) return;
+
+    const QString source = _videoSettings->videoSource()->rawValue().toString();
+    const int multiVideoIndex = _videoSettings->multiVideoIndex()->rawValue().toInt();
+    if (source == VideoSettings::videoSourceUDPH264
+        || source == VideoSettings::videoSourceUDPH265) {
+        switch (multiVideoIndex) {
+        case 1:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl1()->rawValue());
+            break;
+        case 2:
+            _videoSettings->udpUrl()->setRawValue(_videoSettings->udpUrl2()->rawValue());
+            break;
+        default:
+            return;
+        }
+    } else if (source == VideoSettings::videoSourceRTSP) {
+        switch (multiVideoIndex) {
+        case 1:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl1()->rawValue());
+            break;
+        case 2:
+            _videoSettings->rtspUrl()->setRawValue(_videoSettings->rtspUrl2()->rawValue());
+            break;
+        default:
+            return;
+        }
+    } else {
+        return;
+    }
 }

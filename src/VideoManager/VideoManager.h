@@ -64,7 +64,6 @@ public:
     Q_INVOKABLE void stopVideo();
     Q_INVOKABLE void pauseVideo(void);
     Q_INVOKABLE void resumeVideo(void);
-
     void init(QQuickWindow *rootWindow);
     void cleanup();
     bool autoStreamConfigured() const;
@@ -119,6 +118,7 @@ private:
     void _restartVideo(VideoReceiver *receiver);
     void _startReceiver(VideoReceiver *receiver);
     void _stopReceiver(VideoReceiver *receiver);
+    void _multiVideoSourceChanged();
     static void _cleanupOldVideos();
     // fix udpUrl to full url if only has port
     // eg: 8000 -> 0.0.0.0:8000

@@ -274,3 +274,38 @@ void VideoSettings::_setForceVideoDecodeList()
     }
 #endif
 }
+
+DECLARE_SETTINGSFACT(VideoSettings, autoMultiVideos)
+DECLARE_SETTINGSFACT(VideoSettings, multiVideoIndex)
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl1)
+{
+    if (!_rtspUrl1Fact) {
+        _rtspUrl1Fact = _createSettingsFact(rtspUrl1Name);
+        connect(_rtspUrl1Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl1Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl2)
+{
+    if (!_rtspUrl2Fact) {
+        _rtspUrl2Fact = _createSettingsFact(rtspUrl2Name);
+        connect(_rtspUrl2Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _rtspUrl2Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl1)
+{
+    if (!_udpUrl1Fact) {
+        _udpUrl1Fact = _createSettingsFact(udpUrl1Name);
+        connect(_udpUrl1Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl1Fact;
+}
+DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, udpUrl2)
+{
+    if (!_udpUrl2Fact) {
+        _udpUrl2Fact = _createSettingsFact(udpUrl2Name);
+        connect(_udpUrl2Fact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
+    }
+    return _udpUrl2Fact;
+}

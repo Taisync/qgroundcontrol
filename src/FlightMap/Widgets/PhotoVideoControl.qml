@@ -40,6 +40,11 @@ Rectangle {
     property bool   _photoCaptureSingleIdle:    _camera.photoCaptureStatus === MavlinkCameraControl.PHOTO_CAPTURE_IDLE
     property bool   _photoCaptureIntervalIdle:  _camera.photoCaptureStatus === MavlinkCameraControl.PHOTO_CAPTURE_INTERVAL_IDLE
     property bool   _photoCaptureIdle:          _photoCaptureSingleIdle || _photoCaptureIntervalIdle
+    property var    _videoSettings:             QGroundControl.settingsManager.videoSettings
+    property string _videoSource:               _videoSettings.videoSource.rawValue
+    property bool   _multiVideoSupported:       _videoSource === _videoSettings.rtspVideoSource
+                                                || _videoSource === _videoSettings.udp264VideoSource
+                                                || _videoSource === _videoSettings.udp265VideoSource
 
     QGCPalette { id: qgcPal; colorGroupEnabled: enabled }
 
@@ -86,6 +91,26 @@ Rectangle {
                     Layout.alignment:   Qt.AlignHCenter
                     text:               _camera.modelName
                     visible:            _cameraManager.cameras.length > 1
+                }
+
+                RowLayout {
+                    Layout.alignment:   Qt.AlignHCenter
+                    spacing:            _smallMargins
+                    visible:            _videoSettings.autoMultiVideos.rawValue && _multiVideoSupported
+
+                    Repeater {
+                        model: [1, 2]
+
+                        delegate: QGCButton {
+                            required property int modelData
+
+                            text:                   modelData.toString()
+                            checkable:              true
+                            checked:                _videoSettings.multiVideoIndex.rawValue === modelData
+                            onClicked:              _videoSettings.multiVideoIndex.rawValue = modelData
+                            Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth * 6
+                        }
+                    }
                 }
 
                 // Photo/Video Mode Selector
