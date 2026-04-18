@@ -31,6 +31,8 @@ public:
     DEFINE_SETTINGFACT(showSimpleCameraControl)
     DEFINE_SETTINGFACT(showObstacleDistanceOverlay)
     DEFINE_SETTINGFACT(updateHomePosition)
+    DEFINE_SETTINGFACT(batteryMaxVoltage)
+    DEFINE_SETTINGFACT(batteryMinVoltage)
     DEFINE_SETTINGFACT(instrumentQmlFile2)
     DEFINE_SETTINGFACT(requestControlAllowTakeover)
     DEFINE_SETTINGFACT(requestControlTimeout)

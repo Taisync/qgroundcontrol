@@ -82,6 +82,26 @@
     "default":              false
 },
 {
+    "name":             "batteryMaxVoltage",
+    "shortDesc":        "Battery maximum voltage",
+    "longDesc":         "Maximum battery voltage used by Fly View voltage display settings.",
+    "type":             "double",
+    "units":            "V",
+    "decimalPlaces":    2,
+    "min":              0,
+    "default":          0
+},
+{
+    "name":             "batteryMinVoltage",
+    "shortDesc":        "Battery minimum voltage",
+    "longDesc":         "Minimum battery voltage used by Fly View voltage display settings.",
+    "type":             "double",
+    "units":            "V",
+    "decimalPlaces":    2,
+    "min":              0,
+    "default":          0
+},
+{
     "name":         "instrumentQmlFile2",
     "shortDesc":    "Qml file for instrument panel",
     "type":         "string",

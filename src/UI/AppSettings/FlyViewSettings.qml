@@ -37,6 +37,8 @@ SettingsPage {
     property Fact   _maxGoToLocationDistance:               _flyViewSettings.maxGoToLocationDistance
     property Fact   _forwardFlightGoToLocationLoiterRad:    _flyViewSettings.forwardFlightGoToLocationLoiterRad
     property Fact   _goToLocationRequiresConfirmInGuided:   _flyViewSettings.goToLocationRequiresConfirmInGuided
+    property Fact   _batteryMaxVoltage:                     _flyViewSettings.batteryMaxVoltage
+    property Fact   _batteryMinVoltage:                     _flyViewSettings.batteryMinVoltage
     property var    _viewer3DSettings:                      _settingsManager.viewer3DSettings
     property Fact   _viewer3DEnabled:                       _viewer3DSettings.enabled
     property Fact   _viewer3DOsmFilePath:                   _viewer3DSettings.osmFilePath
@@ -127,6 +129,20 @@ SettingsPage {
             fact:               _enableTaisyncFlyDataSave
             visible:            _enableTaisyncFlyDataSave.visible
             property Fact _enableTaisyncFlyDataSave: QGroundControl.settingsManager.appSettings.taisyncFlyDataSave
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Battery Max Voltage")
+            fact:               _batteryMaxVoltage
+            visible:            fact.visible
+        }
+
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              qsTr("Battery Min Voltage")
+            fact:               _batteryMinVoltage
+            visible:            fact.visible
         }
     }
 

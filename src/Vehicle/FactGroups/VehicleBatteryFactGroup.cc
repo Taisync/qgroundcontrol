@@ -8,7 +8,9 @@
  ****************************************************************************/
 
 #include "VehicleBatteryFactGroup.h"
+#include "FlyViewSettings.h"
 #include "QmlObjectListModel.h"
+#include "SettingsManager.h"
 #include "Vehicle.h"
 
 VehicleBatteryFactGroup::VehicleBatteryFactGroup(uint8_t batteryId, QObject *parent)
@@ -115,7 +117,16 @@ void VehicleBatteryFactGroup::_handleBatteryStatus(Vehicle *vehicle, const mavli
     group->voltage()->setRawValue(totalVoltage);
     group->current()->setRawValue((batteryStatus.current_battery == -1) ? qQNaN() : (static_cast<double>(batteryStatus.current_battery) / 100.0));
     group->mahConsumed()->setRawValue((batteryStatus.current_consumed == -1) ? qQNaN() : batteryStatus.current_consumed);
-    group->percentRemaining()->setRawValue((batteryStatus.battery_remaining == -1) ? qQNaN() : batteryStatus.battery_remaining);
+    double percentRemaining = (batteryStatus.battery_remaining == -1) ? qQNaN() : batteryStatus.battery_remaining;
+    if (qIsNaN(percentRemaining) && !qIsNaN(totalVoltage)) {
+        FlyViewSettings *flyViewSettings = SettingsManager::instance()->flyViewSettings();
+        const double maxVoltage = flyViewSettings->batteryMaxVoltage()->rawValue().toDouble();
+        const double minVoltage = flyViewSettings->batteryMinVoltage()->rawValue().toDouble();
+        if ((minVoltage > 0.0) && (maxVoltage > minVoltage)) {
+            percentRemaining = qBound(0.0, ((totalVoltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0, 100.0);
+        }
+    }
+    group->percentRemaining()->setRawValue(percentRemaining);
     group->timeRemaining()->setRawValue((batteryStatus.time_remaining == 0) ? qQNaN() : batteryStatus.time_remaining);
     group->chargeState()->setRawValue(batteryStatus.charge_state);
     group->instantPower()->setRawValue(totalVoltage * group->current()->rawValue().toDouble());
