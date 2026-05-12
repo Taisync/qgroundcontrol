@@ -51,7 +51,6 @@ void VehicleGeneratorFactGroup::_handleGeneratorStatus(const mavlink_message_t &
     mavlink_generator_status_t generator{};
     mavlink_msg_generator_status_decode(&message, &generator);
 
-    status()->setRawValue((generator.status == UINT16_MAX) ? qQNaN() : generator.status);
     batteryCurrent()->setRawValue(generator.battery_current);
     loadCurrent()->setRawValue(generator.load_current);
     powerGenerated()->setRawValue(generator.power_generated);
