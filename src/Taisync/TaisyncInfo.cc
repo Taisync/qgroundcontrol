@@ -137,7 +137,7 @@ void TaisyncInfo::receiveParse(QByteArray b)
         if (SettingsManager::instance()->appSettings()->taisyncFlyViewShow()->rawValue().toBool()) {
             const auto toString = [](const QJsonValue& value) -> QString {
                 if (value.isString()) return value.toString().trimmed();
-                if (value.isDouble()) return QString::number(value.toDouble());
+                if (value.isDouble()) return QString::number(value.toDouble(), 'f', 0);
                 if (value.isBool()) return QStringLiteral("%1").arg(value.toBool() ? "true" : "false");
                 if (value.isArray()) return QJsonDocument(value.toArray()).toJson(QJsonDocument::Compact);
                 if (value.isObject()) return QJsonDocument(value.toObject()).toJson(QJsonDocument::Compact);
@@ -146,7 +146,7 @@ void TaisyncInfo::receiveParse(QByteArray b)
                 return "UNKNOWN";
             };
 
-            int slaveId = 0;
+            int slaveId = 1;
             if (_vehicle) {
                 slaveId = _vehicle->id();
             }
@@ -255,6 +255,14 @@ void TaisyncInfo::receiveParse(QByteArray b)
             if (_dataObj.contains("mcs"))
             {
                 _mcs = toString(_dataObj.value("mcs"));
+                emit mcsChanged();
+            } else {
+                QString mcsTx = _dataObj.contains("txMCS") ? toString(_dataObj.value("txMCS")) : "";
+                QString mcsRx = slaveObj.contains("rxMCS") ? toString(slaveObj.value("rxMCS")) : "";
+                QStringList list;
+                if (!mcsTx.isEmpty()) list << ("G: "+mcsTx);
+                if (!mcsRx.isEmpty()) list << ("A: "+mcsRx);
+                _mcs = list.join("\n");
                 emit mcsChanged();
             }
 
