@@ -135,12 +135,18 @@ void TaisyncInfo::receiveParse(QByteArray b)
     {
         QJsonObject _dataObj = jsonData.object();
         if (SettingsManager::instance()->appSettings()->taisyncFlyViewShow()->rawValue().toBool()) {
-            const auto stringToInt = [](const QJsonValue& value) {
-                if (value.isString()) return value.toString().toInt();
-                return value.toInt();
+            const auto toString = [](const QJsonValue& value) -> QString {
+                if (value.isString()) return value.toString().trimmed();
+                if (value.isDouble()) return QString::number(value.toDouble(), 'f', 0);
+                if (value.isBool()) return QStringLiteral("%1").arg(value.toBool() ? "true" : "false");
+                if (value.isArray()) return QJsonDocument(value.toArray()).toJson(QJsonDocument::Compact);
+                if (value.isObject()) return QJsonDocument(value.toObject()).toJson(QJsonDocument::Compact);
+                if (value.isNull()) return "NULL";
+                if (value.isUndefined()) return "UNDEFINED";
+                return "UNKNOWN";
             };
 
-            int slaveId = 0;
+            int slaveId = 1;
             if (_vehicle) {
                 slaveId = _vehicle->id();
             }
@@ -152,104 +158,111 @@ void TaisyncInfo::receiveParse(QByteArray b)
 
             if (slaveObj.contains("pass_a"))
             {
-                _airLDPCPass = stringToInt(slaveObj.value("pass_a"));
+                _airLDPCPass = toString(slaveObj.value("pass_a"));
                 emit airLDPCPassChanged();
             }
 
             if (slaveObj.contains("failed_a"))
             {
-                _airLDPCFailed = stringToInt(slaveObj.value("failed_a"));
+                _airLDPCFailed = toString(slaveObj.value("failed_a"));
                 emit airLDPCFailedChanged();
             }
 
             if (slaveObj.contains("snr_a"))
             {
-                _airSNR = stringToInt(slaveObj.value("snr_a"));
+                _airSNR = toString(slaveObj.value("snr_a"));
                 emit airSNRChanged();
             }
 
             if (slaveObj.contains("rssi1_a"))
             {
-                _airRSSI0 = stringToInt(slaveObj.value("rssi1_a"));
+                _airRSSI0 = toString(slaveObj.value("rssi1_a"));
                 emit airRSSI0Changed();
             }
 
             if (slaveObj.contains("rssi2_a"))
             {
-                _airRSSI1 = stringToInt(slaveObj.value("rssi2_a"));
+                _airRSSI1 = toString(slaveObj.value("rssi2_a"));
                 emit airRSSI1Changed();
             }
 
             if (slaveObj.contains("pass_g"))
             {
-                _gndLDPCPass = stringToInt(slaveObj.value("pass_g"));
+                _gndLDPCPass = toString(slaveObj.value("pass_g"));
                 emit gndLDPCPassChanged();
             }
 
             if (slaveObj.contains("failed_g"))
             {
-                _gndLDPCFailed = stringToInt(slaveObj.value("failed_g"));
+                _gndLDPCFailed = toString(slaveObj.value("failed_g"));
                 emit gndLDPCFailedChanged();
             }
 
             if (slaveObj.contains("snr_g"))
             {
-                _gndSNR = stringToInt(slaveObj.value("snr_g"));
+                _gndSNR = toString(slaveObj.value("snr_g"));
                 emit gndSNRChanged();
             }
 
             if (slaveObj.contains("rssi1_g"))
             {
-                _gndRSSI0 = stringToInt(slaveObj.value("rssi1_g"));
+                _gndRSSI0 = toString(slaveObj.value("rssi1_g"));
                 emit gndRSSI0Changed();
             }
 
             if (slaveObj.contains("rssi2_g"))
             {
-                _gndRSSI1 = stringToInt(slaveObj.value("rssi2_g"));
+                _gndRSSI1 = toString(slaveObj.value("rssi2_g"));
                 emit gndRSSI1Changed();
             }
 
             if (slaveObj.contains("distance"))
             {
-                _range = stringToInt(slaveObj.value("distance"));
+                _range = toString(slaveObj.value("distance"));
                 emit rangeChanged();
             }
 
             if (_dataObj.contains("ethTx"))
             {
-                _dataRate = stringToInt(_dataObj.value("ethTx"));
+                _dataRate = toString(_dataObj.value("ethTx"));
                 emit dataRateChanged();
             }
 
             // if (_dataObj.contains("lockCnt"))
             // {
-            //     _lockCnt = _dataObj.value("lockCnt").toString().toInt();
+            //     _lockCnt = toString(_dataObj.value("lockCnt"));
             //     emit lockCntChanged();
             // }
 
             if (_dataObj.contains("freq_rx"))
             {
-                int freq = stringToInt(_dataObj.value("freq_rx"));
-                _currFreq = QString::number(freq);
+                _currFreq = toString(_dataObj.value("freq_rx"));
                 emit currFreqChanged();
             }
 
             if (slaveObj.contains("ant_a"))
             {
-                _ant = slaveObj.value("ant_a").toString();
+                _ant = toString(slaveObj.value("ant_a"));
                 emit antChanged();
             }
 
             if (_dataObj.contains("ant_g"))
             {
-                _antGnd = _dataObj.value("ant_g").toString();
+                _antGnd = toString(_dataObj.value("ant_g"));
                 emit antGndChanged();
             }
 
             if (_dataObj.contains("mcs"))
             {
-                _mcs = _dataObj.value("mcs").toString();
+                _mcs = toString(_dataObj.value("mcs"));
+                emit mcsChanged();
+            } else {
+                QString mcsTx = _dataObj.contains("txMCS") ? toString(_dataObj.value("txMCS")) : "";
+                QString mcsRx = slaveObj.contains("rxMCS") ? toString(slaveObj.value("rxMCS")) : "";
+                QStringList list;
+                if (!mcsTx.isEmpty()) list << ("G: "+mcsTx);
+                if (!mcsRx.isEmpty()) list << ("A: "+mcsRx);
+                _mcs = list.join("\n");
                 emit mcsChanged();
             }
 
@@ -257,21 +270,21 @@ void TaisyncInfo::receiveParse(QByteArray b)
             if (SettingsManager::instance()->appSettings()->showExtra()) {
                 QStringList noiseTitles, noiseValuesA, noiseValuesG;
                 if (slaveObj.contains("noiseFloor_a")) {
-                    QString s = slaveObj.value("noiseFloor_a").toString().trimmed();
+                    QString s = toString(slaveObj.value("noiseFloor_a"));
                     if (!s.isEmpty()) {
                         noiseValuesA = s.split(",");
                         noiseValuesA.removeAll("");
                     }
                 }
                 if (_dataObj.contains("noiseFloor_g")) {
-                    QString s = _dataObj.value("noiseFloor_g").toString().trimmed();
+                    QString s = toString(_dataObj.value("noiseFloor_g"));
                     if (!s.isEmpty()) {
                         noiseValuesG = s.split(",");
                         noiseValuesG.removeAll("");
                     }
                 }
                 if (_dataObj.contains("freq_list")) {
-                    QString s = _dataObj.value("freq_list").toString().trimmed();
+                    QString s = toString(_dataObj.value("freq_list"));
                     if (!s.isEmpty()) {
                         noiseTitles = s.split(",");
                         noiseTitles.removeAll("");
@@ -280,13 +293,25 @@ void TaisyncInfo::receiveParse(QByteArray b)
                 _noiseTitles.clear();
                 _noiseValuesA.clear();
                 _noiseValuesG.clear();
-                for (const auto& v: noiseTitles) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+                for (const auto& v : std::as_const(noiseTitles)) {
+#else
+                for (const auto& v : qAsConst(noiseTitles)) {
+#endif
                     _noiseTitles << v;
                 }
-                for (const auto& v: noiseValuesA) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+                for (const auto& v : std::as_const(noiseValuesA)) {
+#else
+                for (const auto& v : qAsConst(noiseValuesA)) {
+#endif
                     _noiseValuesA << v;
                 }
-                for (const auto& v: noiseValuesG) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
+                for (const auto& v : std::as_const(noiseValuesG)) {
+#else
+                for (const auto& v : qAsConst(noiseValuesG)) {
+#endif
                     _noiseValuesG << v;
                 }
                 emit noiseChanged();

@@ -190,10 +190,10 @@ Item {
 
         GridLayout {
             property var _linkDatas: [
-                {"key": "airRSSI1",     "value": "-"+taisyncPro.airRSSI0 +"dBm"},
-                {"key": "gndRSSI1",     "value": "-"+taisyncPro.gndRSSI0+"dBm"},
-                {"key": "airRSSI2",     "value": "-"+taisyncPro.airRSSI1+"dBm"},
-                {"key": "gndRSSI2",     "value": "-"+taisyncPro.gndRSSI1+"dBm"},
+                {"key": "airRSSI1",     "value": (taisyncPro.airRSSI0 < 0 ? "" : "-")+taisyncPro.airRSSI0 +"dBm"},
+                {"key": "gndRSSI1",     "value": (taisyncPro.gndRSSI0 < 0 ? "" : "-")+taisyncPro.gndRSSI0+"dBm"},
+                {"key": "airRSSI2",     "value": (taisyncPro.airRSSI1 < 0 ? "" : "-")+taisyncPro.airRSSI1+"dBm"},
+                {"key": "gndRSSI2",     "value": (taisyncPro.gndRSSI1 < 0 ? "" : "-")+taisyncPro.gndRSSI1+"dBm"},
                 {"key": "airSNR",       "value": taisyncPro.airSNR + "dB"},
                 {"key": "gndSNR",       "value": taisyncPro.gndSNR + "dB"},
                 {"key": "airPass",      "value": taisyncPro.airLDPCPass},
